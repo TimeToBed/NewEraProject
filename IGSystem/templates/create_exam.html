@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>创建考试</title>
+</head>
+<body>
+    <h2>创建考试</h2>
+    <form method="POST" action="{% url 'create_exam' %}">
+        {% csrf_token %}
+        <h3 style="color: red;">{{ msg }}</h3>
+        <label for="name">考试名称:</label><br>
+        <input type="text" id="name" name="name"><br>
+        <label for="edate">考试时间:</label><br>
+        <input type="datetime-local" id="edate" name="edate"><br>
+        <label for="subject">科目:</label><br>
+        <select id="subject" name="subject">
+            <option value="语文">语文</option>
+            <option value="数学">数学</option>
+            <option value="英语">英语</option>
+            <option value="物理">物理</option>
+            <option value="化学">化学</option>
+            <option value="生物">生物</option>
+            <option value="政治">政治</option>
+            <option value="历史">历史</option>
+            <option value="地理">地理</option>
+        </select><br>
+        <input type="submit" value="创建考试">
+    </form>
+</body>
+</html>
