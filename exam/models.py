@@ -21,3 +21,54 @@ class Papers(models.Model):
 
     class Meta:
         db_table = 'papers'  # 指定数据库中的表名
+
+class Score(models.Model):
+    idsubject = models.ForeignKey('Subject', models.DO_NOTHING, db_column='idsubject')
+    idstudent = models.ForeignKey('Student', models.DO_NOTHING, db_column='idstudent')
+    score = models.IntegerField()
+    time = models.DateField()
+
+    class Meta:
+        managed = False
+        db_table = 'score'
+
+
+class Student(models.Model):
+    idstudent = models.CharField(primary_key=True, max_length=20)
+    name = models.CharField(max_length=45)
+    class_field = models.CharField(db_column='class', max_length=45)  # Field renamed because it was a Python reserved word.
+    sex = models.CharField(max_length=45)
+    age = models.IntegerField()
+    telephone = models.CharField(max_length=45)
+    father_name = models.CharField(max_length=45)
+    father_telephone = models.CharField(max_length=45)
+    mother_name = models.CharField(max_length=45)
+    mother_telephone = models.CharField(max_length=45)
+    address = models.CharField(max_length=45)
+
+    class Meta:
+        managed = False
+        db_table = 'student'
+
+
+class Subject(models.Model):
+    idsubject = models.CharField(primary_key=True, max_length=45)
+    subject_name = models.CharField(max_length=45)
+    idteacher = models.ForeignKey('Teacher', models.DO_NOTHING, db_column='idteacher')
+
+    class Meta:
+        managed = False
+        db_table = 'subject'
+
+
+class Teacher(models.Model):
+    idteacher = models.CharField(primary_key=True, max_length=45)
+    name = models.CharField(max_length=45)
+    sex = models.CharField(max_length=45)
+    age = models.IntegerField()
+    telephone = models.CharField(max_length=45)
+    address = models.CharField(max_length=45)
+
+    class Meta:
+        managed = False
+        db_table = 'teacher'
