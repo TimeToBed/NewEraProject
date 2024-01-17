@@ -27,7 +27,9 @@
    Port 443
    ```
 
-4. **克隆仓库**：使用`git clone [仓库的URL]`命令来克隆仓库到你的本地。  
+4. **克隆仓库**：验证ssh连接  
+   `ssh -T git@github.com`
+   使用`git clone [仓库的URL]`命令来克隆仓库到你的本地。  
    `git clone git@github.com:TimeToBed/NewEraProject.git`  
    进入工作区 `cd NewEraProject` （到这里一切都准备就绪了，bash会显示master标志）
 
