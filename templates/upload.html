@@ -45,7 +45,7 @@
         return cookieValue;
     }
     
-    window.onload = function() {
+    window.onload = function() {    //网页上实现动态画框功能
 
         let canvas = document.getElementById('preview');
         let ctx = canvas.getContext('2d');
@@ -109,6 +109,9 @@
                     },
                     success: function(data) {
                         console.log(data.status);  // 这就是来自Django的context
+                        console.log(data.result);   // 这是后端大模型分析的结果
+                        // 将其添加到页面的某个元素中
+                        $("#content").text(content.innerHTML+data.result); // 注意你应该在HTML中有一处设定了id为'result_container'的元素
                     }
                 });
 
@@ -178,6 +181,10 @@
     
             <div class="content" id="content">
                 这里是您的内容...,<br>
+            </div>
+
+            <div class="result" id="result_container">
+        
             </div>
         </div>
     {% else %}

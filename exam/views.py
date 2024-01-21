@@ -4,7 +4,6 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from .models import Exam, Papers  # assuming you have an Exam model
-import aiofiles 
 from django.core.files.storage import FileSystemStorage
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -19,7 +18,6 @@ from .LLM_package import *
 
 json_dir = './server/ocr'
 class OverwriteStorage(FileSystemStorage):
-
     def _save(self, name, content):
         if self.exists(name):
             os.remove(os.path.join(self.location, name))
@@ -76,7 +74,7 @@ async def test_p(p_test_problem):
     async for content in analysis_problem(p_test_problem):
         print(content, end="")
 
-from channels.layers import get_channel_layer
+# from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
 
@@ -117,8 +115,10 @@ async def rectangle(request):
         async for content in analysis_problem(result):
             context+=content
             print(content, end="")
+            
 
-        return JsonResponse({'status': 'ok', 'message': 'Data received.'})
+        # return JsonResponse({'status': 'ok', 'message': 'Data received.'})
+        return JsonResponse({'status': 'ok', 'message': 'Data received.', 'result':context}) 
     return JsonResponse({'status': 'false', 'message': 'Error.'})
     #return await HttpResponse("Hello world ! ")
 

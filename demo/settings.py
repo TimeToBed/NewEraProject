@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'exam',
-    'channels'
 ]
 
 ASGI_APPLICATION = 'demo.routing.application'
@@ -80,12 +79,12 @@ WSGI_APPLICATION = 'demo.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'imsystem',
-        'HOST': '127.0.0.1', # 数据库地址，本机 ip 地址 127.0.0.1 
+        'NAME': 'fsn',
+        'HOST': '172.18.65.233', # 数据库地址，本机 ip 地址 127.0.0.1 
         'PORT': 3306, # 端口 
         'USER': 'root',  # 数据库用户名
-        'PASSWORD': 'fsn123456', # 数据库密码
-        
+        'PASSWORD': '456123', # 数据库密码
+        'OPTIONS':{ 'charset': 'utf8mb4'}        
     }
 }
 
