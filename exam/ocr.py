@@ -38,7 +38,7 @@ def ocr_jsonsave(result, img_path, json_dir):
 def get_weights_path():
 
     # 获取当前文件所在的目录的上一层目录
-    parent_dir_path = Path(os.path.abspath(__file__)).parent.parent
+    parent_dir_path = Path(os.path.relpath(__file__)).parent.parent
     return os.path.join(parent_dir_path,'model_weights')
 
 def ocr_getresult(image_path, ocr_path):
