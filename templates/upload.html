@@ -111,7 +111,8 @@
                         console.log(data.status);  // 这就是来自Django的context
                         console.log(data.result);   // 这是后端大模型分析的结果
                         // 将其添加到页面的某个元素中
-                        $("#content").text(content.innerHTML+data.result); // 注意你应该在HTML中有一处设定了id为'result_container'的元素
+                        //$("#content").text(content.value+data.result); // 注意你应该在HTML中有一处设定了id为'result_container'的元素
+                        content.innerHTML +=data.result+ ' <br>' + '<br>'+ ' <br>' ;
                     }
                 });
 
