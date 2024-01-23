@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'demo.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'fsn',
+        'NAME': 'marking_system',
         'HOST': '172.18.65.233', # 数据库地址，本机 ip 地址 127.0.0.1 
         'PORT': 3306, # 端口 
         'USER': 'root',  # 数据库用户名
@@ -125,6 +125,7 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
+# print(BASE_DIR)
 STATIC_URL = '/static/'
 STATIC_PATH=os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS=[STATIC_PATH]
