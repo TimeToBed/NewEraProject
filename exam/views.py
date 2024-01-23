@@ -3,7 +3,7 @@ from django.http import HttpResponse
 # Create your views here.
 from django.shortcuts import render, redirect
 from django.utils import timezone
-from .models import Exam, Papers  # assuming you have an Exam model
+from .models import Exams, Papers  # assuming you have an Exam model
 from django.core.files.storage import FileSystemStorage
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -37,7 +37,7 @@ def create_exam(request):
         if name=='':
             msg='名称不能为空！'
             return render(request, 'create_exam.html', locals())
-        exam = Exam(name=name, edate=edate, subject=subject, cdate=cdate)
+        exam = Exams(name=name, edate=edate, subject=subject, cdate=cdate)
         exam.save()
         
         #return render(request,'upload.html',locals())  # redirect to exams page after saving
@@ -47,7 +47,7 @@ def create_exam(request):
 @csrf_exempt
 def upload_image(request):
     #request.encoding='utf-8'
-    exams = Exam.objects.all()
+    exams = Exams.objects.all()
     if request.method == 'POST':
         uploaded_file = request.FILES['image']
         fs = OverwriteStorage()
@@ -63,8 +63,9 @@ def upload_image(request):
         #ocr_path = os.path.join('../server/ocr', name)  # 识别结果路径
         check_result_path = os.path.join('../server/result', name)  # 评阅内容路径
         exam_id=request.POST['exam_id']
-        print('exam_id:',exam_id)
-        paper = Papers(exam_id=Exam.objects.get(id=exam_id),pic_path = pic_path,ocr_path = ocr_path, check_result_path=check_result_path)
+        print(exam_id)
+        # print('exam_id:',exam_id[-1])
+        paper = Papers(exam_id=Exams.objects.get(id=int(exam_id)),pic_path = pic_path,ocr_path = ocr_path, check_result_path=check_result_path)
         paper.save()
         return render(request, 'upload.html', locals())
     return render(request, 'upload.html', locals())
