@@ -18,10 +18,16 @@ from django.urls import path
 #from upload import views
 from django.conf.urls.static import static
 from demo import settings
-import exam.views
-from .views import home, index
+from . import views
+from django.urls import path,include
 
 urlpatterns = [
+    path('', views.home, name='home'),
+    path('index/', views.index, name='index'),
+    path('exams/', include("exams.urls")),
+]
+
+""" urlpatterns = [
     path('', home, name='home'),
     path('index/', index, name='index'),
     path('admin/', admin.site.urls),
@@ -30,4 +36,4 @@ urlpatterns = [
     path('create_exam/', exam.views.create_exam, name='create_exam'),
     path('upload/rectangle/', exam.views.rectangle, name='rectangle'),
 ]
-urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) """

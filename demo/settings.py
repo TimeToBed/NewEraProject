@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'exam',
+    'exams.apps.ExamConfig',
 ]
 
 ASGI_APPLICATION = 'demo.routing.application'
@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'demo.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'marking_system',
+        'NAME': 'IMSystem',
         'HOST': '172.18.65.233', # 数据库地址，本机 ip 地址 127.0.0.1 
         'PORT': 3306, # 端口 
         'USER': 'root',  # 数据库用户名
