@@ -9,7 +9,7 @@ class Exam(models.Model):
 
     class Meta:
         db_table = 'exams'  
-    def __str__(self):
+    def __int__(self):
         return self.id#f"{self.edate}-{self.name}-{self.subject}"
 
 class Papers(models.Model):

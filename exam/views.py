@@ -7,6 +7,7 @@ from .models import Exam, Papers  # assuming you have an Exam model
 from django.core.files.storage import FileSystemStorage
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.core import serializers
 import os
 import json
 import logging
@@ -64,7 +65,7 @@ def upload_image(request):
         check_result_path = os.path.join('../server/result', name)  # 评阅内容路径
         exam_id=request.POST['exam_id']
         print('exam_id:',exam_id)
-        paper = Papers(exam_id=Exam.objects.get(id=exam_id),pic_path = pic_path,ocr_path = ocr_path, check_result_path=check_result_path)
+        paper = Papers(exam_id=Exam.objects.get(id=int(exam_id)),pic_path = pic_path,ocr_path = ocr_path, check_result_path=check_result_path)
         paper.save()
         return render(request, 'upload.html', locals())
     return render(request, 'upload.html', locals())
@@ -127,3 +128,16 @@ async def index_fun(request):
     # async for content in analysis_problem(p_test_problem):
     #     print(content, end="")
     return HttpResponse("Hello world ! ")
+
+def test(request):
+    # 假设这里是从数据库中获取的一些数据
+    id = request.GET.get('id', default="")
+    print(id,'----------------------------------------------------------------------')
+    exams = Exam.objects.all()
+    data = []
+    for exam in exams:
+        data.append({'Name':exam.name, 'Subject':exam.subject, 'Edate':exam.edate.strftime("%Y-%m-%d %H:%M:%S")})
+    
+    # print(data)
+    
+    return JsonResponse(data, safe=False)

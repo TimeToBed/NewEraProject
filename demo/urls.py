@@ -29,5 +29,6 @@ urlpatterns = [
     #path('', upload.views.upload_image, name='upload_image'),
     path('create_exam/', exam.views.create_exam, name='create_exam'),
     path('upload/rectangle/', exam.views.rectangle, name='rectangle'),
+    path('test', exam.views.test, name='test')
 ]
 urlpatterns+=static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
