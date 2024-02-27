@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'exam',
     'corsheaders',
+    'exams.apps.ExamConfig',
 ]
 
 ASGI_APPLICATION = 'demo.routing.application'
@@ -131,6 +131,7 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
+# print(BASE_DIR)
 STATIC_URL = '/static/'
 STATIC_PATH=os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS=[STATIC_PATH]

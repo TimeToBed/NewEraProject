@@ -5,7 +5,7 @@
 </head>
 <body>
     <h2>创建考试</h2>
-    <form method="POST" action="{% url 'create_exam' %}">
+    <form method="POST" action="{% url 'exams:create_exam' %}">
         {% csrf_token %}
         <h3 style="color: red;">{{ msg }}</h3>
         <label for="name">考试名称:</label><br>
