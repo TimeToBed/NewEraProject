@@ -132,9 +132,9 @@ async def index_fun(request):
     #     print(content, end="")
     return HttpResponse("Hello world ! ")
 
-def test(request, id):
+def examlist(request, id):
     
-    print('从前端传回来的id：',id)
+    print('从前端传回来的用户id：',id)
     exams = Exams.objects.all()
     data = []
     for exam in exams:

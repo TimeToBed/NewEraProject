@@ -122,7 +122,7 @@ const routes = [
         },
       },
       {
-        path: 'markingpapers',
+        path: 'marking_papers',
         component: MarkingPapers,
         name: 'MarkingPapers',
         meta: {

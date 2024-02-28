@@ -106,14 +106,12 @@
     },
     methods: {
       handleButtonClickUpload(row) {
-        console.log('上传试卷',row) // 打印出当前行的数据
-        // 你可以在这里编写处理按钮点击的逻辑
-        
-        this.$router.push('/marking/uploadpapers');
+        console.log('上传试卷',row)
+        this.$router.push('/marking/upload_papers');
       },
       handleButtonClickMarking(row) {
-        console.log('批改试卷',row) // 打印出当前行的数据
-        // 你可以在这里编写处理按钮点击的逻辑
+        console.log('批改试卷',row)
+        this.$router.push('/marking/marking_papers');
       },
       getButtonType(ismarking) {
         return ismarking ? 'primary' : '';

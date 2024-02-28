@@ -10,5 +10,5 @@ urlpatterns = [
     path('upload/', views.upload_image, name='upload_image'),
     path('create_exam/', views.create_exam, name='create_exam'), #create_exam/
     path('upload/rectangle/', views.rectangle, name='rectangle'),
-    path('test/<str:id>/', views.test)
+    path('examlist/<str:id>/', views.examlist)
 ]
