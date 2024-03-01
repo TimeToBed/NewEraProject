@@ -135,7 +135,7 @@ async def index_fun(request):
 def examlist(request, id):
     
     print('从前端传回来的用户id：',id)
-    exams = Exams.objects.filter(teacher_id=id)
+    exams = Exams.objects.filter(teacher_id=2)
     data = []
     for exam in exams:
         markingable=False #判断能否批改
