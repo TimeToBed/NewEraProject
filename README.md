@@ -59,11 +59,37 @@
 
 5. **推送解决冲突后的代码**：使用`git push`命令把解决冲突后的代码推送到远程仓库。
 
+## 安装环境
+python版本要求≥3.8
+
+1. **安装Django**
+   <pre>pip install django==3.2 -i https://pypi.douban.com/simple</pre>
+2. **安装paddleocr**
+   <pre>pip install paddlepaddle-gpu -i https://mirror.baidu.com/pypi/simple
+   pip install paddleocr -i https://mirror.baidu.com/pypi/simple</pre>
+3. **安装LLM SDK**
+   <pre>pip install ./erniebot
+   pip install ./erniebot-agent</pre>
+4. **安装Vue环境和项目（前端开发需要安装）**
+   ##### 安装nodejs
+   <pre>conda install -c conda-forge nodejs</pre>
+   ##### 查看是否安装成功
+   <pre>node -v</pre>
+   ##### 安装 vue-cli
+   <pre>npm install -g @vue/cli</pre>
+   ##### vue是否完全安装
+   <pre>vue --version</pre>
+   ##### 安装项目
+   在front目录下执行`npm install`命令
+
+## 项目运行
+
+1. **运行后端项目**：在项目根目录下执行`python manage.py runserver`命令，打开浏览器访问http://127.0.0.1:8000/即可访问项目。
+2. **运行前端项目**：在front目录下执行`npm run serve`命令，打开浏览器访问http://localhost:3000/即可访问项目。
+
 ## 最后
 姐妹们记住，良好的沟通是预防和解决冲突的关键。如果能在修改代码之前与协作者讨论并告知他们你打算做什么，很多冲突都可以避免。
 
 好的，姐妹们！
 
 太牛了姐妹们！
-
-加油干姐妹们
