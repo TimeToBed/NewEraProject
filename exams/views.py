@@ -3,7 +3,7 @@ from django.http import HttpResponse
 # Create your views here.
 from django.shortcuts import render, redirect
 from django.utils import timezone
-from .models import Exams, Papers  # assuming you have an Exam model
+from .models import *  # assuming you have an Exam model
 from django.core.files.storage import FileSystemStorage
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
@@ -152,3 +152,22 @@ def examlist(request, user_id):
                      'exam_date':exam.edate.strftime("%Y-%m-%d %H:%M:%S"),
                      'markingable': markingable})
     return JsonResponse(data, safe=False)
+
+
+def paperlist(request, exam_id):
+    
+    print('从前端传回来的考试exam_id：',exam_id)
+    # papers = Papers.objects.filter(exam_id=exam_id)
+    papers = Papers.objects.filter(exam_id=exam_id)
+    data = []
+    for paper in papers:
+        data.append({'state':paper.state,
+                     'pages':paper.pages, 
+                     'student_id':paper.student_id,
+                     'student_name':paper.student.user_name,
+                    })
+    
+    # print(data)
+    
+    return JsonResponse(data, safe=False)
+

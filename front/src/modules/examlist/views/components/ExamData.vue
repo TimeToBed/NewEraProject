@@ -112,7 +112,7 @@
       handleButtonClickMarking(row) {
         console.log('批改试卷',row)
         //this.$router.push({ path: '/marking/marking_papers', query: { id: row.exam_id } });
-        this.$router.push({ path: '/paperlist', query: { id: row.exam_id } });
+        this.$router.push({ path: '/paperlist', query: { exam_id: row.exam_id } });
       },
       getButtonType(markingable) {
         return markingable ? 'primary' : '';

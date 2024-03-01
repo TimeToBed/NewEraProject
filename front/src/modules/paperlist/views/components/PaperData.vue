@@ -6,44 +6,58 @@
       :class="`is-${theme}`" 
       :cell-style="{ textAlign: 'center' }"
       :header-cell-style="{ textAlign: 'center' }">
-        <el-table-column label="考试名称" min-width="200" >
+        <el-table-column label="考试学号" min-width="200" >
           <template #default="scope">
             <div class="px-4 cursor-auto">
-              <span class="text-0.8125 font-normal">{{ scope.row.exam_name }}</span>
+              <span class="text-0.8125 font-normal">{{ scope.row.student_id }}</span>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="考试时间" min-width="150">
+        <el-table-column label="考试姓名" min-width="150">
           <template #default="scope">
             <div class="px-4 cursor-auto">
-              <span class="text-0.8125 font-normal">{{ scope.row.exam_date }}</span>
+              <span class="text-0.8125 font-normal">{{ scope.row.student_name }}</span>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="科目" min-width="150">
+        <el-table-column label="页数" min-width="150">
           <template #default="scope">
-            <div class="px-4 flex items-center">
-              <span class="ml-2 pb-0.5 text-0.875 font-normal">{{ scope.row.subject }}</span>
+            <div class="px-4 cursor-auto">
+              <span class="text-0.8125 font-normal">{{ scope.row.pages }}</span>
             </div>
           </template>
         </el-table-column>
         
-        <el-table-column min-width="100">
+        <el-table-column label="状态" min-width="167">
           <template #default="scope">
-            <el-button  type="primary" size="large" @click="handleButtonClickUpload(scope.row)">上传试卷</el-button>
+            <div class="px-4 cursor-auto flex items-center">
+              <i
+                class="w-2 h-2 rounded-full ml-14"
+                aria-hidden="true"
+                :class="[
+                  scope.row.state == 2
+                    ? 'bg-info'
+                    : scope.row.state == 0
+                    ? 'bg-danger'
+                    : scope.row.state == 1
+                    ? 'bg-warning'
+                    : 'bg-success',
+                ]"
+              ></i>
+              <!-- <span class="ml-2 pb-0.5 text-0.875 font-normal">{{ scope.row.state }}</span> -->
+              <span class="ml-4 pb-0.5 text-0.875 font-normal"
+              v-if="scope.row.state==0">未批改</span>
+              <span class="ml-4 pb-0.5 text-0.875 font-normal"
+              v-if="scope.row.state==1">批改中</span>
+              <span class="ml-4 pb-0.5 text-0.875 font-normal"
+              v-if="scope.row.state==2">批改完</span>
+            </div>
           </template>
         </el-table-column>
 
         <el-table-column min-width="100">
           <template #default="scope">
-            <el-button
-              :type="getButtonType(scope.row.ismarking)"
-              :class="getButtonClass(scope.row.ismarking)"
-              :disabled="isButtonDisabled(scope.row.ismarking)"
-              size="large" 
-              @click="handleButtonClickMarking(scope.row)">
-              批改试卷
-            </el-button>
+            <el-button  type="primary" size="large" @click="handleButtonClickMarking(scope.row)">批改试卷</el-button>
           </template>
         </el-table-column>
 
@@ -83,12 +97,12 @@
     </div>
   </template>
   <script lang="ts">
-  import { defineComponent } from 'vue'
+  import { defineComponent, ref } from 'vue'
   import { DotsVerticalIcon } from '@heroicons/vue/outline'
   
   export default defineComponent({
     
-    name: 'ExamData',
+    name: 'PaperData',
     components: {
       DotsVerticalIcon,
     },
@@ -105,24 +119,24 @@
       },
     },
     methods: {
-      handleButtonClickUpload(row) {
-        console.log('上传试卷',row)
-        this.$router.push('/marking/upload_papers');
-      },
       handleButtonClickMarking(row) {
         console.log('批改试卷',row)
         this.$router.push('/marking/marking_papers');
       },
-      getButtonType(ismarking) {
-        return ismarking ? 'primary' : '';
-      },
-      getButtonClass(ismarking) {
-        return ismarking ? '' : 'el-button--secondary';
-      },
-      isButtonDisabled(ismarking) {
-        return !ismarking;
-      }
     },
+    setup () {
+      const theme = ref([
+        { status: 'on schedule', color: '#11CDEF' },
+        { status: 'delayed', color: '#F5365C' },
+        { status: 'pending', color: '#FB6340' },
+      ])
+      const customColorMethod = (status: string) => {
+        return theme.value.find((el: any) => el.status == status)?.color ?? '#2DCE89'
+      }
+      return {
+        customColorMethod,
+      }
+    }
   })
   </script>
   
