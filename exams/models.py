@@ -47,7 +47,6 @@ class Students(models.Model):
 
     class Meta:
         db_table = 'Students'
-    
     def __str__(self):
         return self.user_name
 
