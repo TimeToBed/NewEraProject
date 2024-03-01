@@ -132,10 +132,10 @@ async def index_fun(request):
     #     print(content, end="")
     return HttpResponse("Hello world ! ")
 
-def examlist(request, id):
+def examlist(request, user_id):
     
-    print('从前端传回来的用户id：',id)
-    exams = Exams.objects.filter(teacher_id=2)
+    print('从前端传回来的用户id：',user_id)
+    exams = Exams.objects.filter(teacher_id=user_id)
     data = []
     for exam in exams:
         markingable=False #判断能否批改
@@ -149,8 +149,7 @@ def examlist(request, id):
                      'exam_name':exam.exam_name, 
                      'subject':exam.subject,
                      'markingable': markingable, 
-                     'exam_date':exam.edate.strftime("%Y-%m-%d %H:%M:%S"),
-                     'markingable': markingable})
+                     'exam_date':exam.edate.strftime("%Y-%m-%d %H:%M:%S")})
     
     # print(data)
     
