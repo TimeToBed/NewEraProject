@@ -132,22 +132,23 @@ async def index_fun(request):
     #     print(content, end="")
     return HttpResponse("Hello world ! ")
 
-def examlist(request, id):
+def examlist(request, user_id):
     
-    print('从前端传回来的用户id：',id)
-    exams = Exams.objects.all()
+    print('从前端传回来的用户id：',user_id)
+    exams = Exams.objects.filter(teacher_id=user_id)
     data = []
     for exam in exams:
         markingable=False #判断能否批改
         """
         判断能不能批改，通过看是否上传了试卷
         """
-        data.append({'id':exam.id,
+        papers = Papers.objects.filter(exam_id=exam.id)
+        if papers:
+            markingable=True           
+        data.append({'exam_id':exam.id,
                      'exam_name':exam.exam_name, 
                      'subject':exam.subject,
                      'markingable': markingable, 
-                     'exam_date':exam.edate.strftime("%Y-%m-%d %H:%M:%S")})
-    
-    # print(data)
-    
+                     'exam_date':exam.edate.strftime("%Y-%m-%d %H:%M:%S"),
+                     'markingable': markingable})
     return JsonResponse(data, safe=False)
