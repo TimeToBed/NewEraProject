@@ -71,10 +71,12 @@ python版本要求≥3.8
    <pre>pip install ./erniebot
    pip install ./erniebot-agent</pre>
 4. **安装Vue环境和项目（前端开发需要安装）**
-   ##### 安装nodejs
+   ##### 安装nodejs（在项目环境中）
    <pre>conda install -c conda-forge nodejs</pre>
    ##### 查看是否安装成功
    <pre>node -v</pre>
+   ##### 更换 nmp 源
+   <pre>npm config set registry https://registry.npmmirror.com</pre>
    ##### 安装 vue-cli
    <pre>npm install -g @vue/cli</pre>
    ##### vue是否完全安装
