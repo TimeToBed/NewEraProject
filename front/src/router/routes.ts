@@ -43,6 +43,7 @@ const PaperList = () => import('modules/paperlist/views/index.vue')
 const CreateExam = () => import('modules/create_exam/views/index.vue')
 const UploadPapers = () => import('modules/uploadpapers/views/index.vue')
 const MarkingPapers = () => import('modules/markingpapers/views/index.vue')
+const MarkingPaper = () => import('modules/markingpaper/views/index.vue')
 
 const ComponentLayout = () => import('components/ComponentLayout/index.vue')
 const ExamLayout = () => import('components/ExamLayout/index.vue')
@@ -127,7 +128,7 @@ const routes = [
       },
       {
         path: 'marking_papers',
-        component: ExamList, //MarkingPapers,
+        component: MarkingPapers,
         name: 'MarkingPapers',
         meta: {
           title: '批改试卷',
@@ -337,6 +338,14 @@ const routes = [
     path: '/paperlist',
     component: PaperList,
     name: 'PaperList',
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/marking_paper',
+    component: MarkingPaper,
+    name: 'MarkingPaper',
     meta: {
       requiresAuth: true,
     },

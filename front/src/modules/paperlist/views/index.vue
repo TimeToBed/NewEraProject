@@ -27,6 +27,7 @@ interface User {
   name: string
 }
 interface Paper {
+  paper_id: number,
   state: number,
   pages: number,
   student_id: string,

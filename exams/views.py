@@ -202,7 +202,8 @@ def paperlist(request, exam_id):
     papers = Papers.objects.filter(exam_id=exam_id)
     data = []
     for paper in papers:
-        data.append({'state':paper.state,
+        data.append({'paper_id':paper.id,
+                     'state':paper.state,
                      'pages':paper.pages, 
                      'student_id':paper.student_id,
                      'student_name':paper.student.user_name,
