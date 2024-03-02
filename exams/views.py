@@ -27,23 +27,46 @@ class OverwriteStorage(FileSystemStorage):
     def get_available_name(self, name, max_length=None):
         return name
 
+@csrf_exempt
 def create_exam(request):
     if request.method == 'POST':
-        name = request.POST['name']
-        edate = request.POST['edate'].replace('T',' ')
-        subject = request.POST['subject']
-        cdate = timezone.now()
-        print(edate)
-        print(cdate)
+        data = json.loads(request.body.decode('utf-8'))
+        print(data)
+        name = data['examname']
+        edate = data['time'].replace('T',' ')
+        subject = data['subject']
+        cdate = timezone.now()  # 在setting中
+        teacher_id = data['teacher_id']
+        # paper = data['paper']
+        # result = data['result']
         if name=='':
             msg='名称不能为空！'
-            return render(request, 'create_exam.html', locals())
-        exam = Exams(name=name, edate=edate, subject=subject, cdate=cdate)
+            return JsonResponse({'msg':msg})
+        # ssh = paramiko.SSHClient()
+        # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        # try:
+        #     ssh.connect('172.18.65.233', username='fsn', password='fsn', port=10099)
+        #     print("连接成功")
+        # except paramiko.AuthenticationException:
+        #     print("认证失败")
+        #     return 'SSH Authentication failed'
+        # except paramiko.SSHException as e:
+        #     print("连接错误：", str(e))
+        #     return 'SSH connection error'
+        # sftp = ssh.open_sftp()
+        # remote_path = os.path.join("/hdd/workspace_fsn/", name)
+        # try:
+        #     sftp.putfo(paper, remote_path)
+        # except Exception as e:
+        #     # 这里处理文件传输过程中可能出现的错误
+        #     print("文件传输错误：", str(e))
+        #     return 'File transfer error'
+
+        # sftp.close()
+        exam = Exams(exam_name=name, edate=edate, subject=subject, cdate=cdate, teacher_id=teacher_id)
         exam.save()
-        
-        #return render(request,'upload.html',locals())  # redirect to exams page after saving
-        return redirect('/upload/')
-    return render(request, 'create_exam.html')
+    
+    return JsonResponse({'msg':'success'})
 
 @csrf_exempt
 def upload_image(request):
