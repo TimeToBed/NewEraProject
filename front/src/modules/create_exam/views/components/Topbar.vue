@@ -50,8 +50,8 @@ export default defineComponent({
       examname: '',
       subject: '',
       time: '',
-      paper: Object,
-      result: Object,
+      paper: null,
+      result: null,
       teacher_id: 1
     })
     // 从全局中获取 axios
@@ -61,8 +61,25 @@ export default defineComponent({
     const submitExam = async () => {
       console.log(typeof(examInfo.paper));
       console.log('提交考试');
+      let formData = new FormData();
+
+      // Append the other parts of examInfo
+      formData.append('examname', examInfo.examname);
+      formData.append('subject', examInfo.subject);
+      formData.append('time', examInfo.time);
+      formData.append('teacher_id', examInfo.teacher_id.toString());
+
+      // Append the files
+      if(examInfo.paper){
+        console.log(examInfo.paper);
+        formData.append('paper', examInfo.paper['raw']);
+      }
+      if(examInfo.result){
+        formData.append('result', examInfo.result['raw']);
+      }
+      
       // 通过axios发送一个POST请求到您的后端
-      const response = await axios.post('exams/create_exam/', examInfo);
+      const response = await axios.post('exams/create_exam/', formData);
       console.log(response.data);
     }
 

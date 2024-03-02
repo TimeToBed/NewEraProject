@@ -20,7 +20,7 @@
               <el-form-item label="上传答案(可选)">
                 <el-upload class="w-full" action="#" :auto-upload="false" 
                 @change="handleResultChange">
-                  <el-input placeholder="答案.word" class="input-upload" >
+                  <el-input placeholder="答案.word" class="input-upload">
                     <template #append>浏览</template>
                   </el-input>
                 </el-upload>
@@ -52,32 +52,28 @@ export default defineComponent({
       result: props.examInfo.result,
     })
 
-    const uploadedPaper = ref([])
-    const uploadedResult = ref([])
-
-    const handlePaperChange = (uploadedPaper: any) => {
-      userForm.paper = uploadedPaper.raw
+    const handlePaperChange = (file: any) => {
+      userForm.paper = file;
+      console.log(userForm.paper)
       console.log('得到试卷文件')
     }
     
-    const handleResultChange = (uploadedResult: any) => {
-      userForm.result = uploadedResult.raw
+    const handleResultChange = (file: any) => {
+      userForm.result = file;
       console.log('得到答案文件')
     }
 
     const nextForm = () => {
       Object.assign(props.examInfo, userForm)
       emit('continue')
-      console.log(userForm)
     }
 
     const lastForm = () => {
       emit('back')
-      console.log(userForm)
     }
 
     return {
-      userForm, uploadedPaper, uploadedResult, nextForm, lastForm, handlePaperChange, handleResultChange
+      userForm, nextForm, lastForm, handlePaperChange, handleResultChange
     }
   },
 })

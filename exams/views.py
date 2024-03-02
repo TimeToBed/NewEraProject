@@ -16,6 +16,8 @@ from asgiref.sync import sync_to_async
 from .ocr import ocr_getresult, ocr_jsonsave
 logger = logging.getLogger(__name__)
 from .LLM_package import *
+import paramiko
+from datetime import datetime
 
 json_dir = './server/ocr'
 class OverwriteStorage(FileSystemStorage):
@@ -30,40 +32,56 @@ class OverwriteStorage(FileSystemStorage):
 @csrf_exempt
 def create_exam(request):
     if request.method == 'POST':
-        data = json.loads(request.body.decode('utf-8'))
-        print(data)
-        name = data['examname']
-        edate = data['time'].replace('T',' ')
-        subject = data['subject']
-        cdate = timezone.now()  # 在setting中
-        teacher_id = data['teacher_id']
-        # paper = data['paper']
-        # result = data['result']
-        if name=='':
+        exam_name = request.POST.get('examname')
+        subject = request.POST.get('subject')
+        edate = request.POST.get('time')
+        cdate = timezone.now()
+        teacher_id = request.POST.get('teacher_id') 
+        paper = request.FILES.get('paper')
+        result = request.FILES.get('result')
+
+        if exam_name=='':
             msg='名称不能为空！'
             return JsonResponse({'msg':msg})
-        # ssh = paramiko.SSHClient()
-        # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        # try:
-        #     ssh.connect('172.18.65.233', username='fsn', password='fsn', port=10099)
-        #     print("连接成功")
-        # except paramiko.AuthenticationException:
-        #     print("认证失败")
-        #     return 'SSH Authentication failed'
-        # except paramiko.SSHException as e:
-        #     print("连接错误：", str(e))
-        #     return 'SSH connection error'
-        # sftp = ssh.open_sftp()
-        # remote_path = os.path.join("/hdd/workspace_fsn/", name)
-        # try:
-        #     sftp.putfo(paper, remote_path)
-        # except Exception as e:
-        #     # 这里处理文件传输过程中可能出现的错误
-        #     print("文件传输错误：", str(e))
-        #     return 'File transfer error'
+        
+        # 转化edate的格式
+        edate = edate.rsplit(' ', 1)[0]
+        edate = datetime.strptime(edate, '%a %b %d %Y %H:%M:%S %Z%z')
+                
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        try:
+            ssh.connect('172.18.65.233', username='fsn', password='fsn', port=10099)
+            print("连接成功")
+        except paramiko.AuthenticationException:
+            print("认证失败")
+            return 'SSH Authentication failed'
+        except paramiko.SSHException as e:
+            print("连接错误：", str(e))
+            return 'SSH connection error'
+        sftp = ssh.open_sftp()
+        # 考试卷在服务器的路径
+        paper_name = exam_name + '_paper.doc'
+        remote_paper_path = os.path.join("/hdd/workspace_fsn/", paper_name)
+        # 答案在服务器的路径
+        if result:
+            result_name = exam_name + '_answer.doc'
+            remote_result_path = os.path.join("/hdd/workspace_fsn/", result_name)
+        else:
+            remote_result_path=None
 
-        # sftp.close()
-        exam = Exams(exam_name=name, edate=edate, subject=subject, cdate=cdate, teacher_id=teacher_id)
+        try:
+            sftp.putfo(paper, remote_paper_path)
+            if result:
+                sftp.putfo(result, remote_result_path)
+            print("上传成功")
+        except Exception as e:
+            # 这里处理文件传输过程中可能出现的错误
+            print("文件传输错误：", str(e))
+            return 'File transfer error'
+
+        sftp.close()
+        exam = Exams(exam_name=exam_name, edate=edate, subject=subject, cdate=cdate, teacher_id=teacher_id, paper_identity_path=remote_paper_path, paper_answer_path=remote_result_path)
         exam.save()
     
     return JsonResponse({'msg':'success'})
