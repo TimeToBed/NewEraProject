@@ -1,15 +1,23 @@
 <template>
-    <h3>Create Exam</h3>
+  <Topbar />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
 
+import Topbar from './components/Topbar.vue'
+
 export default defineComponent({
   name: 'CreateExam',
-  setup() {
-    console.log('create exam html')
+  components:{
+    Topbar,
+  },
+  data() {
+    return {
+    };
+  },
+
+  methods: {
   }
 })
 </script>
-  
