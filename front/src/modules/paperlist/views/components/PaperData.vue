@@ -6,14 +6,14 @@
       :class="`is-${theme}`" 
       :cell-style="{ textAlign: 'center' }"
       :header-cell-style="{ textAlign: 'center' }">
-        <el-table-column label="考试学号" min-width="200" >
+        <el-table-column label="考生学号" min-width="200" >
           <template #default="scope">
             <div class="px-4 cursor-auto">
               <span class="text-0.8125 font-normal">{{ scope.row.student_id }}</span>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="考试姓名" min-width="150">
+        <el-table-column label="考生姓名" min-width="150">
           <template #default="scope">
             <div class="px-4 cursor-auto">
               <span class="text-0.8125 font-normal">{{ scope.row.student_name }}</span>
