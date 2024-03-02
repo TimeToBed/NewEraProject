@@ -77,11 +77,11 @@
       <el-tree :data="data" :props="defaultProps" :default-expanded-keys="[3]" node-key="id"></el-tree>
       <br />
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">取 消</el-button>
-        <input class="upload-demo" placeholder="上传试卷文件" type="file" @change="handleFolderUpload" webkitdirectory directory multiple>
-        <!-- <el-upload class="upload-demo" action="handleFolderUpload" :file-list="fileList">
-          <el-button size="small" type="primary">点击上传</el-button>
-        </el-upload> -->
+        <div class="upload-actions">
+          <input class="upload-demo" placeholder="上传试卷文件" type="file" @change="handleFolderUpload" webkitdirectory
+            directory multiple>
+          <el-button @click="dialogVisible = false">取 消</el-button>
+        </div>
         <div v-if="filesTree">
           <pre>{{ filesTree }}</pre>
         </div>
@@ -206,5 +206,75 @@ export default defineComponent({
 .header-cell {
   text-align: center;
   font-weight: bold;
+}
+
+.upload-actions {
+  display: flex;
+  /* 启用Flexbox布局 */
+  align-items: center;
+  /* 垂直居中对齐子元素 */
+  justify-content: space-between;
+  /* 子元素之间保持平均间距 */
+  gap: 10px;
+  /* 设置子元素之间的间距 */
+  width: 80%;
+  margin: 0 10%;
+}
+.upload-demo, .el-button {
+  flex: 1; /* 使两个元素各自占据一半的空间 */
+  text-align: center; /* 若需要，可调整文本对齐方式 */
+}
+
+
+.upload-demo {
+  flex-grow: 1;
+  /* <input>元素会占据剩余空间 */
+  height: 2.6875rem;
+  background-color: #409eff;
+  border: 1px solid #409eff;
+  border-radius: 4px;
+  padding: 7px 15px;
+  font-size: .875rem;
+  line-height: 1.5;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  --tw-text-opacity: 1;
+  color: #333;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+  cursor: pointer;
+  box-sizing: border-box;
+  --tw-border-opacity: 1;
+  --tw-bg-opacity: 1;
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 100ms;
+}
+
+.upload-demo:hover {
+  background-color: rgb(102, 177, 255);
+
+  /* 鼠标悬停时的背景颜色 */
+
+}
+
+.cancel-demo {
+  flex-grow: 1;
+  /* <input>元素会占据剩余空间 */
+  height: 2.6875rem;
+  border-width: 1px;
+  --tw-border-opacity: 1;
+  border-color: rgb(23 43 77 / var(--tw-border-opacity));
+  --tw-bg-opacity: 1;
+  background-color: rgb(23 43 77 / var(--tw-bg-opacity));
+  font-size: .875rem;
+  line-height: 1.5;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 100ms;
+  flex-basis: 0;
 }
 </style>
