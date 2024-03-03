@@ -12,7 +12,7 @@
       </div>
       
       <div class="p-4 items-center justify-center h-full">
-        <div class="mt-6">
+        <div class="mt-1">
           <div class="flex flex-wrap">
             <div class="lg:flex-8 lg:max-w-2/3 w-full lg:mb-0 lg:pr-3.5 mb-6">
               <Paper />

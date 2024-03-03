@@ -42,7 +42,6 @@
 
 <script lang="ts">
 
-import { isEmpty } from 'lodash'
 import { defineComponent, reactive, ref, watch } from 'vue'
 
 export default defineComponent({
@@ -84,7 +83,7 @@ export default defineComponent({
     },{ deep: true });
 
     const nextForm = () => {
-      if (!isEmptyExamname.value && !isEmptySubject.value && !isEmptyTime.value) {
+      if (userForm.examname && userForm.subject && userForm.time) {
         Object.assign(props.examInfo, userForm)
         emit('continue')
         console.log(userForm)
