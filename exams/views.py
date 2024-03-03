@@ -16,6 +16,9 @@ from asgiref.sync import sync_to_async
 from .ocr import ocr_getresult, ocr_jsonsave
 logger = logging.getLogger(__name__)
 from .LLM_package import *
+import paramiko
+from datetime import datetime
+from demo import settings
 
 json_dir = './server/ocr'
 class OverwriteStorage(FileSystemStorage):
@@ -27,23 +30,62 @@ class OverwriteStorage(FileSystemStorage):
     def get_available_name(self, name, max_length=None):
         return name
 
+@csrf_exempt
 def create_exam(request):
     if request.method == 'POST':
-        name = request.POST['name']
-        edate = request.POST['edate'].replace('T',' ')
-        subject = request.POST['subject']
+        exam_name = request.POST.get('examname')
+        subject = request.POST.get('subject')
+        edate = request.POST.get('time')
         cdate = timezone.now()
-        print(edate)
-        print(cdate)
-        if name=='':
+        teacher_id = request.POST.get('teacher_id') 
+        paper = request.FILES.get('paper')
+        result = request.FILES.get('result')
+
+        if exam_name=='':
             msg='名称不能为空！'
-            return render(request, 'create_exam.html', locals())
-        exam = Exams(name=name, edate=edate, subject=subject, cdate=cdate)
-        exam.save()
+            return JsonResponse({'msg':msg})
         
-        #return render(request,'upload.html',locals())  # redirect to exams page after saving
-        return redirect('/upload/')
-    return render(request, 'create_exam.html')
+        # 转化edate的格式
+        edate = edate.rsplit(' ', 1)[0]
+        edate = datetime.strptime(edate, '%a %b %d %Y %H:%M:%S %Z%z')
+                
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        try:
+            ssh.connect(hostname=settings.Remote_HOST, username=settings.Remote_user, password=settings.Remote_password, port=settings.Remote_PORT)
+            print("连接成功")
+        except paramiko.AuthenticationException:
+            print("认证失败")
+            return 'SSH Authentication failed'
+        except paramiko.SSHException as e:
+            print("连接错误：", str(e))
+            return 'SSH connection error'
+        sftp = ssh.open_sftp()
+        # 考试卷在服务器的路径
+        paper_name = exam_name + '_paper.doc'
+        remote_paper_path = os.path.join(settings.Remote_path, paper_name)
+        # 答案在服务器的路径
+        if result:
+            result_name = exam_name + '_answer.doc'
+            remote_result_path = os.path.join(settings.Remote_path, result_name)
+        else:
+            remote_result_path=None
+
+        try:
+            sftp.putfo(paper, remote_paper_path)
+            if result:
+                sftp.putfo(result, remote_result_path)
+            print("上传成功")
+        except Exception as e:
+            # 这里处理文件传输过程中可能出现的错误
+            print("文件传输错误：", str(e))
+            return 'File transfer error'
+
+        sftp.close()
+        exam = Exams(exam_name=exam_name, edate=edate, subject=subject, cdate=cdate, teacher_id=teacher_id, paper_identity_path=remote_paper_path, paper_answer_path=remote_result_path)
+        exam.save()
+    
+    return JsonResponse({'msg':'success'})
 
 @csrf_exempt
 def upload_image(request):
@@ -145,14 +187,12 @@ def examlist(request, user_id):
         papers = Papers.objects.filter(exam_id=exam.id)
         if papers:
             markingable=True           
-        data.append({'id':exam.id,
+        data.append({'exam_id':exam.id,
                      'exam_name':exam.exam_name, 
                      'subject':exam.subject,
                      'markingable': markingable, 
-                     'exam_date':exam.edate.strftime("%Y-%m-%d %H:%M:%S")})
-    
-    # print(data)
-    
+                     'exam_date':exam.edate.strftime("%Y-%m-%d %H:%M:%S"),
+                     'markingable': markingable})
     return JsonResponse(data, safe=False)
 
 
@@ -160,7 +200,7 @@ def paperlist(request, exam_id):
     
     print('从前端传回来的考试exam_id：',exam_id)
     # papers = Papers.objects.filter(exam_id=exam_id)
-    papers = Papers.objects.all()
+    papers = Papers.objects.filter(exam_id=exam_id)
     data = []
     for paper in papers:
         data.append({'state':paper.state,
@@ -172,4 +212,3 @@ def paperlist(request, exam_id):
     # print(data)
     
     return JsonResponse(data, safe=False)
-

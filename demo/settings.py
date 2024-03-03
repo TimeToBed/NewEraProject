@@ -146,3 +146,8 @@ MEDIA_ROOT=os.path.join(BASE_DIR, 'media')
 
 CSRF_COOKIE_NAME = 'csrftoken'
 
+Remote_HOST = '172.18.65.233'
+Remote_user = 'fsn'
+Remote_password = 'fsn'
+Remote_PORT = 10099
+Remote_path = '/hdd/workspace_fsn'
