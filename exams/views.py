@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 from .LLM_package import *
 import paramiko
 from datetime import datetime
+from demo import settings
 
 json_dir = './server/ocr'
 class OverwriteStorage(FileSystemStorage):
@@ -51,7 +52,7 @@ def create_exam(request):
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
-            ssh.connect('172.18.65.233', username='fsn', password='fsn', port=10099)
+            ssh.connect(hostname=settings.Remote_HOST, username=settings.Remote_user, password=settings.Remote_password, port=settings.Remote_PORT)
             print("连接成功")
         except paramiko.AuthenticationException:
             print("认证失败")
@@ -62,11 +63,11 @@ def create_exam(request):
         sftp = ssh.open_sftp()
         # 考试卷在服务器的路径
         paper_name = exam_name + '_paper.doc'
-        remote_paper_path = os.path.join("/hdd/workspace_fsn/", paper_name)
+        remote_paper_path = os.path.join(settings.Remote_path, paper_name)
         # 答案在服务器的路径
         if result:
             result_name = exam_name + '_answer.doc'
-            remote_result_path = os.path.join("/hdd/workspace_fsn/", result_name)
+            remote_result_path = os.path.join(settings.Remote_path, result_name)
         else:
             remote_result_path=None
 
