@@ -213,4 +213,3 @@ def paperlist(request, exam_id):
     # print(data)
     
     return JsonResponse(data, safe=False)
-
