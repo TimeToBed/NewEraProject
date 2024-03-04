@@ -5,7 +5,8 @@
       style="width: 100%" 
       :class="`is-${theme}`" 
       :cell-style="{ textAlign: 'center' }"
-      :header-cell-style="{ textAlign: 'center' }">
+      :header-cell-style="{ textAlign: 'center' }"
+      >
         <el-table-column label="序号" min-width="60" >
           <template #default="scope">
             <div class="px-4 cursor-auto">

@@ -120,7 +120,6 @@ export default defineComponent({
       handlehSizeChange,
       handlehCurrentChange,
       queryTableData,
-
     }
   }
 })

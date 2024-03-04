@@ -8,7 +8,7 @@ import { defineComponent } from 'vue'
 import Topbar from './components/Topbar.vue'
 
 export default defineComponent({
-  name: 'CreateExam',
+  name: 'MarkingPaper',
   components:{
     Topbar,
   },
