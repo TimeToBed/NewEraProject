@@ -5,15 +5,7 @@
       style="width: 100%" 
       :class="`is-${theme}`" 
       :cell-style="{ textAlign: 'center' }"
-      :header-cell-style="{ textAlign: 'center' }"
-      >
-        <el-table-column label="序号" min-width="60" >
-          <template #default="scope">
-            <div class="px-4 cursor-auto">
-              <span class="text-0.8125 font-normal">{{ scope.row.index }}</span>
-            </div>
-          </template>
-        </el-table-column>
+      :header-cell-style="{ textAlign: 'center' }">
         <el-table-column label="考试名称" min-width="200" >
           <template #default="scope">
             <div class="px-4 cursor-auto">
@@ -28,21 +20,21 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="科目" min-width="120">
+        <el-table-column label="科目" min-width="150">
           <template #default="scope">
-            <div class="px-4 cursor-auto">
-              <span class="text-0.875 font-normal">{{ scope.row.subject }}</span>
+            <div class="px-4 flex items-center">
+              <span class="ml-2 pb-0.5 text-0.875 font-normal">{{ scope.row.subject }}</span>
             </div>
           </template>
         </el-table-column>
         
-        <el-table-column min-width="80">
+        <el-table-column min-width="100">
           <template #default="scope">
             <el-button  type="primary" size="large" @click="handleButtonClickUpload(scope.row)">上传试卷</el-button>
           </template>
         </el-table-column>
 
-        <el-table-column min-width="80">
+        <el-table-column min-width="100">
           <template #default="scope">
             <el-button
               :type="getButtonType(scope.row.markingable)"

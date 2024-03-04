@@ -83,6 +83,8 @@ python版本要求≥3.8
    <pre>vue --version</pre>
    ##### 安装项目
    在front目录下执行`npm install`命令
+   ##### 安装跨域库
+   <pre>pip install django-cors-headers</pre>
 
 ## 项目运行
 

@@ -6,7 +6,14 @@
       :class="`is-${theme}`" 
       :cell-style="{ textAlign: 'center' }"
       :header-cell-style="{ textAlign: 'center' }">
-        <el-table-column label="考生学号" min-width="200" >
+        <el-table-column label="序号" min-width="60" >
+          <template #default="scope">
+            <div class="px-4 cursor-auto">
+              <span class="text-0.8125 font-normal">{{ scope.row.index }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="考生学号" min-width="100" >
           <template #default="scope">
             <div class="px-4 cursor-auto">
               <span class="text-0.8125 font-normal">{{ scope.row.student_id }}</span>
@@ -121,7 +128,7 @@
     methods: {
       handleButtonClickMarking(row) {
         console.log('批改试卷',row)
-        this.$router.push('/marking/marking_papers');
+        this.$router.push({ path: '/marking_paper', query: { paper_id: row.paper_id } });
       },
     },
     setup () {
