@@ -179,6 +179,7 @@ def examlist(request, user_id):
     print('从前端传回来的用户id：',user_id)
     exams = Exams.objects.filter(teacher_id=user_id)
     data = []
+    cnt=1
     for exam in exams:
         markingable=False #判断能否批改
         """
@@ -187,12 +188,14 @@ def examlist(request, user_id):
         papers = Papers.objects.filter(exam_id=exam.id)
         if papers:
             markingable=True           
-        data.append({'exam_id':exam.id,
+        data.append({'index':cnt,
+                     'exam_id':exam.id,
                      'exam_name':exam.exam_name, 
                      'subject':exam.subject,
                      'markingable': markingable, 
                      'exam_date':exam.edate.strftime("%Y-%m-%d %H:%M:%S"),
                      'markingable': markingable})
+        cnt+=1
     return JsonResponse(data, safe=False)
 
 
@@ -202,14 +205,16 @@ def paperlist(request, exam_id):
     # papers = Papers.objects.filter(exam_id=exam_id)
     papers = Papers.objects.filter(exam_id=exam_id)
     data = []
+    cnt=1
     for paper in papers:
-        data.append({'paper_id':paper.id,
+        data.append({'index': cnt,
+                     'paper_id':paper.id,
                      'state':paper.state,
                      'pages':paper.pages, 
                      'student_id':paper.student_id,
                      'student_name':paper.student.user_name,
                     })
-    
+    cnt+=1
     # print(data)
     
     return JsonResponse(data, safe=False)

@@ -1,7 +1,7 @@
 <template>
   <div class="w-full">
     <div class="flex justify-end mb-0">
-      <el-pagination background layout="prev, pager, next" :total="30" />
+      <el-pagination background layout="total, sizes, prev, pager, next, jumperprev, pager, next" :total="30" />
     </div>
   </div>
 </template>
