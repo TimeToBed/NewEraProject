@@ -1,9 +1,11 @@
 <template>
   <div class="w-full block mx-auto h-auto py-2">
     <div class="flex flex-wrap flex-col bg-white shadow mb-7 mx-auto rounded-md">
-      <div class="py-5 px-6 border-b border-primary-white">
-        <h3 class="cursor-auto">试 卷 列 表</h3>
-      </div>
+      <ul class="py-5 px-6 border-b border-primary-white flex list-none justify-between flex-grow">
+
+        <li><h3 class="cursor-auto">试 卷 列 表</h3></li>
+        <li><el-button  type="primary"  size="samll" @click="handleButtonClickOCRPreprocess()">预处理</el-button></li>
+      </ul>
       <div class="block overflow-x-auto w-full">
         <PaperData :tableData="state.paper" />
       </div>
@@ -67,6 +69,21 @@ export default defineComponent({
       Total: 0,
       tableData:[],
     })
+
+    const route = useRoute()
+    // 获取 exam_id
+    const exam_id = route.query.exam_id
+    const handleButtonClickOCRPreprocess = async () => {
+      console.log('OCR预处理 received id is: ', exam_id);
+      try {
+      
+        const response = await axios.get(`exams/llm_preprocess/${exam_id}/`);
+        console.log(response);
+      } catch (error) {
+        console.error("Error during HTTP request:", error);
+      }
+    }
+
      //查询当前页显示的表格数据
      function queryTableData() {
       let length=0
@@ -107,8 +124,8 @@ export default defineComponent({
     }
     onMounted(async() => {
       try {
-        const route = useRoute();
-        const exam_id= route.query.exam_id
+        // const route = useRoute();
+        // const exam_id= route.query.exam_id
         const response = await axios.get(`/exams/paperlist/${exam_id}/`);
         // //const response = await axios.get('exams/test/');
         state.paper = response.data;
@@ -124,6 +141,7 @@ export default defineComponent({
       handlehSizeChange,
       handlehCurrentChange,
       queryTableData,
+      handleButtonClickOCRPreprocess,
     }
   }
 })

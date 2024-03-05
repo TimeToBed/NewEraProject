@@ -213,8 +213,20 @@ def paperlist(request, exam_id):
                      'pages':paper.pages, 
                      'student_id':paper.student_id,
                      'student_name':paper.student.user_name,
+                     'ocr_preprocess':1,      #这里先假设为1，待修改
                     })
     cnt+=1
     # print(data)
     
     return JsonResponse(data, safe=False)
+
+def ocr_preprocess(request, exam_id):
+    print('OCR预处理 从前端传回来的考试exam_id：',exam_id)
+
+    return HttpResponse("收到")
+
+
+def LLM_preprocess(request, exam_id):
+    print('LLM预处理 从前端传回来的考试exam_id：',exam_id)
+
+    return HttpResponse("收到")

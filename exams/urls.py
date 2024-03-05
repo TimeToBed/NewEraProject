@@ -11,5 +11,7 @@ urlpatterns = [
     path('create_exam/', views.create_exam, name='create_exam'), #create_exam/
     path('upload/rectangle/', views.rectangle, name='rectangle'),
     path('examlist/<str:user_id>/', views.examlist),
-    path('paperlist/<str:exam_id>/', views.paperlist)
+    path('paperlist/<str:exam_id>/', views.paperlist),
+    path('ocr_preprocess/<str:exam_id>/', views.ocr_preprocess),
+    path('llm_preprocess/<str:exam_id>/', views.LLM_preprocess),
 ]
