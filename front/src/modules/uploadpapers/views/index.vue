@@ -60,32 +60,12 @@ export default defineComponent({
     // 使用ref创建响应式数据
     const filesTree = ref(null);
 
-    // 定义处理文件上传的方法
-    const handleFolderUpload = (event) => {
-      const files = event.target.files;
-      let structure = {};
-
-      for (let i = 0; i < files.length; i++) {
-        const path = files[i].webkitRelativePath;
-        let parts = path.split('/');
-        parts.reduce((acc, current, index) => {
-          if (!acc[current]) {
-            acc[current] = index === parts.length - 1 ? files[i] : {};
-          }
-          return acc[current];
-        }, structure);
-      }
-
-      filesTree.value = JSON.stringify(structure, null, 2);
-    };
-
     // 控制台打印，证明setup()函数被调用
     console.log('create exam html');
 
     // 返回组件的响应式数据和方法
     return {
       filesTree,
-      handleFolderUpload,
       state
     };
   }

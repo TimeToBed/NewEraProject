@@ -10,6 +10,7 @@
         </template>
       </el-table-column>
       <el-table-column label="考试时间" min-width="150">
+
         <template #default="scope">
           <div class="px-4 cursor-auto">
             <span class="text-0.8125 font-normal">{{ scope.row.exam_date }}</span>
@@ -17,25 +18,18 @@
         </template>
       </el-table-column>
       <el-table-column label="科目" min-width="150">
+
         <template #default="scope">
-          <div class="px-4 flex items-center">
+          <div class="px-4 flex items-center justify-center">
             <span class="ml-2 pb-0.5 text-0.875 font-normal">{{ scope.row.subject }}</span>
           </div>
         </template>
       </el-table-column>
 
       <el-table-column min-width="100">
+
         <template #default="scope">
           <el-button type="primary" size="large" @click="handleButtonClickUpload(scope.row)">上传试卷</el-button>
-        </template>
-      </el-table-column>
-
-      <el-table-column min-width="100">
-        <template #default="scope">
-          <el-button :type="getButtonType(scope.row.ismarking)" :class="getButtonClass(scope.row.ismarking)"
-            :disabled="isButtonDisabled(scope.row.ismarking)" size="large" @click="handleButtonClickMarking(scope.row)">
-            批改试卷
-          </el-button>
         </template>
       </el-table-column>
 
@@ -47,6 +41,7 @@
                 <DotsVerticalIcon class="cursor-pointer h-5 w-5 text-[#ced4da] font-extrabold" />
               </div>
             </el-button>
+
             <template #dropdown>
               <el-dropdown-menu class="my-0.5">
                 <el-dropdown-item class="mx-0 hover:bg-secondary text-zinc-800">
@@ -93,6 +88,7 @@
 <script>
 import { defineComponent, ref } from 'vue'
 import { DotsVerticalIcon } from '@heroicons/vue/outline'
+import axios from 'axios';
 
 export default defineComponent({
 
@@ -197,11 +193,24 @@ export default defineComponent({
       }
 
       this.filesTree = JSON.stringify(structure, null, 2);
+      postPaperData('test')
     },
-  }
+    postPaperData(e) {
+      dataToSend = {
+        id:123123
+      }
+      axios.post('http://127.0.0.2:5000/api/data', dataToSend)
+        .then(response => {
+          console.log('响应数据：', response.data);
+        })
+        .catch(error => {
+          console.error('请求错误：', error);
+        });
+    }
+  },
 })
 </script>
-  
+
 <style scoped>
 .header-cell {
   text-align: center;
@@ -220,9 +229,13 @@ export default defineComponent({
   width: 80%;
   margin: 0 10%;
 }
-.upload-demo, .el-button {
-  flex: 1; /* 使两个元素各自占据一半的空间 */
-  text-align: center; /* 若需要，可调整文本对齐方式 */
+
+.upload-demo,
+.el-button {
+  flex: 1;
+  /* 使两个元素各自占据一半的空间 */
+  text-align: center;
+  /* 若需要，可调整文本对齐方式 */
 }
 
 
