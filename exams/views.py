@@ -19,10 +19,11 @@ from .LLM_package import *
 import paramiko
 from datetime import datetime
 from demo import settings
-from docx2pdf import convert
 from django.db.models import Max
 import posixpath
-
+import stat
+import json
+                
 json_dir = './server/ocr'
 class OverwriteStorage(FileSystemStorage):
     def _save(self, name, content):
@@ -104,11 +105,12 @@ def create_exam(request):
             return 'File transfer error'
 
         sftp.close()
+        ssh.close()
         exam = Exams(exam_name=exam_name, edate=edate, subject=subject, cdate=cdate, teacher_id=teacher_id, paper_identity_path=remote_paper_path, paper_answer_path=remote_result_path)
         exam.save()
     
-    return JsonResponse({'msg':'success'})
-
+    return JsonResponse({'msg':'success'})               
+                
 @csrf_exempt
 def upload_image(request):
     #request.encoding='utf-8'
@@ -185,7 +187,12 @@ def upload_package(request):
             paper = Papers.objects.get(exam_id=int(exam_id))
             paper.pic_path = students_dir
             paper.save()
+        
+        sftp.close()
+        ssh.close()
+        
         return JsonResponse({'msg':'success'})
+    
 async def test_p(p_test_problem):
     #可以直接将这两行代码放入指定位置，进行流式异步传输
     async for content in analysis_problem(p_test_problem):
@@ -292,12 +299,65 @@ def paperlist(request, exam_id):
     return JsonResponse(data, safe=False)
 def ocr_preprocess(request, exam_id):
     print('OCR预处理 从前端传回来的考试exam_id：',exam_id)
+    path = posixpath.join(settings.Remote_path, exam_id, 'student_papers')
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        ssh.connect(hostname=settings.Remote_HOST, username=settings.Remote_user, password=settings.Remote_password, port=settings.Remote_PORT)
+        print("连接成功")
+    except paramiko.AuthenticationException:
+        print("认证失败")
+        return 'SSH Authentication failed'
+    except paramiko.SSHException as e:
+        print("连接错误：", str(e))
+        return 'SSH connection error'
+    sftp = ssh.open_sftp()
+    ocr_path = posixpath.join(settings.Remote_path, exam_id, 'ocr_result')
+    try:
+        # 尝试切换到指定的目录
+        sftp.chdir(ocr_path)
+    except FileNotFoundError:
+        # 如果切换目录失败，说明目录不存在，我们在此创建目录
+        print('create')
+        sftp.mkdir(ocr_path)
+                
+    entries = sftp.listdir(path)
 
+    for entry in entries:
+        entry_path = posixpath.join(path, entry)
+        # 如果这是一个文件夹
+        if stat.S_ISDIR(sftp.stat(entry_path).st_mode):
+            lenth = len(sftp.listdir(entry_path))
+            i = 1
+            while(i <= lenth):
+                file = str(i) + '.jpg'
+                file_path = posixpath.join(entry_path, file)
+                print(file_path)
+                # 如果条目是一个文件，将它添加到文件列表
+                if not stat.S_ISDIR(sftp.stat(file_path).st_mode):
+                    print(f'file_path:{file_path}')
+                    ocr_result = ocr_getresult(sftp, file_path)
+                    txt_path = posixpath.join(ocr_path, str(entry) + '.txt')
+                    for idx in range(len(ocr_result)):
+                        res = ocr_result[idx]
+                        for line in res:
+                            coords, contents, confidence = line[0], line[1][0], line[1][1]
+                            with sftp.open(txt_path, 'ab') as f:
+                                f.write(contents.encode('utf-8'))
+                                f.write('\n'.encode('utf-8'))
+                i += 1
+            paper = Papers.objects.get(exam_id=exam_id, student_id=entry)
+            paper.ocr_path = txt_path
+            paper.save()
+    
+    sftp.close()
+    ssh.close()
+    
     return HttpResponse("收到")
 
 
 def LLM_preprocess(request, exam_id):
-    print('LLM预处理 从前端传回来的考试exam_id：',exam_id)
+    print('OCR预处理 从前端传回来的考试exam_id：',exam_id)
 
     return HttpResponse("收到")
 
