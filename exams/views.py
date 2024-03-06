@@ -258,12 +258,8 @@ def paperlist(request, exam_id):
     data = []
     cnt=1
     for paper in papers:
-<<<<<<< HEAD
-        data.append({'paper_id':paper.id,
-=======
         data.append({'index': cnt,
                      'paper_id':paper.id,
->>>>>>> bb3c465846e7b44ede7422b392dca189e77d52b5
                      'state':paper.state,
                      'pages':paper.pages, 
                      'student_id':paper.student_id,
@@ -274,9 +270,6 @@ def paperlist(request, exam_id):
     # print(data)
     
     return JsonResponse(data, safe=False)
-<<<<<<< HEAD
-=======
-
 def ocr_preprocess(request, exam_id):
     print('OCR预处理 从前端传回来的考试exam_id：',exam_id)
 
@@ -287,4 +280,4 @@ def LLM_preprocess(request, exam_id):
     print('LLM预处理 从前端传回来的考试exam_id：',exam_id)
 
     return HttpResponse("收到")
->>>>>>> bb3c465846e7b44ede7422b392dca189e77d52b5
+
