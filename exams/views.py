@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 from .LLM_package import *
 import paramiko
 from datetime import datetime
-from demo import settings
+import base64
 
 json_dir = './server/ocr'
 class OverwriteStorage(FileSystemStorage):
@@ -52,7 +52,7 @@ def create_exam(request):
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
-            ssh.connect(hostname=settings.Remote_HOST, username=settings.Remote_user, password=settings.Remote_password, port=settings.Remote_PORT)
+            ssh.connect('172.18.65.233', username='fsn', password='fsn', port=10099)
             print("连接成功")
         except paramiko.AuthenticationException:
             print("认证失败")
@@ -63,11 +63,11 @@ def create_exam(request):
         sftp = ssh.open_sftp()
         # 考试卷在服务器的路径
         paper_name = exam_name + '_paper.doc'
-        remote_paper_path = os.path.join(settings.Remote_path, paper_name)
+        remote_paper_path = os.path.join("/hdd/workspace_fsn/", paper_name)
         # 答案在服务器的路径
         if result:
             result_name = exam_name + '_answer.doc'
-            remote_result_path = os.path.join(settings.Remote_path, result_name)
+            remote_result_path = os.path.join("/hdd/workspace_fsn/", result_name)
         else:
             remote_result_path=None
 
@@ -86,6 +86,37 @@ def create_exam(request):
         exam.save()
     
     return JsonResponse({'msg':'success'})
+
+def show_picture(request):
+
+    # 在这里设置你的SSH详细信息
+    hostname = "172.18.65.233"
+    port = 10099
+    username = "fsn"
+    password = "fsn"
+    """
+    这里的remote_file_path应该是每个学生的那个文件夹，然后后面接着遍历，得到最终的file，这里最好图片名是按照页码名来命名
+    """
+    remote_file_path = "/hdd/workspace_fsn/城市.png"
+    print(remote_file_path)
+
+    # 使用 Paramiko SSH 客户端连接到 remote server
+    client = paramiko.SSHClient()
+    client.load_system_host_keys()
+    client.set_missing_host_key_policy(paramiko.WarningPolicy)
+    client.connect(hostname, port=port, username=username, password=password)
+
+    # 使用 SSH 客户端的 open_sftp 函数打开 SFTP 会话
+    sftp_client = client.open_sftp()
+
+    # 使用 SFTP 会话获取文件
+    with sftp_client.open(remote_file_path, 'rb') as remote_file:
+        image_data = base64.b64encode(remote_file.read()).decode('utf-8')
+
+    sftp_client.close()
+    client.close()
+
+    return render(request, 'display.html', {'image_data': image_data})
 
 @csrf_exempt
 def upload_image(request):
@@ -176,7 +207,7 @@ async def index_fun(request):
 
 def examlist(request, user_id):
     
-    print('从前端传回来的用户id：',user_id)
+    # print('从前端传回来的用户id：',user_id)
     exams = Exams.objects.filter(teacher_id=user_id)
     data = []
     for exam in exams:
@@ -198,7 +229,7 @@ def examlist(request, user_id):
 
 def paperlist(request, exam_id):
     
-    print('从前端传回来的考试exam_id：',exam_id)
+    # print('从前端传回来的考试exam_id：',exam_id)
     # papers = Papers.objects.filter(exam_id=exam_id)
     papers = Papers.objects.filter(exam_id=exam_id)
     data = []

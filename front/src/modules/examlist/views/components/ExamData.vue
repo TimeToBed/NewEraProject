@@ -37,9 +37,9 @@
         <el-table-column min-width="100">
           <template #default="scope">
             <el-button
-              :type="getButtonType(scope.row.ismarking)"
-              :class="getButtonClass(scope.row.ismarking)"
-              :disabled="isButtonDisabled(scope.row.ismarking)"
+              :type="getButtonType(scope.row.markingable)"
+              :class="getButtonClass(scope.row.markingable)"
+              :disabled="isButtonDisabled(scope.row.markingable)"
               size="large" 
               @click="handleButtonClickMarking(scope.row)">
               批改试卷
@@ -111,16 +111,17 @@
       },
       handleButtonClickMarking(row) {
         console.log('批改试卷',row)
-        this.$router.push('/marking/marking_papers');
+        //this.$router.push({ path: '/marking/marking_papers', query: { id: row.exam_id } });
+        this.$router.push({ path: '/paperlist', query: { exam_id: row.exam_id } });
       },
-      getButtonType(ismarking) {
-        return ismarking ? 'primary' : '';
+      getButtonType(markingable) {
+        return markingable ? 'primary' : '';
       },
-      getButtonClass(ismarking) {
-        return ismarking ? '' : 'el-button--secondary';
+      getButtonClass(markingable) {
+        return markingable ? '' : 'el-button--secondary';
       },
-      isButtonDisabled(ismarking) {
-        return !ismarking;
+      isButtonDisabled(markingable) {
+        return !markingable;
       }
     },
   })
