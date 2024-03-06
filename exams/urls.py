@@ -12,4 +12,9 @@ urlpatterns = [
     path('upload/rectangle/', views.rectangle, name='rectangle'),
     path('examlist/<str:user_id>/', views.examlist),
     path('paperlist/<str:exam_id>/', views.paperlist),
+<<<<<<< HEAD
+=======
+    path('ocr_preprocess/<str:exam_id>/', views.ocr_preprocess),
+    path('llm_preprocess/<str:exam_id>/', views.LLM_preprocess),
+>>>>>>> bb3c465846e7b44ede7422b392dca189e77d52b5
 ]

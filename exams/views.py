@@ -230,6 +230,7 @@ def examlist(request, user_id):
     print('从前端传回来的用户id：',user_id)
     exams = Exams.objects.filter(teacher_id=user_id)
     data = []
+    cnt=1
     for exam in exams:
         markingable=False #判断能否批改
         """
@@ -238,12 +239,14 @@ def examlist(request, user_id):
         papers = Papers.objects.filter(exam_id=exam.id)
         if papers:
             markingable=True           
-        data.append({'exam_id':exam.id,
+        data.append({'index':cnt,
+                     'exam_id':exam.id,
                      'exam_name':exam.exam_name, 
                      'subject':exam.subject,
                      'markingable': markingable, 
                      'exam_date':exam.edate.strftime("%Y-%m-%d %H:%M:%S"),
                      'markingable': markingable})
+        cnt+=1
     return JsonResponse(data, safe=False)
 
 
@@ -253,14 +256,35 @@ def paperlist(request, exam_id):
     # papers = Papers.objects.filter(exam_id=exam_id)
     papers = Papers.objects.filter(exam_id=exam_id)
     data = []
+    cnt=1
     for paper in papers:
+<<<<<<< HEAD
         data.append({'paper_id':paper.id,
+=======
+        data.append({'index': cnt,
+                     'paper_id':paper.id,
+>>>>>>> bb3c465846e7b44ede7422b392dca189e77d52b5
                      'state':paper.state,
                      'pages':paper.pages, 
                      'student_id':paper.student_id,
                      'student_name':paper.student.user_name,
+                     'ocr_preprocess':1,      #这里先假设为1，待修改
                     })
-    
+    cnt+=1
     # print(data)
     
     return JsonResponse(data, safe=False)
+<<<<<<< HEAD
+=======
+
+def ocr_preprocess(request, exam_id):
+    print('OCR预处理 从前端传回来的考试exam_id：',exam_id)
+
+    return HttpResponse("收到")
+
+
+def LLM_preprocess(request, exam_id):
+    print('LLM预处理 从前端传回来的考试exam_id：',exam_id)
+
+    return HttpResponse("收到")
+>>>>>>> bb3c465846e7b44ede7422b392dca189e77d52b5
