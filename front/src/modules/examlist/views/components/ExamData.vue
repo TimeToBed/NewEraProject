@@ -38,7 +38,9 @@
         
         <el-table-column min-width="70">
           <template #default="scope">
-            <el-button  type="primary" @click="handleButtonClickLLMPreprocess(scope.row)">预处理</el-button>
+            <!-- <el-button  type="primary" @click="handleButtonClickLLMPreprocess(scope.row)">预处理</el-button> -->
+            <el-button v-if="scope.row.llm_preprocess === 1" type="primary" @click="handleButtonClickLLMPreview(scope.row)">预览</el-button>
+            <el-button v-if="scope.row.llm_preprocess === 0" type="primary" @click="handleButtonClickLLMPreprocess(scope.row)">预处理</el-button>
           </template>
         </el-table-column>
 
@@ -129,10 +131,21 @@
         } catch (error) {
           console.error("Error during HTTP request:", error);
         }
-      }
+      };
       
+      const handleButtonClickLLMPreview = async (row) => {
+        console.log('LLM 预览', row)
+        try {
+          const response = await axios.get(`exams/llm_preview/${row.exam_id}/`);
+          console.log(response);
+        } catch (error) {
+          console.error("Error during HTTP request:", error);
+        }
+      };
+
       return { 
-        handleButtonClickLLMPreprocess 
+        handleButtonClickLLMPreprocess ,
+        handleButtonClickLLMPreview,
       };
     },
     methods: {

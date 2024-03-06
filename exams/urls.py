@@ -13,5 +13,7 @@ urlpatterns = [
     path('examlist/<str:user_id>/', views.examlist),
     path('paperlist/<str:exam_id>/', views.paperlist),
     path('ocr_preprocess/<str:exam_id>/', views.ocr_preprocess),
-    path('llm_preprocess/<str:exam_id>/', views.LLM_preprocess)
-]
+    path('llm_preprocess/<str:exam_id>/', views.LLM_preprocess),
+    path('llm_preview/<str:exam_id>/', views.LLM_preview),
+    path('uploadpapers/<str:exam_id>/', views.upload_package)
+    ]
