@@ -19,7 +19,7 @@ from .LLM_package import *
 import paramiko
 from datetime import datetime
 from demo import settings
-from docx2pdf import convert
+#from docx2pdf import convert
 from django.db.models import Max
 import posixpath
 
@@ -265,7 +265,9 @@ def examlist(request, user_id):
                      'subject':exam.subject,
                      'markingable': markingable, 
                      'exam_date':exam.edate.strftime("%Y-%m-%d %H:%M:%S"),
-                     'markingable': markingable})
+                     'markingable': markingable,
+                     'llm_preprocess':1
+                     })
         cnt+=1
     return JsonResponse(data, safe=False)
 
@@ -301,3 +303,8 @@ def LLM_preprocess(request, exam_id):
 
     return HttpResponse("收到")
 
+
+def LLM_preview(request, exam_id):
+    print('LLM预览 从前端传回来的考试exam_id：',exam_id)
+
+    return HttpResponse("收到")
