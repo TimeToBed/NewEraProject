@@ -77,7 +77,7 @@ export default defineComponent({
       console.log('OCR预处理 received id is: ', exam_id);
       try {
       
-        const response = await axios.get(`exams/llm_preprocess/${exam_id}/`);
+        const response = await axios.get(`exams/ocr_preprocess/${exam_id}/`);
         console.log(response);
       } catch (error) {
         console.error("Error during HTTP request:", error);

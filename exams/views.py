@@ -23,6 +23,10 @@ from django.db.models import Max
 import posixpath
 import stat
 import json
+from paddleocr import PaddleOCR
+from pathlib import Path
+import imageio
+from io import BytesIO
                 
 json_dir = './server/ocr'
 class OverwriteStorage(FileSystemStorage):
@@ -272,7 +276,6 @@ def examlist(request, user_id):
                      'subject':exam.subject,
                      'markingable': markingable, 
                      'exam_date':exam.edate.strftime("%Y-%m-%d %H:%M:%S"),
-                     'markingable': markingable,
                      'llm_preprocess':1
                      })
         cnt+=1
@@ -299,8 +302,24 @@ def paperlist(request, exam_id):
     # print(data)
     
     return JsonResponse(data, safe=False)
+
+def get_weights_path():
+
+    # 获取当前文件所在的目录的上一层目录
+    parent_dir_path = Path(os.path.relpath(__file__)).parent.parent
+    return os.path.join(parent_dir_path,'model_weights')
 def ocr_preprocess(request, exam_id):
     print('OCR预处理 从前端传回来的考试exam_id：',exam_id)
+    
+    weights_path = get_weights_path()
+    ocr = PaddleOCR(use_angle_cls=True, lang="ch",use_gpu=True,
+ 
+                rec_model_dir= os.path.join(weights_path,'ch_PP-OCRv4_rec_infer'),
+ 
+                cls_model_dir= os.path.join(weights_path,'ch_ppocr_mobile_v2.0_cls_infer'),
+ 
+                det_model_dir= os.path.join(weights_path,'ch_PP-OCRv4_det_infer'))
+    
     path = posixpath.join(settings.Remote_path, exam_id, 'student_papers')
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -324,7 +343,6 @@ def ocr_preprocess(request, exam_id):
         sftp.mkdir(ocr_path)
                 
     entries = sftp.listdir(path)
-
     for entry in entries:
         entry_path = posixpath.join(path, entry)
         # 如果这是一个文件夹
@@ -334,12 +352,13 @@ def ocr_preprocess(request, exam_id):
             while(i <= lenth):
                 file = str(i) + '.jpg'
                 file_path = posixpath.join(entry_path, file)
-                print(file_path)
                 # 如果条目是一个文件，将它添加到文件列表
                 if not stat.S_ISDIR(sftp.stat(file_path).st_mode):
-                    print(f'file_path:{file_path}')
-                    ocr_result = ocr_getresult(sftp, file_path)
+                    remote_file = sftp.open(file_path, 'rb')
+                    # 转换图片到numpy数组
+                    np_image = imageio.imread(BytesIO(remote_file.read()))
                     txt_path = posixpath.join(ocr_path, str(entry) + '.txt')
+                    ocr_result = ocr.ocr(np_image, cls=True)
                     for idx in range(len(ocr_result)):
                         res = ocr_result[idx]
                         for line in res:
@@ -359,7 +378,7 @@ def ocr_preprocess(request, exam_id):
 
 
 def LLM_preprocess(request, exam_id):
-    print('OCR预处理 从前端传回来的考试exam_id：',exam_id)
+    print('LLM预处理 从前端传回来的考试exam_id：',exam_id)
 
     return HttpResponse("收到")
 
