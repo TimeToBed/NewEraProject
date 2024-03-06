@@ -114,7 +114,7 @@ def create_exam(request):
         exam.save()
     
     return JsonResponse({'msg':'success'})               
-                
+
 @csrf_exempt
 def upload_image(request):
     #request.encoding='utf-8'
@@ -267,6 +267,10 @@ def examlist(request, user_id):
         """
         判断能不能批改，通过看是否上传了试卷
         """
+        if exam.llm_knowledge_path is not None:
+            llm_preprocess = 1
+        else:
+            llm_preprocess = 0
         papers = Papers.objects.filter(exam_id=exam.id)
         if papers:
             markingable=True           
@@ -276,7 +280,7 @@ def examlist(request, user_id):
                      'subject':exam.subject,
                      'markingable': markingable, 
                      'exam_date':exam.edate.strftime("%Y-%m-%d %H:%M:%S"),
-                     'llm_preprocess':1
+                     'llm_preprocess':llm_preprocess
                      })
         cnt+=1
     return JsonResponse(data, safe=False)
@@ -290,13 +294,17 @@ def paperlist(request, exam_id):
     data = []
     cnt=1
     for paper in papers:
+        if paper.ocr_path is not None:
+            ocr_preprocess = 1
+        else:
+            ocr_preprocess = 0
         data.append({'index': cnt,
                      'paper_id':paper.id,
                      'state':paper.state,
                      'pages':paper.pages, 
                      'student_id':paper.student_id,
                      'student_name':paper.student.user_name,
-                     'ocr_preprocess':1,      #这里先假设为1，待修改
+                     'ocr_preprocess':ocr_preprocess,      #这里先假设为1，待修改
                     })
     cnt+=1
     # print(data)
