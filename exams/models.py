@@ -52,7 +52,6 @@ class Students(models.Model):
 
 
 class Exams(models.Model):
-
     exam_name = models.CharField(max_length=40)    #考试名称 必填
     subject = models.CharField(max_length=20)   #考试科目 必填
     edate = models.DateTimeField()      #考试时间 创建时必填
@@ -60,8 +59,8 @@ class Exams(models.Model):
 
     llm_knowledge_path = models.CharField(max_length=100, null=True)  #大模型知识点总结json文件路径，非必填
 
-    paper_identity_path = models.CharField(max_length=20)   #空白试卷 必填
-    paper_answer_path = models.CharField(max_length=20, null=True)   #试卷答案 非必填
+    paper_identity_path = models.CharField(max_length=100)   #空白试卷 必填
+    paper_answer_path = models.CharField(max_length=100, null=True)   #试卷答案 非必填
 
     teacher = models.ForeignKey(Teachers, models.CASCADE)  # 依附于教师，教师删除则依附教师的实例也删除
 

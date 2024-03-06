@@ -113,7 +113,8 @@ def create_exam(request):
         exam = Exams(exam_name=exam_name, edate=edate, subject=subject, cdate=cdate, teacher_id=teacher_id, paper_identity_path=remote_paper_path, paper_answer_path=remote_result_path)
         exam.save()
     
-    return JsonResponse({'msg':'success'})               
+    return JsonResponse({'msg':'success'})
+
 
 @csrf_exempt
 def upload_image(request):
@@ -258,7 +259,7 @@ async def index_fun(request):
 
 def examlist(request, user_id):
     
-    print('从前端传回来的用户id：',user_id)
+    # print('从前端传回来的用户id：',user_id)
     exams = Exams.objects.filter(teacher_id=user_id)
     data = []
     cnt=1
@@ -288,7 +289,7 @@ def examlist(request, user_id):
 
 def paperlist(request, exam_id):
     
-    print('从前端传回来的考试exam_id：',exam_id)
+    # print('从前端传回来的考试exam_id：',exam_id)
     # papers = Papers.objects.filter(exam_id=exam_id)
     papers = Papers.objects.filter(exam_id=exam_id)
     data = []

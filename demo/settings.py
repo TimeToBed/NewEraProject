@@ -150,6 +150,10 @@ Remote_HOST = '172.18.65.233'
 Remote_user = 'fsn'
 Remote_password = 'fsn'
 Remote_PORT = 10099
+<<<<<<< HEAD
+Remote_path = '/hdd/workspace_fsn'
+=======
 Remote_path = r'/hdd/server/'
 
 
+>>>>>>> 6eac19dedaf27fe28cb4f2b21becd37d97961acf
