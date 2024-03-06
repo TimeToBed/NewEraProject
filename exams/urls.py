@@ -11,5 +11,13 @@ urlpatterns = [
     path('upload/rectangle/', views.rectangle, name='rectangle'),
     path('examlist/<str:user_id>/', views.examlist),
     path('paperlist/<str:exam_id>/', views.paperlist),
+<<<<<<< HEAD
     path('show_picture/', views.show_picture, name='show_picture')
 ]
+=======
+    path('ocr_preprocess/<str:exam_id>/', views.ocr_preprocess),
+    path('llm_preprocess/<str:exam_id>/', views.LLM_preprocess),
+    path('llm_preview/<str:exam_id>/', views.LLM_preview),
+    path('uploadpapers/<str:exam_id>/', views.upload_package)
+    ]
+>>>>>>> 6eac19dedaf27fe28cb4f2b21becd37d97961acf

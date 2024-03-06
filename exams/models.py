@@ -84,7 +84,8 @@ class Papers(models.Model):
     cdate = models.DateTimeField(auto_now=True)         #创建日期 自动创建
     state = models.IntegerField(default=0)  # 0:未批阅 1：批阅中 2：已批阅
     pages = models.IntegerField()
-
+    
+    score = models.IntegerField(blank=True, null=True) #教师批改得分
     class Meta:
         db_table = 'Papers'
     

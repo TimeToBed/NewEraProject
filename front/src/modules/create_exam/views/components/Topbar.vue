@@ -3,10 +3,30 @@
     <div class="flex-wrap flex-col bg-white shadow mb-7 mx-auto rounded-md">
       <div class="flex py-5 px-6 border-b border-primary-white">
         <h3 class="cursor-auto">创建考试</h3>
-        <ul class="flex list-none justify-around flex-grow">
-          <li>基本信息</li>
-          <li>上传试卷</li>
-          <li>完成</li>
+        <ul class="flex list-none justify-around flex-grow ">
+          <li class="flex items-center justify-center">
+            <PencilAltIcon v-if="currentStep === 1" 
+              class="h-5 w-5 text-indigo-410" />
+            <CheckIcon v-else 
+              class="h-5 w-5 text-indigo-410" />
+            <p class="text-indigo-410"
+              :class="{'font-bold': currentStep === 1}">基本信息</p>
+          </li>
+          <li class="flex items-center justify-center">
+            <PencilAltIcon v-if="currentStep === 2" class="h-5 w-5 text-indigo-410"/>
+            <CheckIcon v-else-if="currentStep === 3 || currentStep === 4" class="h-5 w-5 text-indigo-410" />
+            <PencilAltIcon v-else class="h-5 w-5"/>
+            <p class="text-indigo-410"
+              :class="{'font-bold': currentStep === 2,
+                'text-dark': currentStep === 1}">上传试卷</p>
+          </li>
+          <li class="flex items-center justify-center">
+            <PencilAltIcon v-if="currentStep === 3" class="h-5 w-5 text-indigo-410"/>
+            <CheckIcon v-else-if="currentStep === 4" class="h-5 w-5 text-indigo-410" />
+            <PencilAltIcon v-else class="h-5 w-5"/>
+            <p 
+              :class="{'font-bold text-indigo-410': currentStep === 3 || currentStep === 4}">完成</p>
+          </li>
         </ul>
       </div>
       
@@ -21,7 +41,9 @@
              v-else-if="currentStep === 2" @continue="nextStep" @back="previousStep" />
           <Finish 
             :exam-info="examInfo"
-            v-else-if="currentStep === 3" @back="previousStep" @submit="submitExam" />
+            :currentStep="currentStep" 
+            v-else-if="currentStep === 3 || currentStep === 4" 
+            @continue="nextStep" @back="previousStep" @submit="submitExam" />
           
         </div> 
       </div>
@@ -36,13 +58,16 @@ import BasicInfo from './BasicInfo.vue'
 import UploadPaper from './UploadPaper.vue'
 import Finish from './Finish.vue'
 import { AxiosInstance } from 'axios'
+import {PencilAltIcon, CheckIcon } from '@heroicons/vue/solid'
 
 export default defineComponent({
   name: 'Topbar',
   components: {
     BasicInfo,
     UploadPaper,
-    Finish
+    Finish,
+    PencilAltIcon,
+    CheckIcon
   },
 
   setup(){
@@ -59,8 +84,6 @@ export default defineComponent({
 
     const currentStep = ref(1);
     const submitExam = async () => {
-      console.log(typeof(examInfo.paper));
-      console.log('提交考试');
       let formData = new FormData();
 
       // Append the other parts of examInfo
@@ -90,13 +113,14 @@ export default defineComponent({
 
     const previousStep = () => {
       currentStep.value -= 1;
+      if(currentStep.value < 1){
+        currentStep.value = 1;
+      }
       console.log('currentStep:', currentStep.value)
     }
 
-    
-
     return {
-      examInfo, currentStep, submitExam, nextStep, previousStep
+      examInfo, currentStep, submitExam, nextStep, previousStep, PencilAltIcon, CheckIcon
     }
   }
 

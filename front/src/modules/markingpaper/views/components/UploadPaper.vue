@@ -9,7 +9,7 @@
             <el-form :model="userForm.paper" label-position="top">
               <el-form-item label="上传样题">
                 <el-upload class="w-full" action="#" :auto-upload="false" 
-                @change="handlePaperChange" @blur="isTouchedPaperTitle=true">
+                @change="handlePaperChange">
                   <el-input placeholder="考题.word" class="input-upload">
                     <template #append>浏览</template>
                   </el-input>
@@ -35,7 +35,7 @@
       </div>
 </template>
 <script lang="ts">
-import { defineComponent, reactive, ref, watch } from 'vue'
+import { defineComponent, reactive, ref } from 'vue'
 
 export default defineComponent({
   name: 'UploadPaper',
@@ -52,16 +52,6 @@ export default defineComponent({
       result: props.examInfo.result,
     })
 
-    const isTouchedPaperTitle = ref(false);
-    const isEmptyPaper = ref(false);
-    const messagePaper = ref('');
-
-    watch(userForm, (newVal) => {
-      isTouchedPaperTitle.value && (isEmptyPaper.value = !newVal.paper.trim());
-      messagePaper.value = isEmptyPaper.value ? '请上传考试试卷' : '';
-    },{ deep: true });
-
-
     const handlePaperChange = (file: any) => {
       userForm.paper = file;
       console.log(userForm.paper)
@@ -74,13 +64,8 @@ export default defineComponent({
     }
 
     const nextForm = () => {
-      if(userForm.paper){
-        Object.assign(props.examInfo, userForm)
-        emit('continue')
-      } else{
-        console.log('有必填信息未填写！')
-      }
-      
+      Object.assign(props.examInfo, userForm)
+      emit('continue')
     }
 
     const lastForm = () => {
@@ -88,8 +73,7 @@ export default defineComponent({
     }
 
     return {
-      userForm, nextForm, lastForm, handlePaperChange, handleResultChange,
-      isTouchedPaperTitle, isEmptyPaper, messagePaper
+      userForm, nextForm, lastForm, handlePaperChange, handleResultChange
     }
   },
 })

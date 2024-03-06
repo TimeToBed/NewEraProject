@@ -6,7 +6,14 @@
       :class="`is-${theme}`" 
       :cell-style="{ textAlign: 'center' }"
       :header-cell-style="{ textAlign: 'center' }">
-        <el-table-column label="考生学号" min-width="200" >
+        <el-table-column label="序号" min-width="60" >
+          <template #default="scope">
+            <div class="px-4 cursor-auto">
+              <span class="text-0.8125 font-normal">{{ scope.row.index }}</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="考生学号" min-width="100" >
           <template #default="scope">
             <div class="px-4 cursor-auto">
               <span class="text-0.8125 font-normal">{{ scope.row.student_id }}</span>
@@ -20,7 +27,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="页数" min-width="150">
+        <el-table-column label="页数" min-width="60">
           <template #default="scope">
             <div class="px-4 cursor-auto">
               <span class="text-0.8125 font-normal">{{ scope.row.pages }}</span>
@@ -28,11 +35,11 @@
           </template>
         </el-table-column>
         
-        <el-table-column label="状态" min-width="167">
+        <el-table-column label="批改状态" min-width="100">
           <template #default="scope">
-            <div class="px-4 cursor-auto flex items-center">
+            <div class="cursor-auto flex items-center justify-center">
               <i
-                class="w-2 h-2 rounded-full ml-14"
+                class="w-2 h-2 rounded-full"
                 aria-hidden="true"
                 :class="[
                   scope.row.state == 2
@@ -55,9 +62,25 @@
           </template>
         </el-table-column>
 
+        <el-table-column label="预处理" min-width="100">
+          <template #default="scope">
+              <div class="cursor-auto flex items-center justify-center">
+                  <BadgeCheckIcon v-if="scope.row.ocr_preprocess === 1" class="h-5 w-5 text-indigo-410"/>
+                  <ExclamationCircleIcon v-if="scope.row.ocr_preprocess === 0" class="h-5 w-5 text-red-500"/>
+
+                  <!-- <span class="ml-2 pb-0.5 text-0.875 font-normal">{{ scope.row.state }}</span> -->
+                  <span class="ml-4 pb-0.5 text-0.875 font-normal"
+                        v-if="scope.row.state==0">未处理</span>
+                  <span class="ml-4 pb-0.5 text-0.875 font-normal"
+                        v-if="scope.row.state==1">已处理</span>
+              </div>
+          </template>
+        </el-table-column>
+
+
         <el-table-column min-width="100">
           <template #default="scope">
-            <el-button  type="primary" size="large" @click="handleButtonClickMarking(scope.row)">批改试卷</el-button>
+            <el-button  type="primary" @click="handleButtonClickMarking(scope.row)">批改试卷</el-button>
           </template>
         </el-table-column>
 
@@ -99,12 +122,15 @@
   <script lang="ts">
   import { defineComponent, ref } from 'vue'
   import { DotsVerticalIcon } from '@heroicons/vue/outline'
-  
+  import {BadgeCheckIcon, ExclamationCircleIcon } from '@heroicons/vue/solid'
+
   export default defineComponent({
     
     name: 'PaperData',
     components: {
       DotsVerticalIcon,
+      BadgeCheckIcon, 
+      ExclamationCircleIcon
     },
     
     props: {
@@ -121,7 +147,7 @@
     methods: {
       handleButtonClickMarking(row) {
         console.log('批改试卷',row)
-        this.$router.push('/marking/marking_papers');
+        this.$router.push({ path: '/marking_paper', query: { paper_id: row.paper_id } });
       },
     },
     setup () {

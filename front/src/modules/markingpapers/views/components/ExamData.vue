@@ -5,15 +5,7 @@
       style="width: 100%" 
       :class="`is-${theme}`" 
       :cell-style="{ textAlign: 'center' }"
-      :header-cell-style="{ textAlign: 'center' }"
-      >
-        <el-table-column label="序号" min-width="60" >
-          <template #default="scope">
-            <div class="px-4 cursor-auto">
-              <span class="text-0.8125 font-normal">{{ scope.row.index }}</span>
-            </div>
-          </template>
-        </el-table-column>
+      :header-cell-style="{ textAlign: 'center' }">
         <el-table-column label="考试名称" min-width="200" >
           <template #default="scope">
             <div class="px-4 cursor-auto">
@@ -21,41 +13,34 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="考试时间" min-width="120">
+        <el-table-column label="考试时间" min-width="150">
           <template #default="scope">
             <div class="px-4 cursor-auto">
               <span class="text-0.8125 font-normal">{{ scope.row.exam_date }}</span>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="科目" min-width="80">
+        <el-table-column label="科目" min-width="150">
           <template #default="scope">
-            <div class="px-4 cursor-auto">
-              <span class="text-0.875 font-normal">{{ scope.row.subject }}</span>
+            <div class="px-4 flex items-center">
+              <span class="ml-2 pb-0.5 text-0.875 font-normal">{{ scope.row.subject }}</span>
             </div>
           </template>
         </el-table-column>
         
-        <el-table-column min-width="70">
+        <el-table-column min-width="100">
           <template #default="scope">
-            <!-- <el-button  type="primary" @click="handleButtonClickLLMPreprocess(scope.row)">预处理</el-button> -->
-            <el-button v-if="scope.row.llm_preprocess === 1" type="primary" @click="handleButtonClickLLMPreview(scope.row)">预览</el-button>
-            <el-button v-if="scope.row.llm_preprocess === 0" type="primary" @click="handleButtonClickLLMPreprocess(scope.row)">预处理</el-button>
+            <el-button  type="primary" size="large" @click="handleButtonClickUpload(scope.row)">上传试卷</el-button>
           </template>
         </el-table-column>
 
-        <el-table-column min-width="80">
-          <template #default="scope">
-            <el-button  type="primary"  @click="handleButtonClickUpload(scope.row)">上传试卷</el-button>
-          </template>
-        </el-table-column>
-
-        <el-table-column min-width="80">
+        <el-table-column min-width="100">
           <template #default="scope">
             <el-button
               :type="getButtonType(scope.row.markingable)"
               :class="getButtonClass(scope.row.markingable)"
               :disabled="isButtonDisabled(scope.row.markingable)"
+              size="large" 
               @click="handleButtonClickMarking(scope.row)">
               批改试卷
             </el-button>
@@ -98,10 +83,9 @@
     </div>
   </template>
   <script lang="ts">
-  import { defineComponent, inject } from 'vue'
+  import { defineComponent } from 'vue'
   import { DotsVerticalIcon } from '@heroicons/vue/outline'
-  import { AxiosInstance } from 'axios'
-
+  
   export default defineComponent({
     
     name: 'ExamData',
@@ -120,41 +104,11 @@
         default: 'light',
       },
     },
-    setup() {
-      const axios = inject('axios') as AxiosInstance;
-      
-      const handleButtonClickLLMPreprocess = async (row) => {
-        console.log('LLM 预处理', row)
-        try {
-          const response = await axios.get(`exams/llm_preprocess/${row.exam_id}/`);
-          console.log(response);
-        } catch (error) {
-          console.error("Error during HTTP request:", error);
-        }
-      };
-      
-      const handleButtonClickLLMPreview = async (row) => {
-        console.log('LLM 预览', row)
-        try {
-          const response = await axios.get(`exams/llm_preview/${row.exam_id}/`);
-          console.log(response);
-        } catch (error) {
-          console.error("Error during HTTP request:", error);
-        }
-      };
-
-      return { 
-        handleButtonClickLLMPreprocess ,
-        handleButtonClickLLMPreview,
-      };
-    },
     methods: {
-
       handleButtonClickUpload(row) {
         console.log('上传试卷',row)
         this.$router.push('/marking/upload_papers');
       },
-      
       handleButtonClickMarking(row) {
         console.log('批改试卷',row)
         //this.$router.push({ path: '/marking/marking_papers', query: { id: row.exam_id } });

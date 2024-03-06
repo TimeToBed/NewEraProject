@@ -12,14 +12,11 @@
             考试时间： {{ userForm.time }}
           </h6>
           <div>
-            <div class="flex justify-center items-center h-full">
-              <img v-if="currentStep === 4" src="../../../../assets/images/yes.gif" class="w-24 h-24" />
-            </div>
             
-            <div class="flex justify-center">
-              <el-button v-if = "currentStep === 3" class="el-button--secondary" @click="lastForm">返回上一页</el-button>
-              <el-button v-if = "currentStep === 4" type="info" action="#">上传试卷</el-button>
-              <el-button v-if = "currentStep === 3" type="success" @click="submit">发布</el-button>
+            <div class="flex justify-center mt-13.25">
+              <el-button class="el-button--secondary" @click="lastForm">返回上一页</el-button>
+              <el-button type="info">预览</el-button>
+              <el-button type="success" @click="submit">发布</el-button>
             </div>
           </div>
         </div>
@@ -35,12 +32,9 @@
       examInfo:{
         type: Object,
         required: true
-      },
-      currentStep:{
-        required: true
       }
     }, 
-    emits:['back', 'submit', 'continue'],
+    emits:['back', 'submit'],
     setup(props, { emit }) {
       const formatDate = (data: Date) =>{
         const y = data.getFullYear();
@@ -52,16 +46,12 @@
         return `${y}-${m}-${d} ${h}:${min}:${sec}`;  // 返回格式化的日期字符串
       };
 
-      const a = props.currentStep
-      console.log(a)
-
       const userForm = ({
         examname: props.examInfo.examname,
         subject: props.examInfo.subject,
         time: formatDate(new Date(props.examInfo.time)),
       });
-      // const currentstep = props.currentStep
-      // console.log(currentstep)
+
       const lastForm = () => {
         emit('back')
         console.log(userForm)
@@ -69,7 +59,6 @@
 
       const submit = () => {
         emit('submit')
-        emit('continue')
 
       }
       return {

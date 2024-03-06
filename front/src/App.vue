@@ -1,5 +1,5 @@
 <template>
-  <el-config-provider :zIndex="9999">
+  <el-config-provider :zIndex="9999" :locale="zhCn">
     <AuthLayout v-if="isAuthLayout" />
     <DefaultLayout v-else />
   </el-config-provider>
@@ -9,8 +9,9 @@
 import { defineComponent, inject, computed } from 'vue'
 import { ElConfigProvider } from 'element-plus'
 import DefaultLayout from './layouts/default-layout.vue'
-import AuthLayout from 'layouts/auth-layout.vue'
+import AuthLayout from './layouts/auth-layout.vue'
 import { useRoute } from 'vue-router'
+import locale from "element-plus/lib/locale/lang/zh-cn";
 
 export default defineComponent({
   components: {
@@ -31,7 +32,7 @@ export default defineComponent({
       $message?.error(`Couldn't initialize the system with error: ${error.message}`)
     })
     console.log('isAuthLayout:',isAuthLayout.value)
-    return { zIndex: 3000, size: 'small', isAuthLayout }
+    return { zIndex: 3000, size: 'small', isAuthLayout ,zhCn: locale}
   },
 })
 </script>

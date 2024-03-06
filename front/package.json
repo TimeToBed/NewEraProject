@@ -9,6 +9,7 @@
     "store": "node tools/store/index"
   },
   "dependencies": {
+    "@element-plus/icons": "^0.0.11",
     "@element-plus/icons-vue": "^1.1.4",
     "@fortawesome/fontawesome-svg-core": "^6.1.1",
     "@fortawesome/free-brands-svg-icons": "^6.1.1",
@@ -23,7 +24,7 @@
     "buffer": "^6.0.3",
     "chart.js": "^3.8.0",
     "click-outside-vue3": "^4.0.1",
-    "element-plus": "2.0.1",
+    "element-plus": "^2.0.1",
     "emitter-io": "^1.39.0",
     "emoji-mart-vue-fast": "^10.2.1",
     "lodash": "^4.17.21",
