@@ -152,20 +152,40 @@ def upload_package(request):
             print("连接错误：", str(e))
             return 'SSH connection error'
         sftp = ssh.open_sftp()
+        students_papers = posixpath.join(settings.Remote_path, str(exam_id), 'students_papers')
+        try:
+            # 尝试切换到指定的目录
+            sftp.chdir(students_papers)
+        except FileNotFoundError:
+            # 如果切换目录失败，说明目录不存在，我们在此创建目录
+            print('create')
+            sftp.mkdir(students_papers)
         for student_file in data['filelist']:
             student_id = student_file.get('studentid')
+            students_dir = posixpath.join(students_papers, str(student_id))
+            try:
+                # 尝试切换到指定的目录
+                sftp.chdir(students_dir)
+            except FileNotFoundError:
+                # 如果切换目录失败，说明目录不存在，我们在此创建目录
+                print('create')
+                sftp.mkdir(students_dir)
             i = 1
             for file in student_file['file']:
                 pic_name = str(i) + '.png'
+                student_file = posixpath.join(students_dir, pic_name)
+                try:
+                    sftp.putfo(file, student_file)
+                    print("上传成功")
+                except Exception as e:
+                    # 这里处理文件传输过程中可能出现的错误
+                    print("文件传输错误：", str(e))
+                    return 'File transfer error'
                 i += 1
-        paper = Papers.objects.get(exam_id=int(exam_id))
-        uploaded_file = request.FILES['package']
-        fs = OverwriteStorage()
-        name = fs.save(uploaded_file.name, uploaded_file)
-        package_url = fs.url(name)
-        name = uploaded_file.name
-        package_path = os.path.join('./media', name)  # 试卷图片路径
-        return render(request, 'upload.html', locals())
+            paper = Papers.objects.get(exam_id=int(exam_id))
+            paper.pic_path = students_dir
+            paper.save()
+        return JsonResponse({'msg':'success'})
 async def test_p(p_test_problem):
     #可以直接将这两行代码放入指定位置，进行流式异步传输
     async for content in analysis_problem(p_test_problem):
