@@ -33,7 +33,8 @@
 import { AxiosInstance } from 'axios'
 import { defineComponent, inject, reactive, onMounted } from 'vue'
 import ExamData from './components/ExamData.vue'
-
+import JSZip from "jszip";
+import { saveAs } from 'file-saver';
 
 interface User {
   avatarPath: string

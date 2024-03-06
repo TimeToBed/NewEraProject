@@ -5,9 +5,7 @@
             <img src="../../../../assets/images/数据结构.png"/>
         </el-scrollbar>
         </div>
-        <div class="flex justify-end">
-            <el-button type="success" @click="nextForm">下一页</el-button>
-        </div>
+        
     </div>
     
     

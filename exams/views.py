@@ -6,7 +6,7 @@ from django.utils import timezone
 from .models import *  # assuming you have an Exam model
 from django.core.files.storage import FileSystemStorage
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse
 from django.core import serializers
 import os
 import json
@@ -23,10 +23,12 @@ from django.db.models import Max
 import posixpath
 import stat
 import json
+import shutil
 from paddleocr import PaddleOCR
 from pathlib import Path
 import imageio
 from io import BytesIO
+import tempfile
                 
 json_dir = './server/ocr'
 class OverwriteStorage(FileSystemStorage):
@@ -307,7 +309,7 @@ def paperlist(request, exam_id):
                      'student_name':paper.student.user_name,
                      'ocr_preprocess':ocr_preprocess,      #这里先假设为1，待修改
                     })
-    cnt+=1
+        cnt+=1
     # print(data)
     
     return JsonResponse(data, safe=False)
@@ -396,3 +398,79 @@ def LLM_preview(request, exam_id):
     print('LLM预览 从前端传回来的考试exam_id：',exam_id)
 
     return HttpResponse("收到")
+
+def querypaper(request, paper_id):
+    print('LLM预览 从前端传回来的考试paper_id：',paper_id)
+    paper = Papers.objects.filter(id=paper_id)[0]
+    print(paper)
+    data={
+        'msg':'hello world!'
+        }
+    exam_id=str(paper.exam_id)
+    student_id=str(paper.student_id)
+    print('exam id:', exam_id)
+    paper_path = posixpath.join(settings.Remote_path, exam_id, 'student_papers',student_id)
+    print(paper_path)
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        ssh.connect(hostname=settings.Remote_HOST, username=settings.Remote_user, password=settings.Remote_password, port=settings.Remote_PORT)
+        print("连接成功")
+    except paramiko.AuthenticationException:
+        print("认证失败")
+        return 'SSH Authentication failed'
+    except paramiko.SSHException as e:
+        print("连接错误：", str(e))
+        return 'SSH connection error'
+    sftp = ssh.open_sftp()
+    try:
+        # 尝试切换到指定的目录
+        sftp.chdir(paper_path)
+    except FileNotFoundError:
+        # 如果切换目录失败，说明目录不存在，我们在此创建目录
+        print('Error for find:',paper_path)
+
+    temp_dir = os.path.join(r'./server/cache/papers',exam_id, 'student_papers',student_id)#tempfile.mkdtemp()
+    if not os.path.exists(temp_dir):
+        os.makedirs(temp_dir)
+    else:  #如果缓存文件中已经有了，就不需要再拉取了
+        return JsonResponse(data, safe=False)
+    if stat.S_ISDIR(sftp.stat(paper_path).st_mode):
+        length = len(sftp.listdir(paper_path))
+        print("paper nums:", length)
+        i = 1
+        while(i <= length):
+            file = str(i) + '.jpg'
+            file_path = posixpath.join(paper_path, file)
+            # 如果条目是一个文件，将它添加到文件列表
+            if not stat.S_ISDIR(sftp.stat(file_path).st_mode):
+                remote_file = sftp.open(file_path, 'rb')
+                local_file_path = os.path.join(temp_dir, file)
+                with open(local_file_path, 'wb') as local_file:
+                    local_file.write(remote_file.read())
+                print(i, 'remote file:', file_path)
+            i+=1
+                # 转换图片到numpy数组
+        #         np_image = imageio.imread(BytesIO(remote_file.read()))
+        #         txt_path = posixpath.join(ocr_path, str(entry) + '.txt')
+        #         ocr_result = ocr.ocr(np_image, cls=True)
+        #         for idx in range(len(ocr_result)):
+        #             res = ocr_result[idx]
+        #             for line in res:
+        #                 coords, contents, confidence = line[0], line[1][0], line[1][1]
+        #                 with sftp.open(txt_path, 'ab') as f:
+        #                     f.write(contents.encode('utf-8'))
+        #                     f.write('\n'.encode('utf-8'))
+        #     i += 1
+        # paper = Papers.objects.get(exam_id=exam_id, student_id=entry)
+        # paper.ocr_path = txt_path
+        # paper.save()
+    #shutil.make_archive(temp_dir, 'zip', temp_dir)
+    #zip_file_path = temp_dir + '.zip'
+    #response = FileResponse(open(zip_file_path, 'rb'))
+    #response['Content-Disposition'] = 'attachment; filename="papers.zip"'
+    #return response
+    sftp.close()
+    ssh.close()
+    data['paper_path']=temp_dir
+    return JsonResponse(data, safe=False)

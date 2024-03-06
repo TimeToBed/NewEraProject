@@ -70,9 +70,9 @@
 
                   <!-- <span class="ml-2 pb-0.5 text-0.875 font-normal">{{ scope.row.state }}</span> -->
                   <span class="ml-4 pb-0.5 text-0.875 font-normal"
-                        v-if="scope.row.state==0">未处理</span>
+                        v-if="scope.row.ocr_preprocess==0">未处理</span>
                   <span class="ml-4 pb-0.5 text-0.875 font-normal"
-                        v-if="scope.row.state==1">已处理</span>
+                        v-if="scope.row.ocr_preprocess==1">已处理</span>
               </div>
           </template>
         </el-table-column>

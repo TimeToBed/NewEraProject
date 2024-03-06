@@ -23,6 +23,13 @@
           </div>
         </div>
       </div>
+      
+      <div class="flex justify-between py-5 px-6 border-b border-primary-white">
+        <div class="flex justify-end">
+            <el-button type="success" @click="nextForm">下一页</el-button>
+        </div>
+      </div>
+
     </div>
     
   </div>
