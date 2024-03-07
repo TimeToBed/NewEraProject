@@ -2,6 +2,8 @@ import os
 from paddleocr import PaddleOCR, draw_ocr
 from pathlib import Path
 import json
+import imageio
+from io import BytesIO
 
 def ocr_jsonsave(result, img_path, json_dir):
     """
@@ -41,19 +43,15 @@ def get_weights_path():
     parent_dir_path = Path(os.path.relpath(__file__)).parent.parent
     return os.path.join(parent_dir_path,'model_weights')
 
-def ocr_getresult(image_path, ocr_path):
+def ocr_getresult(sftp, image_path):
     """
         img_path: 图片路径，从数据库读取
-        ocr_path: 结果保存的文件夹路径
-        返回：json文件的路径
+        返回：识别结果
     """
-    img_path = os.path.abspath(image_path)
-    json_dir = os.path.abspath(ocr_path)
-    # 判断图片路径是否存在
-    if os.path.isfile(img_path):
-        print(img_path, "OK")
-    else:
-        print(img_path, "not exist")
+    remote_file = sftp.open(image_path, 'rb')
+
+    # 转换图片到numpy数组
+    np_image = imageio.imread(BytesIO(remote_file.read()))
     
     weights_path = get_weights_path()
     # 图片OCR识别
@@ -65,9 +63,7 @@ def ocr_getresult(image_path, ocr_path):
  
                 det_model_dir= os.path.join(weights_path,'ch_PP-OCRv4_det_infer')) # need to run only once to download and load model into memory
     
-    result = ocr.ocr(img_path, cls=True)  
-    
-    # 将结果保存到json文件中
-    json_path = ocr_jsonsave(result, img_path, json_dir)    
-    return result, json_path
+    result = ocr.ocr(np_image, cls=True)  
+      
+    return result
     
