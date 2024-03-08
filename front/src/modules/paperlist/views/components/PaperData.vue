@@ -138,6 +138,10 @@
         type: Array,
         required: true,
       },
+      totalSet: {
+        type: Number,
+        required: true,
+      }, 
       theme: {
         type: String,
         required: false,
@@ -147,7 +151,18 @@
     methods: {
       handleButtonClickMarking(row) {
         console.log('批改试卷',row)
-        this.$router.push({ path: '/marking_paper', query: { paper_id: row.paper_id } });
+        console.log('批改试卷 paper_id',row.paper_id)
+        console.log('批改试卷 totalSet',this.totalSet)
+        console.log('批改试卷 totalPage',row.pages)
+        this.$router.push({ 
+          path: '/marking_paper', 
+          query: 
+            { 
+              paper_id: row.paper_id , 
+              totalSet: this.totalSet,
+              totalPage:row.pages,
+            } 
+          });
       },
     },
     setup () {

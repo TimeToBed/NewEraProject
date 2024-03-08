@@ -2,7 +2,7 @@
     <div class="h-full">
         <div class="h-600">
         <el-scrollbar class="h-full">
-            <img src="../../../../assets/images/数据结构.png"/>
+            <img :src="img_src"/>
         </el-scrollbar>
         </div>
         
@@ -17,9 +17,19 @@ import { defineComponent } from 'vue'
 
 
 export default defineComponent({
-    name: 'Paper',
-    methods: {
-    }
+  name: 'Paper',
+  props:{
+    img_src:{
+      type: String,
+      required: true,
+    },
+  },
+  methods: {
+
+  },
+  created (){
+    console.log(this.img_src)
+  }
 })
 </script>
   

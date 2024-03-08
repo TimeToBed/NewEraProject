@@ -1,11 +1,13 @@
 <template>
+  
   <div class="w-full block mx-auto h-auto py-2">
     <div class="flex-wrap flex-col bg-white shadow mb-7 mx-auto rounded-md">
       <div class="flex justify-between py-5 px-6 border-b border-primary-white">
         <h3 class="cursor-auto">批改试卷</h3>
         <div class="flex space-x-4">
-          <p>当前份数: {{ currentSet }}/{{ currentSet }}</p>
-          <p>当前页数：{{ currentPage }}/{{ totalPage }}</p>
+          <p>当前份数: {{ state.currentSet+1 }}/{{ totalSet }}</p>
+          <p>当前页数：{{ state.currentPage+1 }}/{{ totalPage }}</p>
+          <button @click="prevOne">上一份</button>
           <button @click="nextOne">下一份</button>
           <button @click="exit">退出</button>
         </div>
@@ -15,7 +17,7 @@
         <div class="mt-1">
           <div class="flex flex-wrap">
             <div class="lg:flex-8 lg:max-w-2/3 w-full lg:mb-0 lg:pr-3.5 mb-6">
-              <Paper />
+              <Paper :img_src="state.imageSources[state.currentPage]"/>
             </div>
             <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
               <Result />
@@ -23,10 +25,13 @@
           </div>
         </div>
       </div>
-      
-      <div class="flex justify-between py-5 px-6 border-b border-primary-white">
-        <div class="flex justify-end">
-            <el-button type="success" @click="nextForm">下一页</el-button>
+
+      <div class="flex py-5 px-6 border-b border-primary-white">
+        <div class="flex justify-end ml-5">
+            <el-button type="success" @click="prevPage">上一页</el-button>
+        </div>
+        <div class="flex justify-end ml-5">
+            <el-button type="success" @click="nextPage">下一页</el-button>
         </div>
       </div>
 
@@ -36,10 +41,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, reactive, ref } from 'vue'
+import { defineComponent, inject, reactive, ref ,nextTick} from 'vue'
 import Paper from './Paper.vue'
 import Result from './Result.vue'
 import { AxiosInstance } from 'axios'
+import { ElMessageBox } from 'element-plus';
 
 export default defineComponent({
   name: 'Topbar',
@@ -47,78 +53,107 @@ export default defineComponent({
     Paper,
     Result,
   },
-  created() {
-    console.log('received id is: ', this.$route.query.paper_id);
+  props:{
+    paper_id:{
+        type: Number,
+        required: true,
+      },
+    totalSet:{
+        type: Number,
+        required: true,
+      },
+    totalPage:{
+        type: Number,
+        required: true,
+      },
   },
-  methods: {
-    nextOne() {
-      console.log("Handle the click on the 下一份 button")
-    },
-    exit() {
-      console.log("Handle the click on the 退出 button")
-    }
-  },
-  setup(){
-    const examInfo = reactive({
-      examname: '',
-      subject: '',
-      time: '',
-      paper: null,
-      result: null,
-      teacher_id: 1
-    })
-    // 从全局中获取 axios
-    const axios = inject('axios') as AxiosInstance
 
-    const currentSet=1
-    const totalSet=40
-    const currentPage=1
-    const totalPage=4
+  setup(props){
+    const state = reactive({  //  Vue 的响应性 API，当我们改变这个数据时，Vue 能知道需要重新渲染影响的组件。
+      currentPage: 0,
+      currentSet: 0,
+      imageSources:[],
+      paper_id:0,
+    });
+    state.paper_id=props.paper_id
+   const fetchImageFromServer = () => {
+      const axios = inject('axios') as AxiosInstance
+      axios.get(`exams/querypaper/${state.paper_id}/`)
+        .then(response => {
+          state.imageSources = response.data.map(img_base64 => 'data:image/jpg;base64,' + img_base64);
+      });
+    };
 
-    const currentStep = ref(1);
-    const submitExam = async () => {
+    fetchImageFromServer()
 
-      console.log(typeof(examInfo.paper));
-      console.log('提交考试');
-      let formData = new FormData();
-
-      // Append the other parts of examInfo
-      formData.append('examname', examInfo.examname);
-      formData.append('subject', examInfo.subject);
-      formData.append('time', examInfo.time);
-      formData.append('teacher_id', examInfo.teacher_id.toString());
-
-      // Append the files
-      if(examInfo.paper){
-        console.log(examInfo.paper);
-        formData.append('paper', examInfo.paper['raw']);
+    const nextPage = () => {
+      if (state.currentPage+1===props.totalPage){
+        nextTick(() => {
+          ElMessageBox.alert('你已经在最后一页了!', '提示', {
+            confirmButtonText: '确定'
+          })
+        });
+      }else{
+        state.currentPage+=1
       }
-      if(examInfo.result){
-        formData.append('result', examInfo.result['raw']);
+    };
+
+    const prevPage = () => {
+      if (state.currentPage===0){
+        nextTick(() => {
+          ElMessageBox.alert('你已经在第一页了!', '提示', {
+            confirmButtonText: '确定'
+          })
+        });
+      }else{
+        state.currentPage-=1
       }
       
-      // 通过axios发送一个POST请求到您的后端
-      const response = await axios.post('exams/create_exam/', formData);
-      console.log(response.data);
-    }
+    };
 
-    const nextStep = () => {
-      currentStep.value += 1;
-      console.log('currentStep:', currentStep.value)
-    }
+    const nextOne = () => {
+      if (state.currentSet+1===props.totalSet){
+        nextTick(() => {
+          ElMessageBox.alert('你已经在最后一份了!', '提示', {
+            confirmButtonText: '确定'
+          })
+        });
+      }else{
+        const axios = inject('axios') as AxiosInstance
+        console.log("下一份")
+        state.currentSet+=1
+        state.currentPage=0
+        const response = axios.get(`exams/next_paper/${state.paper_id}/`);
+        
+        fetchImageFromServer();
+      }
+      
+    };
 
-    const previousStep = () => {
-      currentStep.value -= 1;
-      console.log('currentStep:', currentStep.value)
-    }
-
-    
+    const prevOne = () => {
+      if (state.currentSet+1===0){
+        nextTick(() => {
+          ElMessageBox.alert('你已经在第一份了!', '提示', {
+            confirmButtonText: '确定'
+          })
+        });
+      }else{
+        console.log("上一份")
+        state.currentSet-=1
+        state.currentPage=0
+        fetchImageFromServer();
+      }
+      
+    };
 
     return {
-      examInfo, currentStep, submitExam, nextStep, previousStep,
-      currentSet, totalSet, currentPage, totalPage,
+      state,
+      nextPage,
+      prevPage,
+      nextOne,
+      prevOne,
+      fetchImageFromServer,
     }
   }
-
 })
 </script>

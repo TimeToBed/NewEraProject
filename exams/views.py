@@ -12,6 +12,8 @@ import os
 import json
 import logging
 import ast
+import io
+import base64
 from asgiref.sync import sync_to_async
 from .ocr import ocr_getresult, ocr_jsonsave
 logger = logging.getLogger(__name__)
@@ -430,26 +432,79 @@ def querypaper(request, paper_id):
         # 如果切换目录失败，说明目录不存在，我们在此创建目录
         print('Error for find:',paper_path)
 
-    temp_dir = os.path.join(r'./server/cache/papers',exam_id, 'student_papers',student_id)#tempfile.mkdtemp()
-    if not os.path.exists(temp_dir):
-        os.makedirs(temp_dir)
-    else:  #如果缓存文件中已经有了，就不需要再拉取了
-        return JsonResponse(data, safe=False)
     if stat.S_ISDIR(sftp.stat(paper_path).st_mode):
         length = len(sftp.listdir(paper_path))
         print("paper nums:", length)
         i = 1
+        images=[]
         while(i <= length):
             file = str(i) + '.jpg'
             file_path = posixpath.join(paper_path, file)
             # 如果条目是一个文件，将它添加到文件列表
             if not stat.S_ISDIR(sftp.stat(file_path).st_mode):
+                file_data = sftp.file(file_path, 'rb').read()
+                image_bytes = io.BytesIO(file_data)
+                images.append(image_bytes)
+            i+=1
+    images_base64 = [base64.b64encode(img.read()).decode('utf-8') for img in images]
+    sftp.close()
+    ssh.close()
+    return JsonResponse(images_base64, safe=False)
+
+#获取单张图片，试了一下，可以成功在前端显示
+def querypaper_old2(request, paper_id):
+    print('LLM预览 从前端传回来的考试paper_id：',paper_id)
+    paper = Papers.objects.filter(id=paper_id)[0]
+    print(paper)
+    data={
+        'msg':'hello world!'
+        }
+    exam_id=str(paper.exam_id)
+    student_id=str(paper.student_id)
+    print('exam id:', exam_id)
+    paper_path = posixpath.join(settings.Remote_path, exam_id, 'student_papers',student_id)
+    print(paper_path)
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        ssh.connect(hostname=settings.Remote_HOST, username=settings.Remote_user, password=settings.Remote_password, port=settings.Remote_PORT)
+        print("连接成功")
+    except paramiko.AuthenticationException:
+        print("认证失败")
+        return 'SSH Authentication failed'
+    except paramiko.SSHException as e:
+        print("连接错误：", str(e))
+        return 'SSH connection error'
+    sftp = ssh.open_sftp()
+    try:
+        # 尝试切换到指定的目录
+        sftp.chdir(paper_path)
+    except FileNotFoundError:
+        # 如果切换目录失败，说明目录不存在，我们在此创建目录
+        print('Error for find:',paper_path)
+
+    temp_dir = os.path.join(r'./server/cache/papers',exam_id, 'student_papers',student_id)#tempfile.mkdtemp()
+    if not os.path.exists(temp_dir):
+        os.makedirs(temp_dir)
+    if stat.S_ISDIR(sftp.stat(paper_path).st_mode):
+        length = len(sftp.listdir(paper_path))
+        print("paper nums:", length)
+        i = 1
+        while(i <= length):
+            temp_file = tempfile.TemporaryFile()
+            file = str(i) + '.jpg'
+            file_path = posixpath.join(paper_path, file)
+            # 如果条目是一个文件，将它添加到文件列表
+            if not stat.S_ISDIR(sftp.stat(file_path).st_mode):
                 remote_file = sftp.open(file_path, 'rb')
-                local_file_path = os.path.join(temp_dir, file)
-                with open(local_file_path, 'wb') as local_file:
-                    local_file.write(remote_file.read())
+                temp_file.write(remote_file.read())
+                temp_file.seek(0)
+                # local_file_path = os.path.join(temp_dir, file)
+                # with open(local_file_path, 'wb') as local_file:
+                #     local_file.write(remote_file.read())
                 print(i, 'remote file:', file_path)
             i+=1
+            return FileResponse(temp_file, as_attachment=True, filename=file)
                 # 转换图片到numpy数组
         #         np_image = imageio.imread(BytesIO(remote_file.read()))
         #         txt_path = posixpath.join(ocr_path, str(entry) + '.txt')
@@ -470,6 +525,64 @@ def querypaper(request, paper_id):
     #response = FileResponse(open(zip_file_path, 'rb'))
     #response['Content-Disposition'] = 'attachment; filename="papers.zip"'
     #return response
+    sftp.close()
+    ssh.close()
+    data['paper_path']=temp_dir
+    return JsonResponse(data, safe=False)
+
+# 将服务器的数据保存在本地的缓存目录
+def querypaper_old(request, paper_id):
+    print('LLM预览 从前端传回来的考试paper_id：',paper_id)
+    paper = Papers.objects.filter(id=paper_id)[0]
+    print(paper)
+    data={
+        'msg':'hello world!'
+        }
+    exam_id=str(paper.exam_id)
+    student_id=str(paper.student_id)
+    print('exam id:', exam_id)
+    paper_path = posixpath.join(settings.Remote_path, exam_id, 'student_papers',student_id)
+    print(paper_path)
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        ssh.connect(hostname=settings.Remote_HOST, username=settings.Remote_user, password=settings.Remote_password, port=settings.Remote_PORT)
+        print("连接成功")
+    except paramiko.AuthenticationException:
+        print("认证失败")
+        return 'SSH Authentication failed'
+    except paramiko.SSHException as e:
+        print("连接错误：", str(e))
+        return 'SSH connection error'
+    sftp = ssh.open_sftp()
+    try:
+        # 尝试切换到指定的目录
+        sftp.chdir(paper_path)
+    except FileNotFoundError:
+        # 如果切换目录失败，说明目录不存在，我们在此创建目录
+        print('Error for find:',paper_path)
+
+    temp_dir = os.path.join(r'./server/cache/papers',exam_id, 'student_papers',student_id)#tempfile.mkdtemp()
+    if not os.path.exists(temp_dir):
+        os.makedirs(temp_dir)
+    else:  #如果缓存文件中已经有了，就不需要再拉取了
+        return JsonResponse(data, safe=False)
+    if stat.S_ISDIR(sftp.stat(paper_path).st_mode):
+        length = len(sftp.listdir(paper_path))
+        print("paper nums:", length)
+        i = 1
+        while(i <= length):
+            file = str(i) + '.jpg'
+            file_path = posixpath.join(paper_path, file)
+            # 如果条目是一个文件，将它添加到文件列表
+            if not stat.S_ISDIR(sftp.stat(file_path).st_mode):
+                remote_file = sftp.open(file_path, 'rb')
+                local_file_path = os.path.join(temp_dir, file)
+                with open(local_file_path, 'wb') as local_file:
+                    local_file.write(remote_file.read())
+                print(i, 'remote file:', file_path)
+            i+=1
+             
     sftp.close()
     ssh.close()
     data['paper_path']=temp_dir

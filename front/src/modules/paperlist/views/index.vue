@@ -7,7 +7,10 @@
         <li><el-button  type="primary"  size="samll" @click="handleButtonClickOCRPreprocess()">预处理</el-button></li>
       </ul>
       <div class="block overflow-x-auto w-full">
-        <PaperData :tableData="state.paper" />
+        <PaperData 
+        :tableData="state.paper" 
+        :totalSet="state.Total"
+        />
       </div>
       <div class="p-4">
         <div class="w-full">
