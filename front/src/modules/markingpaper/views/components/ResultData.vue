@@ -7,10 +7,16 @@
                 <p class="text-content-white">{{ content }} </p>
             </div>
 
-            <div class="grid-items-violet">
+            <div class="grid-items-violet" v-if="analysis">
                 <p class="text-title-violet">大模型题目分析</p>
                 <br>
-                <p class="text-content-violet">{{ LLM_analysis }} </p>
+                <p class="text-content-violet" v-if="analysis.analysis">题目解析</p>
+                <br>
+                <p class="text-content-violet" v-if="analysis.analysis">{{ analysis.analysis }} </p>
+                <br>
+                <p class="text-content-violet" v-if="analysis.knowledge_points">知识点</p>
+                <br>
+                <p class="text-content-violet" v-if="analysis.knowledge_points">{{ analysis.knowledge_points }} </p>
             </div>
 
             <div class="grid-items-purple">
@@ -56,7 +62,10 @@ export default defineComponent({
             type: String, 
             required: false
         },
-
+        analysis: {
+            type: Object, 
+            required: true
+        },
         LLM_analysis: {
             type: String, 
             required: true

@@ -161,6 +161,7 @@
               paper_id: row.paper_id , 
               totalSet: this.totalSet,
               totalPage:row.pages,
+              paperData:JSON.stringify(this.tableData)
             } 
           });
       },

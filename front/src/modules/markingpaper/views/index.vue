@@ -26,11 +26,13 @@ export default defineComponent({
     const paper_id = Number(route.query.paper_id)
     const totalSet=Number(route.query.totalSet)
     const totalPage=Number(route.query.totalPage)
-
+    const paperData=JSON.parse(route.query.paperData)
+    console.log('marking paper paperData:', paperData)
     return {
       paper_id,
       totalSet,
-      totalPage
+      totalPage,
+      paperData
     }
   },
 })

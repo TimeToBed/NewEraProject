@@ -20,7 +20,7 @@
               <Paper :img_src="state.imageSources[state.currentPage]"/>
             </div>
             <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
-              <Result />
+              <Result v-if="state.LLMData" :LLMData="state.LLMData" />
             </div>
           </div>
         </div>
@@ -46,6 +46,8 @@ import Paper from './Paper.vue'
 import Result from './Result.vue'
 import { AxiosInstance } from 'axios'
 import { ElMessageBox } from 'element-plus';
+import PaperData from 'modules/paperlist/views/components/PaperData.vue';
+import { stat } from 'fs';
 
 export default defineComponent({
   name: 'Topbar',
@@ -66,26 +68,45 @@ export default defineComponent({
         type: Number,
         required: true,
       },
+    paperData:{
+        type: Array,
+        required: true,
+      },
   },
 
   setup(props){
+    
+    const axios = inject('axios') as AxiosInstance
     const state = reactive({  //  Vue 的响应性 API，当我们改变这个数据时，Vue 能知道需要重新渲染影响的组件。
       currentPage: 0,
       currentSet: 0,
       imageSources:[],
       paper_id:0,
+      LLMData:null
     });
     state.paper_id=props.paper_id
+
    const fetchImageFromServer = () => {
-      const axios = inject('axios') as AxiosInstance
       axios.get(`exams/querypaper/${state.paper_id}/`)
         .then(response => {
           state.imageSources = response.data.map(img_base64 => 'data:image/jpg;base64,' + img_base64);
       });
     };
 
-    fetchImageFromServer()
+    const getLLMPreprocess = async () => {
+      console.log('get LLM Preprocess');
+      try {
+      
+        const response = await axios.get(`exams/llm_preprocess/${state.paper_id}/`);
+        state.LLMData=response.data
+        console.log("TopBar LLM Preprocess Response.data:",state.LLMData);
+      } catch (error) {
+        console.error("Error during HTTP request:", error);
+      }
+    }
 
+    getLLMPreprocess()
+    fetchImageFromServer()
     const nextPage = () => {
       if (state.currentPage+1===props.totalPage){
         nextTick(() => {
@@ -120,10 +141,12 @@ export default defineComponent({
         });
       }else{
         const axios = inject('axios') as AxiosInstance
-        console.log("下一份")
         state.currentSet+=1
+        console.log("下一份:",state.currentSet )
+        console.log("下一份:",props.paperData[state.currentSet] )
         state.currentPage=0
-        const response = axios.get(`exams/next_paper/${state.paper_id}/`);
+        state.paper_id=props.paperData[state.currentSet].paper_id
+        //const response = axios.get(`exams/next_paper/${state.paper_id}/`);
         
         fetchImageFromServer();
       }
@@ -153,6 +176,7 @@ export default defineComponent({
       nextOne,
       prevOne,
       fetchImageFromServer,
+      getLLMPreprocess
     }
   }
 })
