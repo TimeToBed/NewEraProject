@@ -207,9 +207,6 @@ async def test_p(p_test_problem):
     async for content in analysis_problem(p_test_problem):
         print(content, end="")
 
-# from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-
 
 async def calculate_context(result):
     context = ""
@@ -392,8 +389,8 @@ def ocr_preprocess(request, exam_id):
 
 def LLM_preprocess(request, exam_id):
     print('LLM预处理 从前端传回来的考试exam_id：',exam_id)
-
-    return HttpResponse("收到")
+    exam_detail_data = json.load(os.path.join(settings.MEDIA_URL,"2020年全国卷Ⅰ语文高考试题完整版.json"))
+    return JsonResponse(exam_detail_data, safe=False)
 
 
 def LLM_preview(request, exam_id):
