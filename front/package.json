@@ -27,6 +27,8 @@
     "element-plus": "^2.0.1",
     "emitter-io": "^1.39.0",
     "emoji-mart-vue-fast": "^10.2.1",
+    "file-saver": "^2.0.5",
+    "jszip": "^3.10.1",
     "lodash": "^4.17.21",
     "mitt": "^3.0.0",
     "pinia": "^2.0.14",
