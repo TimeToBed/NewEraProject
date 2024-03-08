@@ -77,9 +77,9 @@
             directory multiple>
           <el-button @click="dialogVisible = false">取 消</el-button>
         </div>
-        <div v-if="filesTree">
+        <!-- <div v-if="filesTree">
           <pre>{{ filesTree }}</pre>
-        </div>
+        </div> -->
       </span>
     </el-dialog>
   </div>
@@ -89,6 +89,7 @@
 import { defineComponent, ref } from 'vue'
 import { DotsVerticalIcon } from '@heroicons/vue/outline'
 import axios from 'axios';
+import { AxiosInstance } from 'axios'
 
 export default defineComponent({
 
@@ -177,29 +178,132 @@ export default defineComponent({
         })
         .catch(_ => { });
     },
-    handleFolderUpload(event) {
+    // handleFolderUpload(event) {
+    //   const files = event.target.files;
+    //   console.log(files)
+    //   let structure = {};
+
+    //   for (let i = 0; i < files.length; i++) {
+    //     if (files[i].type.startsWith('image/')) {
+    //       let info = this.image2file(files[i])
+    //       console.log(info)
+    //       // return info
+    //     }
+
+    //     const path = files[i].webkitRelativePath;
+    //     let parts = path.split('/');
+    //     parts.reduce((acc, current, index) => {
+    //       if (!acc[current]) {
+    //         acc[current] = index === parts.length - 1 ? files[i] : {};
+    //       }
+    //       return acc[current];
+    //     }, structure);
+    //   }
+
+    //   this.filesTree = JSON.stringify(structure, null, 2);
+    //   // this.postPaperData('test')
+    // },
+    // async handleFolderUpload(event) {
+    //   const files = event.target.files;
+    //   // console.log(files);
+    //   let structure = {};
+
+    //   for (let i = 0; i < files.length; i++) {
+    //     const file = files[i];
+    //     const path = file.webkitRelativePath;
+    //     const parts = path.split('/');
+    //     const lastIndex = parts.length - 1;
+
+    //     if (file.type.startsWith('image/')) {
+    //       // 异步地将图片文件转换为 Base64 编码
+    //       try {
+    //         const base64 = await this.image2file(file);
+    //         // console.log(base64);
+
+    //         // 更新文件树，将图片文件的 Base64 编码写入
+    //         let current = structure;
+    //         parts.forEach((part, index) => {
+    //           if (index === lastIndex) {
+    //             current[part] = base64; // 存储文件的 Base64 编码
+    //           } else {
+    //             current[part] = current[part] || {};
+    //             current = current[part];
+    //           }
+    //         });
+    //       } catch (error) {
+    //         console.error('Error converting file to base64:', error);
+    //       }
+    //     } else {
+    //       // 非图片文件的处理可以保持不变
+    //       let current = structure;
+    //       parts.reduce((acc, currentPart, index) => {
+    //         if (!acc[currentPart]) {
+    //           acc[currentPart] = index === lastIndex ? file : {};
+    //         }
+    //         return acc[currentPart];
+    //       }, current);
+    //     }
+    //   }
+
+    //   this.filesTree = JSON.stringify(structure, null, 2);
+    //   this.postPaperData(this.filesTree)
+    // },
+    async handleFolderUpload(event) {
       const files = event.target.files;
-      let structure = {};
+      let filelist = [];
+
+      // 创建一个临时存储结构来容易地访问和更新文件列表
+      let tempStorage = {};
 
       for (let i = 0; i < files.length; i++) {
-        const path = files[i].webkitRelativePath;
-        let parts = path.split('/');
-        parts.reduce((acc, current, index) => {
-          if (!acc[current]) {
-            acc[current] = index === parts.length - 1 ? files[i] : {};
+        const file = files[i];
+        if (file.type.startsWith('image/')) {
+          try {
+            const base64 = await this.image2file(file); // 异步获取文件的 Base64 编码
+            const parts = file.webkitRelativePath.split('/'); // 使用文件的相对路径
+            const filename = parts[parts.length - 2]; // 假设倒数第二部分是文件名
+
+            if (!tempStorage[filename]) {
+              tempStorage[filename] = { filename, file: [] };
+              filelist.push(tempStorage[filename]);
+            }
+            tempStorage[filename].file.push(base64); // 将 Base64 编码添加到对应的文件名下
+          } catch (error) {
+            console.error('Error converting file to base64:', error);
           }
-          return acc[current];
-        }, structure);
+        }
       }
 
-      this.filesTree = JSON.stringify(structure, null, 2);
-      postPaperData('test')
+      this.filesTree = filelist; // 最终的文件列表结构
+      this.postPaperData(filelist)
+    },
+
+    getPicList(e) {
+
+    },
+    // 将图片文件转换为 Base64
+    fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          resolve(e.target.result); // 返回 Base64 编码的字符串
+        };
+        reader.onerror = (e) => {
+          reject(e);
+        };
+        reader.readAsDataURL(file); // 异步读取文件内容，结果用data:url的字符串形式表示
+      });
+    },
+    async image2file(e) {
+      let base64 = await this.fileToBase64(e);
+      return base64
     },
     postPaperData(e) {
-      dataToSend = {
-        id:123123
+      let dataToSend = {
+        id: 1,
+        filelist:e
       }
-      axios.post('http://127.0.0.2:5000/api/data', dataToSend)
+      axios.post('exams/upload', dataToSend)
         .then(response => {
           console.log('响应数据：', response.data);
         })
