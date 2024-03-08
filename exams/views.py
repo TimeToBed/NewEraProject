@@ -188,7 +188,7 @@ def upload_package(request):
                 sftp.mkdir(students_dir)
             i = 1
             for file in student_file['file']:
-                pic_name = str(i) + '.png'
+                pic_name = str(i) + '.jpg'
                 student_file = posixpath.join(students_dir, pic_name)
                 try:
                     sftp.putfo(file, student_file)
