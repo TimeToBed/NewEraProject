@@ -1,7 +1,4 @@
-exams/__pycache__
-demo/__pycache__
 workstream.ipynb
-exams/LLM_package/__pycache__
 gitnote.ipynb
-exams/migrations/__pycache__
 .vscode
+**/__pycache__/

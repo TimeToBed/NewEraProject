@@ -389,8 +389,10 @@ def ocr_preprocess(request, exam_id):
 
 def LLM_preprocess(request, exam_id):
     print('LLM预处理 从前端传回来的考试exam_id：',exam_id)
-    exam_detail_data = json.load(os.path.join(settings.MEDIA_URL,"2020年全国卷Ⅰ语文高考试题完整版.json"))
-    return JsonResponse(exam_detail_data, safe=False)
+    exam_analysis_path = os.path.join(settings.MEDIA_URL,"2020年全国卷Ⅰ语文高考试题完整版.json")
+    with open(exam_analysis_path, 'r', encoding='utf-8') as exam_json:
+        exam_detail_info = json.load(exam_json)
+    return JsonResponse(exam_detail_info, safe=False)
 
 
 def LLM_preview(request, exam_id):
