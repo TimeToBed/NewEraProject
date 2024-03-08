@@ -83,7 +83,7 @@ def create_exam(request):
         paper_name = exam_name + '_paper.doc'
         # paper_path = settings.Remote_path + str(max_id + 1) + '/' + "papers"
         paper_path = ''
-        for dir in [settings.Remote_path, str(max_id + 1), "papers"]:
+        for dir in [settings.Remote_path, 'temp', "papers"]:
             paper_path = posixpath.join(paper_path, dir)
             try:
                 # 尝试切换到指定的目录
@@ -91,7 +91,7 @@ def create_exam(request):
             except FileNotFoundError:
                 # 如果切换目录失败，说明目录不存在，我们在此创建目录
                 print('create')
-                
+                print(paper_path)
                 sftp.mkdir(paper_path)
         remote_paper_path = paper_path + '/' + paper_name
         # 答案在服务器的路径
@@ -112,11 +112,16 @@ def create_exam(request):
             print("文件传输错误：", str(e))
             return 'File transfer error'
 
-        sftp.close()
-        ssh.close()
         exam = Exams(exam_name=exam_name, edate=edate, subject=subject, cdate=cdate, teacher_id=teacher_id, paper_identity_path=remote_paper_path, paper_answer_path=remote_result_path)
         exam.save()
-    
+        
+        before_paper_path = posixpath.join(settings.Remote_path, 'temp')
+        new_paper_path = posixpath.join(settings.Remote_path, str(exam.id))
+        sftp.rename(before_paper_path, new_paper_path)
+        
+        sftp.close()
+        ssh.close()
+        
     return JsonResponse({'msg':'success'})
 
 
