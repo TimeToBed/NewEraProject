@@ -376,7 +376,6 @@ export default defineComponent({
 
 .cancel-demo {
   flex-grow: 1;
-  /* <input>元素会占据剩余空间 */
   height: 2.6875rem;
   border-width: 1px;
   --tw-border-opacity: 1;
