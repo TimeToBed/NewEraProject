@@ -230,10 +230,10 @@ export default defineComponent({
     },
     postPaperData(e) {
       let dataToSend = {
-        id: 3,
+        id: 1,
         filelist:e
       }
-      axios.post('exams/uploadpapers', dataToSend)
+      axios.post('exams/uploadpapers/3', dataToSend.filelist)
         .then(response => {
           console.log('响应数据：', response.data);
         })
