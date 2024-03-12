@@ -8,7 +8,7 @@
             </div>
 
             <div class="grid-items-violet" v-if="analysis">
-                <p class="text-title-violet">大模型题目分析</p>
+                <p class="text-title-violet">大模型题目分析(可修改)</p>
             </div>
 
 
@@ -25,7 +25,7 @@
             </div>
 
             <div class="grid-items-purple" v-if="analysis">
-                <p class="text-title-violet" v-if="analysis.knowledge_points">大模型知识点分析</p>
+                <p class="text-title-violet" v-if="analysis.knowledge_points">大模型知识点分析(可修改)</p>
             </div>
             <div class="w-full"> 
                 <el-input 

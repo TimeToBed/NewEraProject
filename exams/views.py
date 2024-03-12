@@ -149,18 +149,6 @@ def upload_image(request):
         return render(request, 'upload.html', locals())
     return render(request, 'upload.html', locals())
 
-<<<<<<< HEAD
-@csrf_exempt
-def upload_package(request, exam_id):
-    print("上传实体试卷的文件夹")
-    print(request)
-    if request.method == 'POST':
-        data = request.POST.get('filelist')
-        exam_id = request.POST.get('exam_id')
-        # data = json.loads(request.body)
-        # exam_id = data.get('exam_id')
-        print(data)
-=======
 def delete_remote_dir(sftp, remote_dir):
     for filename in sftp.listdir(remote_dir):
         filepath = remote_dir + '/' + filename
@@ -172,14 +160,12 @@ def delete_remote_dir(sftp, remote_dir):
 @csrf_exempt
 def upload_package(request, exam_id):
     if request.method == 'POST':
-        
         data = json.loads(request.body)
         # with open(r"E:\master\研一\服务外包\Untitled-2(1).json", "r", encoding='utf-8') as f:
         #     data = json.load(f)
         # data = json.loads(r"E:\master\研一\服务外包\Untitled-2(1).json")
         # exam_id = request.POST.get('exam_id')
         exam_id = data.get('exam_id')
->>>>>>> 99b1c166317bba09b43b55ada58543e640b6e4e0
         print(exam_id)
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())

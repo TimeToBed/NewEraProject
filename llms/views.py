@@ -91,12 +91,13 @@ def LLM_preview(request, exam_id):
         return 'SSH connection error'
     sftp = ssh.open_sftp()
     paper_data = sftp.file(paper_path, 'rb').read()
-    tmppath='../server/tmp.docx'
+    tmppath = os.path.join(settings.BASE_DIR,"server", "tmp.docx")
+    # tmppath='./server/tmp.docx'
     pdfpath=tmppath.replace('docx','pdf')
     with open(tmppath, 'wb') as local_file:
         local_file.write(paper_data)
     print('convert to pdf')
-    #convert(tmppath, pdfpath)
+    convert(tmppath, pdfpath)
     doc=fitz.open(pdfpath)
     images=[]
     for pg in range(doc.page_count):
@@ -104,7 +105,7 @@ def LLM_preview(request, exam_id):
         pix = page.get_pixmap(alpha=False)          # 默认是720*x尺寸
 
         images.append(pix)
-        pix.save('../server/'+'images_%s.jpg' % pg)
+        # pix.save('../server/'+'images_%s.jpg' % pg)
 
     images_base64 = [base64.b64encode(img.tobytes(output='jpg')).decode('utf-8') for img in images]
 
