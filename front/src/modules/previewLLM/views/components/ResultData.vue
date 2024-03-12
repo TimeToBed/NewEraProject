@@ -9,21 +9,9 @@
 
             <div class="grid-items-violet" v-if="analysis">
                 <p class="text-title-violet">大模型题目分析</p>
-                <br>
-                <p class="text-content-violet" v-if="analysis.analysis">{{ analysis.analysis }} </p>
-                </div>
-
-            <div class="grid-items-purple" v-if="analysis">
-                <p class="text-title-violet" v-if="analysis.knowledge_points">大模型知识点分析</p>
-                <br>
-                <p class="text-content-violet" v-if="analysis.knowledge_points">{{ analysis.knowledge_points }} </p>
-            
             </div>
 
-            <div class="flex justify-between items-center"> 
-                <el-input v-model="input_score" style="width: 100px" placeholder="请输入评分"  />
-                <p class="text-content-white">大模型输出评分: {{ LLM_score }} </p>
-            </div>
+
             <div class="w-full"> 
                 <el-input 
                     v-model="llm_analysis" 
@@ -32,17 +20,22 @@
                     type="textarea"  
                     :rows="4"
                     autosize="true"
+                    @input="handleInput_llm_analysis"
                 />
             </div>
 
+            <div class="grid-items-purple" v-if="analysis">
+                <p class="text-title-violet" v-if="analysis.knowledge_points">大模型知识点分析</p>
+            </div>
             <div class="w-full"> 
                 <el-input 
                     v-model="llm_knowledge_point" 
                     class="w-full" 
                     placeholder="大模型评语" 
-                    type="textarea"  
+                    type="textarea"
+                    autosize="true"  
                     :rows="4"
-
+                    @input="handleInput_llm_knowledge_point"
                 />
             </div>
     
@@ -72,18 +65,15 @@ export default defineComponent({
             type: Object, 
             required: true
         },
-        LLM_analysis: {
-            type: String, 
-            required: true
+    },
+    methods: {
+        handleInput_llm_knowledge_point() {
+            this.analysis.change_llm_knowledge_point=this.llm_knowledge_point
+            this.$emit('updateValue', this.analysis);
         },
-        LLM_marking: {
-            type: String, 
-            required: true
-        },
-
-        LLM_score: {
-            type: String,
-            required: true
+        handleInput_llm_analysis() {
+            this.analysis.change_llm_analysis=this.llm_analysis
+            this.$emit('updateValue', this.analysis);
         }
     },
     setup(props) {

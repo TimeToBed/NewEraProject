@@ -4,6 +4,9 @@
     <div class="flex-wrap flex-col bg-white shadow mb-7 mx-auto rounded-md">
       <div class="flex justify-between py-5 px-6 border-b border-primary-white">
         <h3 class="cursor-auto">大模型分析结果</h3>
+        <div class="flex space-x-4">
+          <el-button type="primary" @click="ok">确认</el-button>
+        </div>
       </div>
       
       <div class="p-4 items-center justify-center h-full">
@@ -13,7 +16,10 @@
               <Paper :img_src="state.imageSources[state.currentPage]"/>
             </div>
             <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
-              <Result v-if="state.LLMData" :LLMData="state.LLMData" />
+              <Result 
+                v-if="state.LLMData" :LLMData="state.LLMData" 
+                @updateValue="handleUpdateValue($event)"
+                />
             </div>
           </div>
         </div>
@@ -52,7 +58,11 @@ export default defineComponent({
         required: true,
       },
   },
-
+  methods: {
+    handleUpdateValue(newValue) {
+      this.state.LLMData = newValue;  // 更新相应的值
+    }
+  },
   setup(props){
     
     const axios = inject('axios') as AxiosInstance
@@ -113,7 +123,21 @@ export default defineComponent({
     };
 
 
-    
+    const ok = () => {
+      console.log("确认")
+      const response = axios.post(`llms/llm_update/${state.exam_id}/`,state.LLMData
+                                  )
+                        .then(function (response) {
+                          console.log(response);
+                          ElMessageBox.alert('您的修改已经保存！', '提示', {
+                                confirmButtonText: '确定'
+                              })
+                        })
+                        .catch(function (error) {
+                          console.log(error);
+                        });
+      
+    };
     
 
     return {
@@ -121,7 +145,8 @@ export default defineComponent({
       nextPage,
       prevPage,
       fetchPaperFromServer,
-      getLLMPreprocess
+      getLLMPreprocess,
+      ok
     }
   }
 })

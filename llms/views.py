@@ -47,6 +47,27 @@ def LLM_preprocess(request, exam_id):
         exam_detail_info = json.load(exam_json)
     return JsonResponse(exam_detail_info, safe=False)
 
+@csrf_exempt
+def LLM_update(request, exam_id):
+    print('LLM预处理 从前端传回来的考试exam_id：',exam_id)
+    if request.method == 'POST':
+        # 对 JSON 数据解码
+        data = json.loads(request.body)
+        # 在这里你可以打印数据，或者对数据进行其它处理
+        update_exam_analysis_path = os.path.join(settings.MEDIA_URL,"update_2020年全国卷Ⅰ语文高考试题完整版.json")
+        with open(update_exam_analysis_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+        
+        # data2 = json.loads(request.body['update_data'])
+        # with open('tmp2.json', 'w', encoding='utf-8') as f:
+        #     json.dump(data2, f, ensure_ascii=False)
+
+        # 假设你需要回送一个响应，例如这是数据处理的结果：
+        response_data = {"result": "处理成功"}
+        return JsonResponse(response_data)
+
+    return JsonResponse({"result":"Error!"})
+
 
 def LLM_preview(request, exam_id):
     from docx2pdf import convert
