@@ -85,10 +85,9 @@
   </div>
 </template>
 
-<script>
-import { defineComponent, ref } from 'vue'
+<script lang="ts">
+import { defineComponent, inject, reactive, onMounted, ref } from 'vue'
 import { DotsVerticalIcon } from '@heroicons/vue/outline'
-import axios from 'axios';
 import { AxiosInstance } from 'axios'
 
 export default defineComponent({
@@ -140,6 +139,30 @@ export default defineComponent({
         label: 'label'
       },
       filesTree: null,
+    };
+  },
+  setup() {
+    const axios = inject('axios') as AxiosInstance; // 确保你的项目中已经全局注册了 axios
+    // 使用 getCurrentInstance().appContext.config.globalProperties 访问全局属性
+    const postPaperData = (e) => {
+      let dataToSend = {
+        exam_id: 999,
+        filelist: e,
+      };
+      axios.post(`exams/uploadpapers/${dataToSend.exam_id}/`, dataToSend)
+        .then((response) => {
+          console.log('响应数据：', response.data);
+        })
+        .catch((error) => {
+          console.error('请求错误：', error);
+        });
+    };
+    // 控制台打印，证明 setup() 函数被调用
+    console.log('create exam html');
+
+    // 返回组件的响应式数据和方法，以便在模板中使用
+    return {
+      postPaperData, // 将 postPaperData 方法暴露给模板
     };
   },
   props: {
@@ -231,7 +254,7 @@ export default defineComponent({
     postPaperData(e) {
       let dataToSend = {
         id: 1,
-        filelist:e
+        filelist: e
       }
       axios.post('exams/uploadpapers/3', dataToSend.filelist)
         .then(response => {
@@ -242,6 +265,7 @@ export default defineComponent({
         });
     }
   },
+
 })
 </script>
 
