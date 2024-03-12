@@ -46,8 +46,8 @@ export default defineComponent({
 
     onMounted(async () => {
       try {
-        const id = '0000'
-        const response = await axios.get(`exams/examlist/${id}/`);
+        const user_id = '1'
+        const response = await axios.get(`exams/examlist/${user_id}/`);
         //const response = await axios.get('exams/test/');
         state.exam = response.data;
         console.log('state.exam:', state.exam)
