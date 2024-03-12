@@ -89,6 +89,7 @@
 import { defineComponent, inject, reactive, onMounted, ref } from 'vue'
 import { DotsVerticalIcon } from '@heroicons/vue/outline'
 import { AxiosInstance } from 'axios'
+import { componentSize } from 'element-plus/es/utils/props';
 
 export default defineComponent({
 
@@ -144,15 +145,14 @@ export default defineComponent({
   setup() {
     const axios = inject('axios') as AxiosInstance; // 确保你的项目中已经全局注册了 axios
     // 使用 getCurrentInstance().appContext.config.globalProperties 访问全局属性
+    // 所选考试的id和文件列表
+    let dataToSend = reactive({
+      exam_id: 7,
+      filelist: null,
+    });
+
     const postPaperData = (e: any) => {
-      let dataToSend = {
-<<<<<<< HEAD
-        exam_id: 1,
-=======
-        exam_id: 7,
->>>>>>> 99b1c166317bba09b43b55ada58543e640b6e4e0
-        filelist: e,
-      };
+      dataToSend.filelist = e
       axios.post(`exams/uploadpapers/${dataToSend.exam_id}/`, dataToSend)
         .then((response) => {
           console.log('响应数据：', response.data);
@@ -167,6 +167,7 @@ export default defineComponent({
     // 返回组件的响应式数据和方法，以便在模板中使用
     return {
       postPaperData, // 将 postPaperData 方法暴露给模板
+      dataToSend
     };
   },
   props: {
@@ -183,7 +184,9 @@ export default defineComponent({
   methods: {
     handleButtonClickUpload(row: any) {
       this.dialogVisible = true
-      console.log(this.dialogVisible)
+      console.log('dialogVisible:', this.dialogVisible)
+      console.log('exam_id:', row.exam_id)
+      this.dataToSend.exam_id = row.exam_id // 对应到所选考试的exam_id
     },
     handleButtonClickMarking(row: any) {
       console.log('批改试卷', row)
@@ -255,22 +258,9 @@ export default defineComponent({
       let base64 = await this.fileToBase64(e);
       return base64
     },
-    postPaperData(e: any[]) {
-      let dataToSend = {
-        id: 1,
-        filelist: e
-      }
-      axios.post('exams/uploadpapers/3', dataToSend.filelist)
-        .then((response: { data: any; }) => {
-          console.log('响应数据：', response.data);
-        })
-        .catch((error: any) => {
-          console.error('请求错误：', error);
-        });
-    }
   },
+});
 
-})
 </script>
 
 <style scoped>
