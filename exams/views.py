@@ -152,10 +152,17 @@ def upload_image(request):
         return render(request, 'upload.html', locals())
     return render(request, 'upload.html', locals())
 
-def upload_package(request):
+@csrf_exempt
+def upload_package(request, exam_id):
+    print("上传实体试卷的文件夹")
+    print(request)
     if request.method == 'POST':
-        data = json.loads(request.body)
-        exam_id = data.get('examid')
+        data = request.POST.get('filelist')
+        exam_id = request.POST.get('exam_id')
+        # data = json.loads(request.body)
+        # exam_id = data.get('exam_id')
+        print(data)
+        print(exam_id)
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
