@@ -31,7 +31,7 @@ from pathlib import Path
 import imageio
 from io import BytesIO
 import tempfile
-                
+import re       
 json_dir = './server/ocr'
 class OverwriteStorage(FileSystemStorage):
     def _save(self, name, content):
@@ -155,7 +155,11 @@ def upload_image(request):
 def upload_package(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-        exam_id = data.get('examid')
+        # with open(r"E:\master\研一\服务外包\Untitled-2(1).json", "r", encoding='utf-8') as f:
+        #     data = json.load(f)
+        # data = json.loads(r"E:\master\研一\服务外包\Untitled-2(1).json")
+        exam_id = data.get('exam_id')
+        print(exam_id)
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
@@ -177,7 +181,7 @@ def upload_package(request):
             print('create')
             sftp.mkdir(students_papers)
         for student_file in data['filelist']:
-            student_id = student_file.get('studentid')
+            student_id = student_file.get('filename')
             students_dir = posixpath.join(students_papers, str(student_id))
             try:
                 # 尝试切换到指定的目录
@@ -188,10 +192,14 @@ def upload_package(request):
                 sftp.mkdir(students_dir)
             i = 1
             for file in student_file['file']:
-                pic_name = str(i) + '.jpg'
+                # print(file)
+                pic_name = str(i) + '.png'
+                file = re.sub(r'data:image/.+;base64,', '', file)
+                file_data = base64.b64decode(file)  # Decode the Base64 string to bytes.
+                file_obj = io.BytesIO(file_data)
                 student_file = posixpath.join(students_dir, pic_name)
                 try:
-                    sftp.putfo(file, student_file)
+                    sftp.putfo(file_obj, student_file)
                     print("上传成功")
                 except Exception as e:
                     # 这里处理文件传输过程中可能出现的错误
