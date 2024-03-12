@@ -149,6 +149,14 @@ def upload_image(request):
         return render(request, 'upload.html', locals())
     return render(request, 'upload.html', locals())
 
+def delete_remote_dir(sftp, remote_dir):
+    for filename in sftp.listdir(remote_dir):
+        filepath = remote_dir + '/' + filename
+        sftp.remove(filepath)
+    # 删除空目录
+    sftp.rmdir(remote_dir)
+
+
 @csrf_exempt
 def upload_package(request, exam_id):
     if request.method == 'POST':
@@ -184,12 +192,11 @@ def upload_package(request, exam_id):
             student_id = student_file.get('filename')
             students_dir = posixpath.join(students_papers, str(student_id))
             try:
-                # 尝试切换到指定的目录
-                sftp.chdir(students_dir)
-            except FileNotFoundError:
-                # 如果切换目录失败，说明目录不存在，我们在此创建目录
-                print('create')
-                sftp.mkdir(students_dir)
+                sftp.stat(students_dir)
+                delete_remote_dir(sftp, students_dir)
+            except IOError:
+                pass
+            sftp.mkdir(students_dir)
             i = 1
             for file in student_file['file']:
                 # print(file)
