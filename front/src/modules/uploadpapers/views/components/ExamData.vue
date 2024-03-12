@@ -146,7 +146,11 @@ export default defineComponent({
     // 使用 getCurrentInstance().appContext.config.globalProperties 访问全局属性
     const postPaperData = (e: any) => {
       let dataToSend = {
+<<<<<<< HEAD
         exam_id: 1,
+=======
+        exam_id: 7,
+>>>>>>> 99b1c166317bba09b43b55ada58543e640b6e4e0
         filelist: e,
       };
       axios.post(`exams/uploadpapers/${dataToSend.exam_id}/`, dataToSend)

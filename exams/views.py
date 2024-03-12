@@ -28,7 +28,7 @@ from pathlib import Path
 import imageio
 from io import BytesIO
 import tempfile
-                
+import re       
 json_dir = './server/ocr'
 class OverwriteStorage(FileSystemStorage):
     def _save(self, name, content):
@@ -149,6 +149,7 @@ def upload_image(request):
         return render(request, 'upload.html', locals())
     return render(request, 'upload.html', locals())
 
+<<<<<<< HEAD
 @csrf_exempt
 def upload_package(request, exam_id):
     print("上传实体试卷的文件夹")
@@ -159,6 +160,26 @@ def upload_package(request, exam_id):
         # data = json.loads(request.body)
         # exam_id = data.get('exam_id')
         print(data)
+=======
+def delete_remote_dir(sftp, remote_dir):
+    for filename in sftp.listdir(remote_dir):
+        filepath = remote_dir + '/' + filename
+        sftp.remove(filepath)
+    # 删除空目录
+    sftp.rmdir(remote_dir)
+
+
+@csrf_exempt
+def upload_package(request, exam_id):
+    if request.method == 'POST':
+        
+        data = json.loads(request.body)
+        # with open(r"E:\master\研一\服务外包\Untitled-2(1).json", "r", encoding='utf-8') as f:
+        #     data = json.load(f)
+        # data = json.loads(r"E:\master\研一\服务外包\Untitled-2(1).json")
+        # exam_id = request.POST.get('exam_id')
+        exam_id = data.get('exam_id')
+>>>>>>> 99b1c166317bba09b43b55ada58543e640b6e4e0
         print(exam_id)
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -172,7 +193,7 @@ def upload_package(request, exam_id):
             print("连接错误：", str(e))
             return 'SSH connection error'
         sftp = ssh.open_sftp()
-        students_papers = posixpath.join(settings.Remote_path, str(exam_id), 'students_papers')
+        students_papers = posixpath.join(settings.Remote_path, str(exam_id), 'student_papers')
         try:
             # 尝试切换到指定的目录
             sftp.chdir(students_papers)
@@ -181,29 +202,36 @@ def upload_package(request, exam_id):
             print('create')
             sftp.mkdir(students_papers)
         for student_file in data['filelist']:
-            student_id = student_file.get('studentid')
+            student_id = student_file.get('filename')
             students_dir = posixpath.join(students_papers, str(student_id))
             try:
-                # 尝试切换到指定的目录
-                sftp.chdir(students_dir)
-            except FileNotFoundError:
-                # 如果切换目录失败，说明目录不存在，我们在此创建目录
-                print('create')
-                sftp.mkdir(students_dir)
+                sftp.stat(students_dir)
+                delete_remote_dir(sftp, students_dir)
+            except IOError:
+                pass
+            sftp.mkdir(students_dir)
             i = 1
             for file in student_file['file']:
-                pic_name = str(i) + '.jpg'
+                # print(file)
+                pic_name = str(i) + '.png'
+                file = re.sub(r'data:image/.+;base64,', '', file)
+                file_data = base64.b64decode(file)  # Decode the Base64 string to bytes.
+                file_obj = io.BytesIO(file_data)
                 student_file = posixpath.join(students_dir, pic_name)
                 try:
-                    sftp.putfo(file, student_file)
+                    sftp.putfo(file_obj, student_file)
                     print("上传成功")
                 except Exception as e:
                     # 这里处理文件传输过程中可能出现的错误
                     print("文件传输错误：", str(e))
                     return 'File transfer error'
                 i += 1
-            paper = Papers.objects.get(exam_id=int(exam_id))
+            paper = Papers()
             paper.pic_path = students_dir
+            paper.state = 0
+            paper.pages = i - 1
+            paper.exam_id = exam_id
+            paper.student_id = student_id
             paper.save()
         
         sftp.close()
@@ -343,9 +371,116 @@ def ocr_preprocess(request, exam_id):
     return HttpResponse("收到")
 
 
+def LLM_preprocess(request, exam_id):
+    print('LLM预处理 从前端传回来的考试exam_id：',exam_id)
+    exam_analysis_path = os.path.join(settings.MEDIA_URL,"2020年全国卷Ⅰ语文高考试题完整版.json")
+    with open(exam_analysis_path, 'r', encoding='utf-8') as exam_json:
+        exam_detail_info = json.load(exam_json)
+    return JsonResponse(exam_detail_info, safe=False)
+
+
+def LLM_preview(request, exam_id):
+    from docx2pdf import convert
+    import fitz
+
+    print('LLM预览 从前端传回来的考试exam_id：',exam_id)
+    exam = Exams.objects.filter(id=exam_id)[0]
+    print(exam)
+    paper_path = exam.paper_identity_path
+    print(paper_path)
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        ssh.connect(hostname=settings.Remote_HOST, username=settings.Remote_user, password=settings.Remote_password, port=settings.Remote_PORT)
+        print("连接成功")
+    except paramiko.AuthenticationException:
+        print("认证失败")
+        return 'SSH Authentication failed'
+    except paramiko.SSHException as e:
+        print("连接错误：", str(e))
+        return 'SSH connection error'
+    sftp = ssh.open_sftp()
+    paper_data = sftp.file(paper_path, 'rb').read()
+    tmppath='../server/tmp.docx'
+    pdfpath=tmppath.replace('docx','pdf')
+    with open(tmppath, 'wb') as local_file:
+        local_file.write(paper_data)
+    print('convert to pdf')
+    #convert(tmppath, pdfpath)
+    doc=fitz.open(pdfpath)
+    images=[]
+    for pg in range(doc.page_count):
+        page = doc[pg]
+        pix = page.get_pixmap(alpha=False)          # 默认是720*x尺寸
+
+        images.append(pix)
+        pix.save('../server/'+'images_%s.jpg' % pg)
+
+    images_base64 = [base64.b64encode(img.tobytes(output='jpg')).decode('utf-8') for img in images]
+
+    
+    sftp.close()
+    ssh.close()
+
+    os.remove(tmppath)
+    return JsonResponse(images_base64, safe=False)
+
+
+# word直接转图片，有水印
+def LLM_preview_old(request, exam_id):
+    from docx2pdf import convert
+    import spire.doc as doc
+    import spire.doc.common as common
+
+    print('LLM预览 从前端传回来的考试exam_id：',exam_id)
+    exam = Exams.objects.filter(id=exam_id)[0]
+    print(exam)
+    paper_path = exam.paper_identity_path
+    print(paper_path)
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        ssh.connect(hostname=settings.Remote_HOST, username=settings.Remote_user, password=settings.Remote_password, port=settings.Remote_PORT)
+        print("连接成功")
+    except paramiko.AuthenticationException:
+        print("认证失败")
+        return 'SSH Authentication failed'
+    except paramiko.SSHException as e:
+        print("连接错误：", str(e))
+        return 'SSH connection error'
+    sftp = ssh.open_sftp()
+    paper_data = sftp.file(paper_path, 'rb').read()
+    tmppath='../server/tmp.docx'
+    pdfpath=tmppath.replace('docx','pdf')
+    with open(tmppath, 'wb') as local_file:
+        local_file.write(paper_data)
+    print('convert to pdf')
+    convert(tmppath, pdfpath)
+    
+    # 创建一个 Document 对象
+    document = doc.Document()
+    # 加载一个 Word DOCX 文件
+    document.LoadFromFile(tmppath)
+
+    # for section in document.Sections:
+    #     for paragraph in section.paragraphs:
+    #         for run in paragraph.runs:
+    #             if "Evaluation Warning: the document was create with Spire.Doc for Python" in run.text:
+    #                 paragraph.remove(run)
+
+    image_streams = document.SaveImageToStreams(doc.ImageType.Bitmap)
+    images_base64 = [base64.b64encode(img.ToArray()).decode('utf-8') for img in image_streams]
+
+    
+    sftp.close()
+    ssh.close()
+    document.Close()
+
+    os.remove(tmppath)
+    return JsonResponse(images_base64, safe=False)
 
 def querypaper(request, paper_id):
-    print('LLM预览 从前端传回来的考试paper_id：',paper_id)
+    print('查询试卷 从前端传回来的考试paper_id：',paper_id)
     paper = Papers.objects.filter(id=paper_id)[0]
     print(paper)
     data={

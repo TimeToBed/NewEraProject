@@ -1,8 +1,10 @@
 <template>
   <Topbar 
+    v-if="paperData" 
     :paper_id="paper_id"
     :totalSet="totalSet"
     :totalPage="totalPage"
+    :paperData="paperData"
     />
 </template>
 
