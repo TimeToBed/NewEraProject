@@ -149,12 +149,15 @@ def upload_image(request):
         return render(request, 'upload.html', locals())
     return render(request, 'upload.html', locals())
 
-def upload_package(request):
+@csrf_exempt
+def upload_package(request, exam_id):
     if request.method == 'POST':
+        
         data = json.loads(request.body)
         # with open(r"E:\master\研一\服务外包\Untitled-2(1).json", "r", encoding='utf-8') as f:
         #     data = json.load(f)
         # data = json.loads(r"E:\master\研一\服务外包\Untitled-2(1).json")
+        # exam_id = request.POST.get('exam_id')
         exam_id = data.get('exam_id')
         print(exam_id)
         ssh = paramiko.SSHClient()
@@ -169,7 +172,7 @@ def upload_package(request):
             print("连接错误：", str(e))
             return 'SSH connection error'
         sftp = ssh.open_sftp()
-        students_papers = posixpath.join(settings.Remote_path, str(exam_id), 'students_papers')
+        students_papers = posixpath.join(settings.Remote_path, str(exam_id), 'student_papers')
         try:
             # 尝试切换到指定的目录
             sftp.chdir(students_papers)
@@ -203,8 +206,12 @@ def upload_package(request):
                     print("文件传输错误：", str(e))
                     return 'File transfer error'
                 i += 1
-            paper = Papers.objects.get(exam_id=int(exam_id))
+            paper = Papers()
             paper.pic_path = students_dir
+            paper.state = 0
+            paper.pages = i - 1
+            paper.exam_id = exam_id
+            paper.student_id = student_id
             paper.save()
         
         sftp.close()

@@ -151,3 +151,7 @@ Remote_user = 'fsn'
 Remote_password = 'fsn'
 Remote_PORT = 10099
 Remote_path = r'/hdd/server/'
+
+# settings.py 
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 104857600  # 100MB
