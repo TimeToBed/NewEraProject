@@ -3,11 +3,11 @@
       <el-scrollbar class="h-600">
         <ul class="no-bullet">
           <li v-for="i in state.length" :key="i.toString()" class="text item">
-            <ResultData v-bind="state.questions[i.toString()]" />
+            <ResultData
+              v-bind="state.questions[i.toString()]"
+              @updateValue="handleUpdateValue(i, $event)"
+            />
           </li>    
-          <!-- <li  class="text item">
-            <ResultData v-bind="state.questions['1']" />
-          </li>     -->
         </ul>
 
       </el-scrollbar>
@@ -28,7 +28,12 @@ export default defineComponent({
     ResultData,
   },
   methods: {
-
+    handleUpdateValue(index, newValue) {
+      // 这里的 index 和 newValue 分别是从子组件传来的索引和新值
+      this.state.questions[index].analysis = newValue;  // 更新相应的值
+      console.log("Result.vue  this state questions[index]:",this.state.questions[index])
+      this.$emit('updateValue', this.state.questions);
+    }
   },
   props:{
     LLMData: {
@@ -40,26 +45,7 @@ export default defineComponent({
       questions:null,
       length:0
     })
-    // let questions=[
-    //   {
-    //     index: 1,
-    //     content:"1.这是一个短问题。",
-    //     answer:"这是一个短答案。",
-    //     LLM_analysis:"这是一个LLM对题目的分析。",
-    //     LLM_marking:"这是一个LLM对题目的批改。",
-    //     LLM_score:20, 
-
-    //   },
-
-    //   {
-    //     index: 1,
-    //     content:"2.这是一个短问题。",
-    //     answer:"这是一个短答案。",
-    //     LLM_analysis:"这是一个LLM对题目的分析。",
-    //     LLM_marking:"这是一个LLM对题目的批改。",
-    //     LLM_score:10, 
-    //   },
-    // ]  
+  
     state.questions=props.LLMData
     state.length=Object.keys(state.questions).length;
     console.log('result.vue:', state.questions)
