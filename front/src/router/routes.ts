@@ -44,6 +44,7 @@ const CreateExam = () => import('modules/create_exam/views/index.vue')
 const UploadPapers = () => import('modules/uploadpapers/views/index.vue')
 const MarkingPapers = () => import('modules/markingpapers/views/index.vue')
 const MarkingPaper = () => import('modules/markingpaper/views/index.vue')
+const PreviewLLM = () => import('modules/previewLLM/views/index.vue')
 
 const ComponentLayout = () => import('components/ComponentLayout/index.vue')
 const ExamLayout = () => import('components/ExamLayout/index.vue')
@@ -346,6 +347,14 @@ const routes = [
     path: '/marking_paper',
     component: MarkingPaper,
     name: 'MarkingPaper',
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/previewllm',
+    component: PreviewLLM,
+    name: 'PreviewLLM',
     meta: {
       requiresAuth: true,
     },

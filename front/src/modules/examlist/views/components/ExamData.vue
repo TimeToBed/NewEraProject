@@ -126,26 +126,32 @@
       const handleButtonClickLLMPreprocess = async (row) => {
         console.log('LLM 预处理', row)
         try {
-          const response = await axios.get(`exams/llm_preprocess/${row.exam_id}/`);
+          const response = await axios.get(`llms/llm_preprocess/${row.exam_id}/`);
           console.log(response);
+          row.llm_preprocess=1
         } catch (error) {
           console.error("Error during HTTP request:", error);
         }
       };
       
-      const handleButtonClickLLMPreview = async (row) => {
-        console.log('LLM 预览', row)
-        try {
-          const response = await axios.get(`exams/llm_preview/${row.exam_id}/`);
-          console.log(response);
-        } catch (error) {
-          console.error("Error during HTTP request:", error);
-        }
-      };
+      // const handleButtonClickLLMPreview = async (row) => {
+      //   console.log('LLM 预览', row)
+      //   try {
+      //     console.log('上传试卷',row)
+      //     this.$router.push('/marking/upload_papers');
+
+      //     const response = await axios.get(`exams/llm_preview/${row.exam_id}/`);
+      //     console.log(response);
+
+
+
+      //   } catch (error) {
+      //     console.error("Error during HTTP request:", error);
+      //   }
+      // };
 
       return { 
         handleButtonClickLLMPreprocess ,
-        handleButtonClickLLMPreview,
       };
     },
     methods: {
@@ -168,6 +174,11 @@
       },
       isButtonDisabled(markingable) {
         return !markingable;
+      },
+      handleButtonClickLLMPreview (row){
+        console.log('LLM 预览', row)
+        console.log('LLM预览',row)
+        this.$router.push({path: '/previewllm', query: { exam_id: row.exam_id }});
       }
     },
   })

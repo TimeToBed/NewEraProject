@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from .models import *  # assuming you have an Exam model
+from exams.models import *
 from django.core.files.storage import FileSystemStorage
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse, FileResponse
@@ -17,6 +18,27 @@ from demo import settings
 import json
 import shutil
 # Create your views here.
+import os
+import json
+import ast
+import io
+import base64
+from asgiref.sync import sync_to_async
+
+import paramiko
+from datetime import datetime
+from demo import settings
+from django.db.models import Max
+import posixpath
+import stat
+import json
+import shutil
+from paddleocr import PaddleOCR
+from pathlib import Path
+import imageio
+from io import BytesIO
+import tempfile
+
 
 def LLM_preprocess(request, exam_id):
     print('LLM预处理 从前端传回来的考试exam_id：',exam_id)
@@ -27,9 +49,52 @@ def LLM_preprocess(request, exam_id):
 
 
 def LLM_preview(request, exam_id):
-    print('LLM预览 从前端传回来的考试exam_id：',exam_id)
+    from docx2pdf import convert
+    import fitz
 
-    return HttpResponse("收到")
+    print('LLM预览 从前端传回来的考试exam_id：',exam_id)
+    exam = Exams.objects.filter(id=exam_id)[0]
+    print(exam)
+    paper_path = exam.paper_identity_path
+    print(paper_path)
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        ssh.connect(hostname=settings.Remote_HOST, username=settings.Remote_user, password=settings.Remote_password, port=settings.Remote_PORT)
+        print("连接成功")
+    except paramiko.AuthenticationException:
+        print("认证失败")
+        return 'SSH Authentication failed'
+    except paramiko.SSHException as e:
+        print("连接错误：", str(e))
+        return 'SSH connection error'
+    sftp = ssh.open_sftp()
+    paper_data = sftp.file(paper_path, 'rb').read()
+    tmppath='../server/tmp.docx'
+    pdfpath=tmppath.replace('docx','pdf')
+    with open(tmppath, 'wb') as local_file:
+        local_file.write(paper_data)
+    print('convert to pdf')
+    #convert(tmppath, pdfpath)
+    doc=fitz.open(pdfpath)
+    images=[]
+    for pg in range(doc.page_count):
+        page = doc[pg]
+        pix = page.get_pixmap(alpha=False)          # 默认是720*x尺寸
+
+        images.append(pix)
+        pix.save('../server/'+'images_%s.jpg' % pg)
+
+    images_base64 = [base64.b64encode(img.tobytes(output='jpg')).decode('utf-8') for img in images]
+
+    
+    sftp.close()
+    ssh.close()
+
+    os.remove(tmppath)
+    return JsonResponse(images_base64, safe=False)
+
+
 
 async def test_p(p_test_problem):
     #可以直接将这两行代码放入指定位置，进行流式异步传输

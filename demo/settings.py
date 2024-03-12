@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'exams.apps.ExamConfig',
+    'llms'
 ]
 
 ASGI_APPLICATION = 'demo.routing.application'
