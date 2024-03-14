@@ -204,6 +204,7 @@ export default defineComponent({
     handleClose(done: () => void) {
       this.$confirm('确认关闭？')
         .then((_: any) => {
+          this.dialogVisible = false,
           done();
         })
         .catch((_: any) => { });
