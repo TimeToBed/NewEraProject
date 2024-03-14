@@ -1,51 +1,72 @@
-import asyncio
-import os
+
 import erniebot
 from erniebot_agent.agents import FunctionAgent
 from erniebot_agent.chat_models import ERNIEBot
-from erniebot_agent.tools import RemoteToolkit
+
 from erniebot_agent.memory import HumanMessage, AIMessage, SystemMessage, FunctionMessage
 import asyncio
+from docx import Document
+import time, json ,re
+from tqdm import tqdm
+
 from .LLM_prompt import *
+from .utils import *
 
-#import erniebot
+#子函数
+async def analyse_topic(info, model):
 
+    system_message = SystemMessage(content=analysis_prompt['system_message'])
 
-def json2message(content):
-    """用作后续的格式转换..保留内容"""
+    pre_text, item, answer = info['pretext'], info['content'], info['answer']
+    human_messages = f"相关内容:{pre_text}\n题干:{item}\n参考答案:{answer}"
 
-    return content
+    messages = [HumanMessage(analysis_prompt['pre_human_message'] + human_messages)]
+    #print(messages[0].content)
 
-async def analysis_problem(inputs):
-    """
-    描述:
-        - 针对某一道具体题目(包含学生作答)进行分析，并给出该题所含知识点以及评分建议。
-    参数:
-        - inputs: 题目内容(目前为字符串，后续可为json文件或者字典等形式)
-    返回:
-        - 文心一言的返回结果: str
-    """
+    #start = time.time()
+    ai_message = await model.chat(messages=messages, system=system_message.content)
+    #dur = time.time() - start
 
-    system_message = SystemMessage(content=p_system_message)
-    pre_prompt = p_analysis_pre
-    #`_config_`, `top_p`, `temperature`,`penalty_score`, `system`
-    paper_message = json2message(inputs)
+    #print(f"题目 耗时{dur:.2f}s\n {ai_message.content} ")
+    output = ai_message.content.replace("```json", "").replace("```", "").replace("\n","").strip()
+    dictionary = json.loads(output)
+
+    return dictionary
+
+def pre_exam(exam_path, answer_path, save_json_path):
+
+    print("开始预处理试卷...")
+    raw_exam_dict = load_exam(exam_path)
+    answer_dict = load_answer(answer_path)
+
+    exam_dict = add_answer_to_exam(raw_exam_dict, answer_dict)
+
+    simplify_content(exam_dict, save_json_path)
+
+#耗费toekn 预估 20w
+async def llm_analysis_exam(exam_json_path, save_json_path):
+
+    with open(exam_json_path, 'r', encoding='utf-8') as exam_json:
+        exam_info = json.load(exam_json)
+
     model = ERNIEBot(model="ernie-4.0", temperature = 0.01)
 
-    messages = [HumanMessage(pre_prompt + paper_message)]
-    
-    #erniebot.api_type = 'aistudio'
-    #erniebot.access_token = "864dc877bb527022d4e95ccbbc49cd471ea25f7b"
-    ai_message = await model.chat(messages=messages, system=system_message.content, stream=True)
-    count_tokens = 0
-    async for chunk in ai_message:  # 流式输出结果
-        count_tokens += chunk.token_count
+    print("开始分析知识点...")
 
-        yield chunk.content
+    for info in tqdm(exam_info.values()):
+        if info["sub_topic"]:
+            for sub_info in info["sub_topic"].values():
+                sub_info['analysis'] = await analyse_topic(sub_info, model)
+        else:
+            info['analysis']  = await analyse_topic(info, model)
 
-    #release版本删除print
-    print("\n使用 tokens:", count_tokens)
-        
+    print("知识点分析已完成！")
+
+    with open(save_json_path, 'w', encoding='utf-8') as json_file:
+        json.dump(exam_info, json_file, ensure_ascii=False)
+
+
+
 
 
 
