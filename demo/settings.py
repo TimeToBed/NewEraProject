@@ -143,6 +143,7 @@ STATICFILES_DIRS=[STATIC_PATH]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = os.path.join(BASE_DIR, 'media/')
+TEMP_URL = os.path.join(BASE_DIR, r'server/.cache')
 
 CSRF_COOKIE_NAME = 'csrftoken'
 

@@ -1,83 +1,42 @@
-from django.http import HttpResponse
-# Create your views here.
+
 from django.shortcuts import render, redirect
 from django.utils import timezone
-from .models import *  # assuming you have an Exam model
-from exams.models import *
 from django.core.files.storage import FileSystemStorage
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse, FileResponse
-from django.core import serializers
-import os
-import json
-from asgiref.sync import sync_to_async
-
-from .LLM_package import *
-from datetime import datetime
+from django.http import JsonResponse, FileResponse, HttpResponse,HttpRequest
 from demo import settings
-import json
-import shutil
-# Create your views here.
-import os
-import json
-import ast
-import io
-import base64
-from asgiref.sync import sync_to_async
 
-import paramiko
-from datetime import datetime
-from demo import settings
-from django.db.models import Max
-import posixpath
-import stat
-import json
-import shutil
-from paddleocr import PaddleOCR
+from asgiref.sync import sync_to_async
+import json, base64, paramiko, os
 from pathlib import Path
-import imageio
-from io import BytesIO
-import tempfile
+from docx2pdf import convert
+import fitz,io,shutil
 
+from datetime import datetime
+from .models import *  # assuming you have an Exam model
+from exams.models import *
+from .LLM_package import *
+# Create your views here.
 
-def LLM_preprocess(request, exam_id):
-    print('LLM预处理 从前端传回来的考试exam_id：',exam_id)
-    exam_analysis_path = os.path.join(settings.MEDIA_URL,"2020年全国卷Ⅰ语文高考试题完整版.json")
-    with open(exam_analysis_path, 'r', encoding='utf-8') as exam_json:
-        exam_detail_info = json.load(exam_json)
-    return JsonResponse(exam_detail_info, safe=False)
+def del_object(*args):
+    for obj in args:
+        try:
+            obj.close()
+        except AttributeError:
+            print(f'The object {obj} does not have a close method.')
+        except Exception as e:
+            print(f'An error occurred when closing object {obj}: {e}')
 
-@csrf_exempt
-def LLM_update(request, exam_id):
-    print('LLM预处理 从前端传回来的考试exam_id：',exam_id)
-    if request.method == 'POST':
-        # 对 JSON 数据解码
-        data = json.loads(request.body)
-        # 在这里你可以打印数据，或者对数据进行其它处理
-        update_exam_analysis_path = os.path.join(settings.MEDIA_URL,"update_2020年全国卷Ⅰ语文高考试题完整版.json")
-        with open(update_exam_analysis_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=4)
-        
-        # data2 = json.loads(request.body['update_data'])
-        # with open('tmp2.json', 'w', encoding='utf-8') as f:
-        #     json.dump(data2, f, ensure_ascii=False)
+def clean_server_cache():
 
-        # 假设你需要回送一个响应，例如这是数据处理的结果：
-        response_data = {"result": "处理成功"}
-        return JsonResponse(response_data)
+    for file_name in os.listdir(settings.TEMP_URL):
+        file_path = os.path.join(settings.TEMP_URL, file_name)
+        if os.path.isfile(file_path) or os.path.islink(file_path):
+            os.unlink(file_path)  # 移除文件或符号链接
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)  # 递归删除一个目录
 
-    return JsonResponse({"result":"Error!"})
-
-
-def LLM_preview(request, exam_id):
-    from docx2pdf import convert
-    import fitz
-
-    print('LLM预览 从前端传回来的考试exam_id：',exam_id)
-    exam = Exams.objects.filter(id=exam_id)[0]
-    print(exam)
-    paper_path = exam.paper_identity_path
-    print(paper_path)
+def ssh_connect():
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
@@ -89,44 +48,146 @@ def LLM_preview(request, exam_id):
     except paramiko.SSHException as e:
         print("连接错误：", str(e))
         return 'SSH connection error'
-    sftp = ssh.open_sftp()
-    paper_data = sftp.file(paper_path, 'rb').read()
-    tmppath='../server/tmp.docx'
-    pdfpath=tmppath.replace('docx','pdf')
-    with open(tmppath, 'wb') as local_file:
-        local_file.write(paper_data)
-    print('convert to pdf')
-    #convert(tmppath, pdfpath)
-    doc=fitz.open(pdfpath)
-    images=[]
-    for pg in range(doc.page_count):
-        page = doc[pg]
-        pix = page.get_pixmap(alpha=False)          # 默认是720*x尺寸
+    return ssh
 
-        images.append(pix)
-        pix.save('../server/'+'images_%s.jpg' % pg)
+def ssh_execute_sudo_command(ssh, command):   
+    stdin, stdout, stderr = ssh.exec_command(f"sudo -S {command}", get_pty=True)
+    # 提供 sudo 密码
+    stdin.write(settings.Remote_password + '\n')
+    stdin.flush()
+    output = stdout.read().decode('utf-8') 
+    error = stderr.read().decode('utf-8')
+    return output, error
+
+def LLM_preprocess(request, exam_id):
+
+    print('LLM_preprocess 从前端传回来的考试exam_id：',exam_id)
+
+    try:
+        exam = Exams.objects.get(id=exam_id)
+        exam_path = exam.paper_identity_path
+        exam_answer_path = exam.paper_answer_path
+
+    except Exams.DoesNotExist:
+        return JsonResponse({"result":f"No exist {exam_id}!"})
+
+    ssh = ssh_connect()
+    sftp = ssh.open_sftp()
+
+    if exam.llm_knowledge_path is not None:
+
+        exam_analysis_path = exam.llm_knowledge_path
+        print(f"{exam_analysis_path} already exists.")
+
+    else:
+        print("调用文心一言大模型...")
+        """ tmp_exam_path = os.path.join(settings.TEMP_URL,"exam_tmp.docx")
+        tmp_answer_path = os.path.join(settings.TEMP_URL,"answer_tmp.docx")
+        tmp_json_path = os.path.join(settings.TEMP_URL,"tmp.json")
+
+        sftp.get(exam_path, tmp_exam_path)
+        sftp.get(exam_answer_path, tmp_answer_path)
+
+        pre_exam(tmp_exam_path, tmp_answer_path, tmp_json_path)
+
+        asyncio.run(llm_analysis_exam(tmp_json_path,tmp_json_path))
+
+        #保存知识分析路径
+        exam_analysis_path = os.path.splitext(exam_path)[0] + '.json'
+        sftp.put(tmp_json_path, exam_analysis_path)
+
+        print("文件上传成功！")
+        exam.llm_knowledge_path = exam_analysis_path
+        exam.save() """
+
+    with sftp.file(exam_analysis_path, 'rb',) as f:  # 打开远程服务器上的JSON文件
+        exam_detail_info = json.loads(f.read().decode('utf-8'))  # 读取文件内容并解析为Python数据结构
+    
+    del_object(sftp,ssh)
+    return JsonResponse(exam_detail_info, safe=False)
+
+@csrf_exempt
+def LLM_update(request:HttpRequest, exam_id):
+
+    print('LLM_update 从前端传回来的考试exam_id：',exam_id)
+    try:
+        exam = Exams.objects.get(id=exam_id)
+        exam_knowledge_path = exam.llm_knowledge_path
+
+    except Exams.DoesNotExist:
+        return JsonResponse({"result":f"No exist {exam_id}!"})
+  
+    if request.method == 'POST':
+        ssh = ssh_connect()
+        sftp = ssh.open_sftp()
+        # 对 JSON 数据解码
+        #data = json.loads(request.body.decode('utf-8')) #此时data为字典
+        bytes_io = io.BytesIO(request.body) #request.body utf-8 编码的二进制文件
+
+        try:
+            sftp.putfo(bytes_io, exam_knowledge_path)
+            print("上传成功")
+        except Exception as e:
+            # 这里处理文件传输过程中可能出现的错误
+            print("文件传输错误：", str(e))
+            return 'File transfer error'
+        sftp.close()
+        ssh.close()
+        return JsonResponse({"result": "处理成功"})
+
+    return JsonResponse({"result":"No Post error!"})
+
+
+def LLM_preview(request, exam_id):
+
+    print('LLM预览 从前端传回来的考试exam_id：',exam_id)
+
+    try:
+        exam = Exams.objects.get(id=exam_id)
+        exam_path = exam.paper_identity_path
+
+    except Exams.DoesNotExist:
+        return JsonResponse({"result":f"No exist id {exam_id}!"})
+
+    ssh = ssh_connect()
+    sftp = ssh.open_sftp()
+    
+    pdf_path = exam_path.replace('docx','pdf')
+    tmp_doc_path = os.path.join(settings.TEMP_URL,"tmp.docx")
+    tmp_pdf_path = os.path.join(settings.TEMP_URL,"tmp.pdf")
+
+    try:
+        sftp.stat(pdf_path)
+        sftp.get(pdf_path, tmp_pdf_path)
+
+        print(f"{pdf_path} already exists.")
+    except IOError:
+
+        sftp.get(exam_path, tmp_doc_path)
+        print('docx 转换至 pdf')
+        convert(tmp_doc_path, tmp_pdf_path)
+        print(f'传送 pdf 至服务器: {pdf_path}')
+        with open(tmp_pdf_path, 'rb') as f:  # 使用二进制模式打开本地PDF文件
+            sftp.putfo(f, pdf_path)  # 上传PDF文件到服务器 
+
+
+    with fitz.open(tmp_pdf_path) as pdf:
+        images=[]
+        if isinstance(pdf,fitz.Document):
+            for pg_i in range(pdf.page_count):
+
+                matrix = fitz.Matrix(300/72, 300/72)
+                pixmap = pdf[pg_i].get_pixmap(matrix=matrix ,alpha=False)         
+                images.append(pixmap)
 
     images_base64 = [base64.b64encode(img.tobytes(output='jpg')).decode('utf-8') for img in images]
 
-    
-    sftp.close()
-    ssh.close()
+    del_object(ssh, sftp)
+    clean_server_cache()
 
-    os.remove(tmppath)
     return JsonResponse(images_base64, safe=False)
 
 
-
-async def test_p(p_test_problem):
-    #可以直接将这两行代码放入指定位置，进行流式异步传输
-    async for content in analysis_problem(p_test_problem):
-        print(content, end="")
-
-async def calculate_context(result):
-    context = ""
-    async for content in analysis_problem(result):
-        context += content
-    return context
 
 #@csrf_exempt
 async def rectangle(request):

@@ -89,6 +89,7 @@
 import { defineComponent, inject, reactive, onMounted, ref } from 'vue'
 import { DotsVerticalIcon } from '@heroicons/vue/outline'
 import { AxiosInstance } from 'axios'
+import { componentSize } from 'element-plus/es/utils/props';
 
 export default defineComponent({
 
@@ -144,11 +145,14 @@ export default defineComponent({
   setup() {
     const axios = inject('axios') as AxiosInstance; // 确保你的项目中已经全局注册了 axios
     // 使用 getCurrentInstance().appContext.config.globalProperties 访问全局属性
-    const postPaperData = (e) => {
-      let dataToSend = {
-        exam_id: 7,
-        filelist: e,
-      };
+    // 所选考试的id和文件列表
+    let dataToSend = reactive({
+      exam_id: 7,
+      filelist: null,
+    });
+
+    const postPaperData = (e: any) => {
+      dataToSend.filelist = e
       axios.post(`exams/uploadpapers/${dataToSend.exam_id}/`, dataToSend)
         .then((response) => {
           console.log('响应数据：', response.data);
@@ -163,6 +167,7 @@ export default defineComponent({
     // 返回组件的响应式数据和方法，以便在模板中使用
     return {
       postPaperData, // 将 postPaperData 方法暴露给模板
+      dataToSend
     };
   },
   props: {
@@ -177,31 +182,34 @@ export default defineComponent({
     },
   },
   methods: {
-    handleButtonClickUpload(row) {
+    handleButtonClickUpload(row: any) {
       this.dialogVisible = true
-      console.log(this.dialogVisible)
+      console.log('dialogVisible:', this.dialogVisible)
+      console.log('exam_id:', row.exam_id)
+      this.dataToSend.exam_id = row.exam_id // 对应到所选考试的exam_id
     },
-    handleButtonClickMarking(row) {
+    handleButtonClickMarking(row: any) {
       console.log('批改试卷', row)
       this.$router.push('/marking/marking_papers');
     },
-    getButtonType(ismarking) {
+    getButtonType(ismarking: any) {
       return ismarking ? 'primary' : '';
     },
-    getButtonClass(ismarking) {
+    getButtonClass(ismarking: any) {
       return ismarking ? '' : 'el-button--secondary';
     },
-    isButtonDisabled(ismarking) {
+    isButtonDisabled(ismarking: any) {
       return !ismarking;
     },
-    handleClose(done) {
+    handleClose(done: () => void) {
       this.$confirm('确认关闭？')
-        .then(_ => {
+        .then((_: any) => {
+          this.dialogVisible = false,
           done();
         })
-        .catch(_ => { });
+        .catch((_: any) => { });
     },
-    async handleFolderUpload(event) {
+    async handleFolderUpload(event: { target: { files: any; }; }) {
       const files = event.target.files;
       let filelist = [];
 
@@ -231,11 +239,11 @@ export default defineComponent({
       this.postPaperData(filelist)
     },
 
-    getPicList(e) {
+    getPicList(e: any) {
 
     },
     // 将图片文件转换为 Base64
-    fileToBase64(file) {
+    fileToBase64(file: Blob) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -247,26 +255,13 @@ export default defineComponent({
         reader.readAsDataURL(file); // 异步读取文件内容，结果用data:url的字符串形式表示
       });
     },
-    async image2file(e) {
+    async image2file(e: any) {
       let base64 = await this.fileToBase64(e);
       return base64
     },
-    postPaperData(e) {
-      let dataToSend = {
-        id: 1,
-        filelist: e
-      }
-      axios.post('exams/upload', dataToSend)
-        .then(response => {
-          console.log('响应数据：', response.data);
-        })
-        .catch(error => {
-          console.error('请求错误：', error);
-        });
-    }
   },
+});
 
-})
 </script>
 
 <style scoped>
