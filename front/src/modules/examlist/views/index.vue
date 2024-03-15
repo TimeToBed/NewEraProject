@@ -20,7 +20,7 @@
               :total="state.Total"
               popper-class="label-popper"
             >
-            </el-pagination>
+            </el-pagination>  
           </div>
         </div>
       </div>
