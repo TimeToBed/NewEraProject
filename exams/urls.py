@@ -12,5 +12,6 @@ urlpatterns = [
     path('paperlist/<str:exam_id>/', views.paperlist),
     path('ocr_preprocess/<str:exam_id>/', views.ocr_preprocess),
     path('uploadpapers/<str:exam_id>/', views.upload_package),
-    path('querypaper/<str:paper_id>/', views.querypaper)
+    path('querypaper/<str:paper_id>/', views.querypaper),
+    path('delete_exam/<str:exam_id>/', views.delete_exam),
     ]
