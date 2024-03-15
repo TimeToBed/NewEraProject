@@ -6,7 +6,7 @@ from django.utils import timezone
 from .models import *  # assuming you have an Exam model
 from django.core.files.storage import FileSystemStorage
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse, FileResponse
+from django.http import JsonResponse, FileResponse, HttpResponse
 from django.core import serializers
 import os
 import json
@@ -29,6 +29,8 @@ import imageio
 from io import BytesIO
 import tempfile
 import re       
+import urllib.request
+
 json_dir = './server/ocr'
 class OverwriteStorage(FileSystemStorage):
     def _save(self, name, content):
@@ -652,3 +654,32 @@ def querypaper_old(request, paper_id):
     ssh.close()
     data['paper_path']=temp_dir
     return JsonResponse(data, safe=False)
+
+
+def preview_llm_result(request, exam_id):
+    # 预览docx文件
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        ssh.connect(hostname=settings.Remote_HOST, username=settings.Remote_user, password=settings.Remote_password, port=settings.Remote_PORT)
+        print("连接成功")
+    except paramiko.AuthenticationException:
+        print("认证失败")
+        return 'SSH Authentication failed'
+    except paramiko.SSHException as e:
+        print("连接错误：", str(e))
+        return 'SSH connection error'
+    sftp = ssh.open_sftp()
+    
+    try:
+        # 打开并读取文件
+        remote_file_path = posixpath.join(settings.Remote_path, exam_id, 'papers', '2020年全国卷Ⅰ语文高考试题_answer')
+        with sftp.open(remote_file_path, 'rb') as f:
+            docx_data = f.read()
+    finally:
+        # 关闭SFTP会话
+        sftp.close()
+        # 关闭连接
+        ssh.close()
+
+    return HttpResponse(docx_data, content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
