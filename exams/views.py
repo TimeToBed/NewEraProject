@@ -546,9 +546,28 @@ def querypaper_old(request, paper_id):
     data['paper_path']=temp_dir
     return JsonResponse(data, safe=False)
 
-
-def preview_llm_result(request, exam_id):
-    # 预览docx文件
+def remove_all(sftp, remote_dir_path):
+    # 获取remote_dir_path下所有文件和文件夹
+    for entry in sftp.listdir_attr(remote_dir_path):
+        # 拼接全路径
+        path = posixpath.join(remote_dir_path, entry.filename)
+        # 如果是个文件夹，则递归删除
+        if stat.S_ISDIR(entry.st_mode):
+            remove_all(sftp, path)
+        else:
+            # 否则尝试删除文件
+            sftp.remove(path)
+    # 最后删除主文件夹
+    sftp.rmdir(remote_dir_path)
+    
+def delete_exam(request, exam_id):
+    paper = Papers.objects.filter(exam_id=exam_id)
+    if paper.exists():
+        paper.delete()
+    exam = Exams.objects.filter(id=exam_id)
+    if exam.exists():
+        exam.delete()
+    remote_dir_path = posixpath.join(settings.Remote_path, exam_id)
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     try:
@@ -561,16 +580,7 @@ def preview_llm_result(request, exam_id):
         print("连接错误：", str(e))
         return 'SSH connection error'
     sftp = ssh.open_sftp()
-    
-    try:
-        # 打开并读取文件
-        remote_file_path = posixpath.join(settings.Remote_path, exam_id, 'papers', '2020年全国卷Ⅰ语文高考试题_answer')
-        with sftp.open(remote_file_path, 'rb') as f:
-            docx_data = f.read()
-    finally:
-        # 关闭SFTP会话
-        sftp.close()
-        # 关闭连接
-        ssh.close()
-
-    return HttpResponse(docx_data, content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    remove_all(sftp, remote_dir_path)
+    sftp.close()
+    ssh.close()
+    return JsonResponse({'msg':'success'})
