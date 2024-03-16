@@ -14,15 +14,16 @@
 
             <div class="w-full"> 
                 <el-input 
+                    ref="input_as"
                     v-model="llm_analysis" 
                     class="w-full" 
                     placeholder="大模型题目分析" 
-                    type="textarea"  
+                    type="textarea"
+                    autosize="true"  
                     size="small"
                     :rows="4"
-                    autosize="true"
                     @input="handleInput_llm_analysis"
-                />
+                    />
             </div>
 
             <div class="grid-items-purple" v-if="analysis">
@@ -30,16 +31,17 @@
             </div>
             <div class="w-full"> 
                 <el-input 
+                    ref="input_kp"
                     v-model="llm_knowledge_point" 
                     class="w-full" 
-                    :class="{ 'border-class': as_change === 1 }" 
                     placeholder="大模型评语" 
                     type="textarea"
                     autosize="true"  
                     size="small"
                     :rows="4"
                     @input="handleInput_llm_knowledge_point"
-                />
+                    />
+
             </div>
     
 
@@ -73,7 +75,6 @@ export default defineComponent({
     },
     data() {
         return {
-            kp_change: 0,
             as_change:0,
         };
     },
@@ -81,23 +82,25 @@ export default defineComponent({
         handleInput_llm_knowledge_point() {
             this.analysis.change_llm_knowledge_point=this.llm_knowledge_point
             this.$emit('updateValue', this.analysis);
-            this.as_change=1
-            this.updateBorder()
+            let as_change=1
+            this.updateBorder(this.$refs.input_kp, as_change);
+  
         },
         handleInput_llm_analysis() {
             this.analysis.change_llm_analysis=this.llm_analysis
             this.$emit('updateValue', this.analysis);
-            this.as_change=1
-            this.updateBorder()
+            let as_change=1
+            this.updateBorder(this.$refs.input_as, as_change);
+  
         },
-          updateBorder() {
-            if (this.as_change === 1) {
+        updateBorder(elm, as_change) {
+            if (as_change === 1) {
                 this.$nextTick(() => {
-                    this.$el.querySelector(".el-textarea__inner").style.border = "2px solid rgb(174, 0, 255)";
+                    elm.$el.querySelector(".el-textarea__inner").style.border = "2px solid red";
                 });
             } else {
                 this.$nextTick(() => {
-                    this.$el.querySelector(".el-textarea__inner").style.border = "initial";
+                    elm.$el.querySelector(".el-textarea__inner").style.border = "initial";
                 });
             }
         }
