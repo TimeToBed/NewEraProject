@@ -118,6 +118,13 @@ def create_exam(request):
         new_paper_path = posixpath.join(settings.Remote_path, str(exam.id))
         sftp.rename(before_paper_path, new_paper_path)
         
+        exam = Exams.objects.get(id=exam.id)
+        paper_identity_path = posixpath.join(new_paper_path, 'papers', paper_name)
+        paper_answer_path = posixpath.join(new_paper_path, 'papers', result_name)
+        exam.paper_identity_path = paper_identity_path
+        exam.paper_answer_path = paper_answer_path
+        exam.save()
+        
         sftp.close()
         ssh.close()
         
