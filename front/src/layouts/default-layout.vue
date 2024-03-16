@@ -10,7 +10,7 @@
         class="w-full h-38 relative bg-transparent border-none"
       >
         <div
-          class="flex items-center py-5 mb-0 px-3.75 pr-3.5 md:px-7.25 md:pl-7.5 pt-6"
+          class="flex items-center py-1 mb-0 px-3.75 pr-3.5 md:px-7.25 md:pl-7.5 pt-1"
           v-if="!route.meta.isDarkBackground"
         >
           <!-- <div class="w-full flex flex-wrap flex-row">
@@ -44,9 +44,9 @@
           />
         </router-view>
 
-        <div class="w-full py-8 mx-auto px-4 md:px-7.5 lg:px-7.15">
+        <!-- <div class="w-full py-8 mx-auto px-4 md:px-7.5 lg:px-7.15">
           <Footer />
-        </div>
+        </div> -->
       </div>
     </div>
   </div>

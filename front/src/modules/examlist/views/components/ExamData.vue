@@ -63,36 +63,40 @@
         </el-table-column>
 
         <el-table-column width="60" fixed="right">
-          <div class="text-center h-12 pt-2.5">
-            <el-dropdown placement="bottom-end" trigger="click" popper-class="action-column-popper">
-              <el-button class="w-5 h-7 border-none bg-transparent hover:shadow-md" plain>
-                <div class="flex items-center space-x-2 2xl:space-x-4 text-black px-5">
-                  <DotsVerticalIcon class="cursor-pointer h-5 w-5 text-[#ced4da] font-extrabold" />
-                </div>
-              </el-button>
-              <template #dropdown>
-                <el-dropdown-menu class="my-0.5">
-                  <el-dropdown-item class="mx-0 hover:bg-secondary text-zinc-800">
-                    <div class="flex items-center w-40 h-6">
-                      <span class="mb-0 text-sm font-normal">Action</span>
-                    </div>
-                  </el-dropdown-item>
-  
-                  <el-dropdown-item class="mx-0 hover:bg-secondary text-zinc-800">
-                    <div class="flex items-center w-40 h-6">
-                      <span class="mb-0 text-sm font-normal">Another Action</span>
-                    </div>
-                  </el-dropdown-item>
-  
-                  <el-dropdown-item class="mx-0 hover:bg-secondary text-zinc-800">
-                    <div class="flex items-center w-40 h-6">
-                      <span class="mb-0 text-sm font-normal">Something else here</span>
-                    </div>
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
+          <template #default="scope">
+            <div class="text-center h-12 pt-2.5">
+              <el-dropdown placement="bottom-end" trigger="click" popper-class="action-column-popper"  @command="DeleteExam">
+                <el-button class="w-5 h-7 border-none bg-transparent hover:shadow-md" plain>
+                  <div class="flex items-center space-x-2 2xl:space-x-4 text-black px-5">
+                    <DotsVerticalIcon class="cursor-pointer h-5 w-5 text-[#ced4da] font-extrabold" />
+                  </div>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu class="my-0.5">
+                    <el-dropdown-item class="mx-0 hover:bg-secondary text-zinc-800" 
+                    :command="scope.row">
+                      <div class="flex items-center w-40 h-6">
+                        <span class="mb-0 text-sm font-normal">删除考试</span>
+                      </div>
+                    </el-dropdown-item>
+    
+                    <el-dropdown-item class="mx-0 hover:bg-secondary text-zinc-800">
+                      <div class="flex items-center w-40 h-6">
+                        <span class="mb-0 text-sm font-normal">Another Action</span>
+                      </div>
+                    </el-dropdown-item>
+    
+                    <el-dropdown-item class="mx-0 hover:bg-secondary text-zinc-800">
+                      <div class="flex items-center w-40 h-6">
+                        <span class="mb-0 text-sm font-normal">Something else here</span>
+                      </div>
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
+          </template>
+          
         </el-table-column>
       </el-table>
     </div>
@@ -101,6 +105,7 @@
   import { defineComponent, inject } from 'vue'
   import { DotsVerticalIcon } from '@heroicons/vue/outline'
   import { AxiosInstance } from 'axios'
+  import { ElMessageBox } from 'element-plus';
 
   export default defineComponent({
     
@@ -120,7 +125,8 @@
         default: 'light',
       },
     },
-    setup() {
+    setup(props, context) {
+      console.log("setup examlist")
       const axios = inject('axios') as AxiosInstance;
       
       const handleButtonClickLLMPreprocess = async (row) => {
@@ -149,9 +155,38 @@
       //     console.error("Error during HTTP request:", error);
       //   }
       // };
-
+      
+      const DeleteExam = (row) => {
+        console.log("删除考试：",row)
+        ElMessageBox.confirm('确认删除考试：'+row.exam_name+'?', '警告', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+        }).then(() => {
+          // 这里写用户点击确定按钮后的操作
+          console.log("用户点击了确定");
+          const response = axios.get(`exams/delete_exam/${row.exam_id}/` )
+                    .then(function (response) {
+                      console.log(response);
+                      ElMessageBox.alert('考试：'+row.exam_name+' 已删除！', '提示', {
+                        confirmButtonText: '确定'
+                      })
+                      context.emit('updateExamList');
+                    })
+                    .catch(function (error) {
+                      console.log(error);
+                      
+                      ElMessageBox.alert('删除失败!', '警告', {
+                        confirmButtonText: '确定'
+                      })
+                    });
+        }).catch(() => {
+          // 这里写用户点击取消按钮或关闭消息框后的操作
+          console.log("用户点击了取消或者关闭了消息框");
+        });
+      };
       return { 
         handleButtonClickLLMPreprocess ,
+        DeleteExam,
       };
     },
     methods: {

@@ -79,7 +79,7 @@ def create_exam(request):
             return 'SSH connection error'
         sftp = ssh.open_sftp()
         # 考试卷在服务器的路径
-        paper_name = exam_name + '_paper.doc'
+        paper_name = exam_name + '_paper.docx'
         # paper_path = settings.Remote_path + str(max_id + 1) + '/' + "papers"
         paper_path = ''
         for dir in [settings.Remote_path, 'temp', "papers"]:
@@ -95,7 +95,7 @@ def create_exam(request):
         remote_paper_path = paper_path + '/' + paper_name
         # 答案在服务器的路径
         if result:
-            result_name = exam_name + '_answer.doc'
+            result_name = exam_name + '_answer.docx'
             remote_result_path = paper_path + '/' + result_name
             
         else:

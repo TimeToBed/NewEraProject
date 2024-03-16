@@ -155,6 +155,7 @@ def LLM_preview(request, exam_id):
     pdf_path = exam_path.replace('docx','pdf')
     tmp_doc_path = os.path.join(settings.TEMP_URL,"tmp.docx")
     tmp_pdf_path = os.path.join(settings.TEMP_URL,"tmp.pdf")
+    print(pdf_path)
 
     try:
         sftp.stat(pdf_path)

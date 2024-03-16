@@ -2,11 +2,8 @@
   
   <div class="w-full block mx-auto h-auto py-2">
     <div class="flex-wrap flex-col bg-white shadow mb-7 mx-auto rounded-md">
-      <div class="flex justify-between py-5 px-6 border-b border-primary-white">
+      <div class="flex justify-between py-2 px-6 border-b border-primary-white">
         <h3 class="cursor-auto">大模型分析结果</h3>
-        <div class="flex space-x-4">
-          <el-button type="primary" @click="ok">确认</el-button>
-        </div>
       </div>
       
       <div class="p-4 items-center justify-center h-full">
@@ -31,6 +28,10 @@
         </div>
         <div class="flex justify-end ml-5">
             <el-button type="success" @click="nextPage">下一页</el-button>
+        </div>
+        
+        <div class="flex justify-end ml-5">
+          <el-button type="success" @click="ok">确认</el-button>
         </div>
       </div>
 

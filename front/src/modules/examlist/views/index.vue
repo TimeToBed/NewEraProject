@@ -5,7 +5,8 @@
         <h3 class="cursor-auto">考 试 列 表</h3>
       </div>
       <div class="block overflow-x-auto w-full">
-        <ExamData :tableData="state.tableData" />
+        <ExamData :tableData="state.tableData"
+        @updateExamList="handleUpdateValue($event)" />
       </div>
       <div class="p-4">
         <div class="w-full">
@@ -102,6 +103,23 @@ export default defineComponent({
       console.log(data,'data')
       state.tableData = data;
     }
+
+    
+    const handleUpdateValue = async () => {
+      try {
+        console.log('更新数据---------------------')
+        const user_id= '1'
+        const response = await axios.get(`exams/examlist/${user_id}/`);
+        //const response = await axios.get('exams/test/');
+        state.exam = response.data;
+        console.log('state.exam:',state.exam)
+        console.log('response.data:', response.data)
+        queryTableData()
+      }catch(e) {
+        console.log('Exam Error:', e)
+      } 
+    }
+
     onMounted(async() => {
       try {
         const user_id= '1'
@@ -120,6 +138,7 @@ export default defineComponent({
       handlehSizeChange,
       handlehCurrentChange,
       queryTableData,
+      handleUpdateValue,
     }
   }
 })
