@@ -15,6 +15,7 @@
             <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
               <Result 
                 v-if="state.LLMData" :LLMData="state.LLMData" 
+                :key="state.componentKey"
                 @updateValue="handleUpdateValue($event)"
                 />
             </div>
@@ -32,6 +33,11 @@
         
         <div class="flex justify-end ml-5">
           <el-button type="success" @click="ok">确认</el-button>
+        </div>
+
+        
+        <div class="flex justify-end ml-5">
+          <el-button type="success" @click="reset">重置</el-button>
         </div>
       </div>
 
@@ -72,7 +78,8 @@ export default defineComponent({
       imageSources:[],
       LLMData:null,
       currentPage:0,
-      totalPage:0
+      totalPage:0,
+      componentKey:0
     });
     state.exam_id=props.exam_id
     const fetchPaperFromServer = () => {
@@ -86,7 +93,6 @@ export default defineComponent({
     const getLLMPreprocess = async () => {
       console.log('get LLM Preprocess');
       try {
-      
         const response = await axios.get(`llms/llm_preprocess/${state.exam_id}/`);
         state.LLMData=response.data
         console.log("TopBar LLM Preprocess Response.data:",state.LLMData);
@@ -140,6 +146,11 @@ export default defineComponent({
       
     };
     
+    const reset = () => {
+      console.log("重置")
+      //getLLMPreprocess()
+      state.componentKey+=1
+    };
 
     return {
       state,
@@ -147,7 +158,8 @@ export default defineComponent({
       prevPage,
       fetchPaperFromServer,
       getLLMPreprocess,
-      ok
+      ok,
+      reset,
     }
   }
 })

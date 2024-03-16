@@ -41,6 +41,7 @@ export default defineComponent({
     }
   },
   setup(props) {
+    console.log("渲染一个result.vue")
     const state = reactive({  //  Vue 的响应性 API，当我们改变这个数据时，Vue 能知道需要重新渲染影响的组件。
       questions:null,
       length:0

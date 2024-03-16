@@ -80,14 +80,14 @@ export default defineComponent({
     },
     methods: {
         handleInput_llm_knowledge_point() {
-            this.analysis.change_llm_knowledge_point=this.llm_knowledge_point
+            this.analysis.change_knowledge_points=this.llm_knowledge_point
             this.$emit('updateValue', this.analysis);
             let as_change=1
             this.updateBorder(this.$refs.input_kp, as_change);
   
         },
         handleInput_llm_analysis() {
-            this.analysis.change_llm_analysis=this.llm_analysis
+            this.analysis.change_analysis=this.llm_analysis
             this.$emit('updateValue', this.analysis);
             let as_change=1
             this.updateBorder(this.$refs.input_as, as_change);
@@ -109,12 +109,18 @@ export default defineComponent({
 
     setup(props) {
         let llm_knowledge_point = ref('')
-        if(props.analysis?.knowledge_points){
+        if(props.analysis?.change_knowledge_points){
+            llm_knowledge_point = ref(props.analysis.change_knowledge_points)
+            console.log('change llm knowledge points')
+        }else if(props.analysis?.knowledge_points){
             llm_knowledge_point = ref(props.analysis.knowledge_points)
         }
         
         let llm_analysis = ref('')
-        if(props.analysis?.analysis){
+        if(props.analysis?.change_analysis){
+            llm_analysis = ref(props.analysis.change_analysis)
+            console.log('change llm analysis')
+        }else if(props.analysis?.analysis){
             llm_analysis = ref(props.analysis.analysis)
         }
 
