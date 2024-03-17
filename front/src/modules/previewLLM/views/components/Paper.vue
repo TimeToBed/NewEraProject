@@ -1,16 +1,12 @@
 
 <template>
   <div class="h-full">
-      <div class="h-600">
-      <el-scrollbar class="h-full">
-          <div ref="fileRef"></div>
+      <div class="h-600 docx-container">
+      <el-scrollbar class="h-full ">
+          <div class="docWrap" ref="fileRef"></div>
       </el-scrollbar>
       </div>
-      
-      <div class="docWrap">
-      <!-- 预览文件的地方（用于渲染） -->
-        
-      </div>
+
   </div>
   
   
@@ -48,3 +44,27 @@ setup(props){
 })
 </script>
 
+<style scoped>
+.docWrap {
+  width: auto;
+  overflow-x: auto;
+  padding: 0;
+}
+.docx-container ::v-deep .docx-wrapper {
+  background-color: #fff;
+  /* padding: 20px 20px; */
+}
+.docx-container ::v-deep .docx-wrapper > section.docx {
+  /* width: 55vw !important; */
+  /* padding: 0rem !important; */
+  /* min-height: auto !important; */
+  box-shadow: none;
+  /* margin-bottom: 0; */
+  overflow-y: scroll;
+  /* height: 100vh; */
+}
+
+.docx-container ::v-deep .docx-wrapper > section.docx::-webkit-scrollbar {
+  display: none;
+}
+</style>

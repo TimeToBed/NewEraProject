@@ -81,7 +81,7 @@ def LLM_preprocess(request, exam_id):
 
     else:
         print("调用文心一言大模型...")
-        """ tmp_exam_path = os.path.join(settings.TEMP_URL,"exam_tmp.docx")
+        tmp_exam_path = os.path.join(settings.TEMP_URL,"exam_tmp.docx")
         tmp_answer_path = os.path.join(settings.TEMP_URL,"answer_tmp.docx")
         tmp_json_path = os.path.join(settings.TEMP_URL,"tmp.json")
 
@@ -98,7 +98,7 @@ def LLM_preprocess(request, exam_id):
 
         print("文件上传成功！")
         exam.llm_knowledge_path = exam_analysis_path
-        exam.save() """
+        exam.save() 
 
     with sftp.file(exam_analysis_path, 'rb',) as f:  # 打开远程服务器上的JSON文件
         exam_detail_info = json.loads(f.read().decode('utf-8'))  # 读取文件内容并解析为Python数据结构
