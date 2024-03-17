@@ -43,7 +43,9 @@
             :exam-info="examInfo"
             :currentStep="currentStep" 
             v-else-if="currentStep === 3 || currentStep === 4" 
-            @continue="nextStep" @back="previousStep" @submit="submitExam" />
+            @continue="nextStep" @back="previousStep" @submit="submitExam" 
+            @reset-currentStep="updataCurrentStep"
+            @reset-exam-info="resetExamInfo"/>
           
         </div> 
       </div>
@@ -71,14 +73,15 @@ export default defineComponent({
   },
 
   setup(){
-    const examInfo = reactive({
+    const initialExamInfo = {
       examname: '',
       subject: '',
       time: '',
       paper: null,
       result: null,
       teacher_id: 1
-    })
+    }
+    const examInfo = reactive({...initialExamInfo})
     // 从全局中获取 axios
     const axios = inject('axios') as AxiosInstance
 
@@ -119,8 +122,17 @@ export default defineComponent({
       console.log('currentStep:', currentStep.value)
     }
 
+    const updataCurrentStep = (newValue: number) => {
+      currentStep.value = newValue;
+    }
+
+    const resetExamInfo = () => {
+      Object.assign(examInfo, initialExamInfo)
+    }
+
     return {
-      examInfo, currentStep, submitExam, nextStep, previousStep, PencilAltIcon, CheckIcon
+      examInfo, currentStep, submitExam, nextStep, previousStep, PencilAltIcon, CheckIcon, 
+      updataCurrentStep, resetExamInfo
     }
   }
 
