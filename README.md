@@ -85,6 +85,14 @@ python版本要求≥3.8
    在front目录下执行`npm install`命令
    ##### 安装跨域库
    <pre>pip install django-cors-headers</pre>
+5. **安装LLM外部知识库**
+   ##### 安装langchain库等
+   <pre>pip install langchain -U scikit-learn -U langchain-community spacy faiss-cpu</pre>
+   ##### 安装本地whl
+   <pre>pip install 你的路径/zh_core_web_sm-3.7.0-py3-none-any.whl（在群文件夹中）
+6. **安装doc显示库**
+   ##### 安装docx-preview（需要进入前端文件夹路径！！）
+   <pre>npm i docx-preview --save</pre>
 
 ## 项目运行
 
