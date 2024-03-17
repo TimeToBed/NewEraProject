@@ -220,11 +220,11 @@ def add_answer_to_exam(exam_js, answer_js):
     #    json.dump(paper, json_file, ensure_ascii=False)
     return paper
 
-def simplify_content(exam_info,save_js_path):
+def simplify_content(exam_info,save_js_path,kdb_path):
     
-    knowledge_db_path = os.path.join(os.path.abspath(__file__),'knowledge_db')
+    print(f" 知识库路径 {kdb_path}")
     
-    llm_kb = LLm_KnowledgeBase(knowledge_db_path,0.58,chunk_size=150)
+    llm_kb = LLm_KnowledgeBase(kdb_path,0.58,chunk_size=150)
 
     def process_content(info):
         pretext = info['pretext']
