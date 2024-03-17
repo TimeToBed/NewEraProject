@@ -5,7 +5,9 @@
       class="main-content flex flex-col flex-1 w-full overflow-auto"
       :class="`${!isSBPin ? ' ml-17 ' : 'ml-62.5 cursor-pointer lg:cursor-default'}`"
     >
+  
       <navigation class="top-navigation" />
+
       <div
         class="w-full h-38 relative bg-transparent border-none"
       >
@@ -53,7 +55,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, ref } from 'vue'
 import useStore from 'store'
 import { HomeFilled } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router'
@@ -72,12 +74,28 @@ export default defineComponent({
 
     const setIsSBPin = (b: boolean) => store.dashboard.setIsSBPin(b)
     console.log('defult-layout')
+
+    const isNavVisible = ref(false) // 默认设置为隐藏
+
+    const showNav = () => {
+      isNavVisible.value = true // 鼠标悬停时设置为显示
+    }
+
+    const hideNav = () => {
+      isNavVisible.value = false // 鼠标移开时设置为隐藏
+    }
+
+
+
     return {
       isSBPin,
       loading,
       setIsSBPin,
       route,
       store,
+      isNavVisible, 
+      showNav, 
+      hideNav
     }
   },
 })
@@ -97,4 +115,8 @@ export default defineComponent({
     top: 0;
     z-index: 10;
 }
+.hidden {
+  display: none;
+}
+
 </style>

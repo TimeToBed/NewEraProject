@@ -10,7 +10,8 @@
         <div class="mt-1">
           <div class="flex flex-wrap">
             <div class="lg:flex-8 lg:max-w-2/3 w-full lg:mb-0 lg:pr-3.5 mb-6">
-              <Paper :img_src="state.imageSources[state.currentPage]"/>
+              <Paper :img_src="state.imageSources[state.currentPage]"
+               :file_src="state.fileSources"/>
             </div>
             <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
               <Result 
@@ -79,17 +80,26 @@ export default defineComponent({
       LLMData:null,
       currentPage:0,
       totalPage:0,
-      componentKey:0
+      componentKey:0,
+      fileSources:null,
     });
     state.exam_id=props.exam_id
-    const fetchPaperFromServer = () => {
+    const fetchPaperFromServer1 = () => {
       axios.get(`llms/llm_preview/${state.exam_id}/`)
         .then(response => {
           state.imageSources = response.data.map(img_base64 => 'data:image/jpg;base64,' + img_base64);
           state.totalPage=state.imageSources.length
       });
     };
-
+    const fetchPaperFromServer = () => {
+      axios.get(`llms/llm_preview/${state.exam_id}/`, {
+        responseType: 'arraybuffer'
+      })
+      .then(response => {
+        const blob = new Blob([response.data], {type: 'application/octet-stream'});
+        state.fileSources = blob;
+      });
+    };
     const getLLMPreprocess = async () => {
       console.log('get LLM Preprocess');
       try {
@@ -101,7 +111,7 @@ export default defineComponent({
       }
     }
 
-    getLLMPreprocess()
+    //getLLMPreprocess()
     fetchPaperFromServer()
     const nextPage = () => {
       if (state.currentPage+1===props.totalPage){

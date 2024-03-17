@@ -138,7 +138,7 @@ def LLM_update(request:HttpRequest, exam_id):
     return JsonResponse({"result":"No Post error!"})
 
 
-def LLM_preview(request, exam_id):
+def LLM_preview2(request, exam_id):
 
     print('LLM预览 从前端传回来的考试exam_id：',exam_id)
 
@@ -188,6 +188,34 @@ def LLM_preview(request, exam_id):
 
     return JsonResponse(images_base64, safe=False)
 
+def LLM_preview(request, exam_id):
+
+    print('LLM预览 从前端传回来的考试exam_id：',exam_id)
+
+    try:
+        exam = Exams.objects.get(id=exam_id)
+        exam_path = exam.paper_identity_path
+
+    except Exams.DoesNotExist:
+        return JsonResponse({"result":f"No exist id {exam_id}!"})
+
+    ssh = ssh_connect()
+    sftp = ssh.open_sftp()
+
+    remote_file = sftp.open(exam_path, 'rb')
+    
+    #binary_data = remote_file.read()
+
+    response = FileResponse(remote_file)
+
+    # 设置正确的 content_type
+    response['Content-Type'] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+
+    # response = HttpResponse(binary_data, content_type='application/octet-stream')
+    # response['Content-Disposition'] = 'attachment; filename="{0}"'.format(exam_path.split('/')[-1])
+    return response
+
+    #return JsonResponse(images_base64, safe=False)
 
 
 #@csrf_exempt

@@ -24,6 +24,7 @@
     "buffer": "^6.0.3",
     "chart.js": "^3.8.0",
     "click-outside-vue3": "^4.0.1",
+    "docx-preview": "^0.3.0",
     "element-plus": "^2.0.1",
     "emitter-io": "^1.39.0",
     "emoji-mart-vue-fast": "^10.2.1",
