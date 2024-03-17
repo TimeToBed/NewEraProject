@@ -5,7 +5,6 @@
       :class="{
         'bg-indigo-410 border-indigo-410 border-b-slate-50/10': !route.meta.isDarkBackground,
         'border-default border-b-cyan-30': route.meta.isDarkBackground,
-        ' hidden-aside w-17 ': !isSBOpen && !isSBPin 
       }"
       v-if="state.isNavOpen" 
     >
@@ -311,7 +310,6 @@
       :class="{
         'bg-indigo-410 border-indigo-410 border-b-slate-50/10': !route.meta.isDarkBackground,
         'border-default border-b-cyan-30': route.meta.isDarkBackground,
-        ' hidden-aside w-17 ': !isSBOpen && !isSBPin 
       }"
       v-if="!state.isNavOpen" 
     >
