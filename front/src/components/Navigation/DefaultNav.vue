@@ -307,7 +307,7 @@
       </div>
     </div>    
     <div
-      class="flex items-center bg-default border mx-0 py-2 px-3.25 pl-2.75 md:px-7.25 shadow-sm h-8 md:h-9 justify-end"
+      class="flex items-center bg-default border mx-0 py-2 px-3.25 pl-2.75 md:px-7.25 shadow-sm h-6.2 md:h-7 justify-end"
       :class="{
         'bg-indigo-410 border-indigo-410 border-b-slate-50/10': !route.meta.isDarkBackground,
         'border-default border-b-cyan-30': route.meta.isDarkBackground,
@@ -316,7 +316,7 @@
       v-if="!state.isNavOpen" 
     >
 
-      <div class="relative inline-block pt-1 ml-4 ">
+      <div class="relative inline-block ml-4 ">
             <div class="text-white">
               <div class="flex items-center">
                 <ChevronDoubleDownIcon  class="cursor-pointer h-4 w-4" @click="handleArrowClick"/>

@@ -204,12 +204,19 @@ def LLM_preview(request, exam_id):
 
     remote_file = sftp.open(exam_path, 'rb')
     
+    # 创建一个FileResponse对象
+    response = FileResponse(remote_file, content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+
+    # 添加头部信息以允许跨域请求
+    #response['Access-Control-Allow-Origin'] = '*'
+
+
     #binary_data = remote_file.read()
 
-    response = FileResponse(remote_file)
+    #response = FileResponse(remote_file)
 
     # 设置正确的 content_type
-    response['Content-Type'] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    #response['Content-Type'] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 
     # response = HttpResponse(binary_data, content_type='application/octet-stream')
     # response['Content-Disposition'] = 'attachment; filename="{0}"'.format(exam_path.split('/')[-1])

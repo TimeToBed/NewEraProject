@@ -10,8 +10,14 @@
         <div class="mt-1">
           <div class="flex flex-wrap">
             <div class="lg:flex-8 lg:max-w-2/3 w-full lg:mb-0 lg:pr-3.5 mb-6">
-              <Paper :img_src="state.imageSources[state.currentPage]"
+              <Paper 
+              class="h-600"
+              v-if="state.fileSources"
                :file_src="state.fileSources"/>
+               <Paper 
+                class="h-600"
+                v-if="!state.fileSources"
+                />
             </div>
             <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
               <Result 
@@ -24,21 +30,21 @@
         </div>
       </div>
 
-      <div class="flex py-5 px-6 border-b border-primary-white">
-        <div class="flex justify-end ml-5">
+      <div class="flex py-2 px-6 border-b border-primary-white">
+        <!-- <div class="flex justify-end ml-5">
             <el-button type="success" @click="prevPage">上一页</el-button>
         </div>
         <div class="flex justify-end ml-5">
             <el-button type="success" @click="nextPage">下一页</el-button>
-        </div>
+        </div> -->
         
         <div class="flex justify-end ml-5">
-          <el-button type="success" @click="ok">确认</el-button>
+          <el-button type="success" style="height: 2rem;"  @click="ok">确认</el-button>
         </div>
 
         
         <div class="flex justify-end ml-5">
-          <el-button type="success" @click="reset">重置</el-button>
+          <el-button type="success" style="height: 2rem;"  @click="reset">重置</el-button>
         </div>
       </div>
 
@@ -84,20 +90,14 @@ export default defineComponent({
       fileSources:null,
     });
     state.exam_id=props.exam_id
-    const fetchPaperFromServer1 = () => {
-      axios.get(`llms/llm_preview/${state.exam_id}/`)
-        .then(response => {
-          state.imageSources = response.data.map(img_base64 => 'data:image/jpg;base64,' + img_base64);
-          state.totalPage=state.imageSources.length
-      });
-    };
     const fetchPaperFromServer = () => {
-      axios.get(`llms/llm_preview/${state.exam_id}/`, {
-        responseType: 'arraybuffer'
-      })
-      .then(response => {
-        const blob = new Blob([response.data], {type: 'application/octet-stream'});
-        state.fileSources = blob;
+      axios({
+        method: "get",
+        responseType: "blob", // 因为是流文件，所以要指定blob类型
+        url:`llms/llm_preview/${state.exam_id}/`,
+      }).then(({ data }) => {
+        console.log('data:',data); // 后端返回的是流文件
+        state.fileSources=data
       });
     };
     const getLLMPreprocess = async () => {
@@ -111,7 +111,7 @@ export default defineComponent({
       }
     }
 
-    //getLLMPreprocess()
+    getLLMPreprocess()
     fetchPaperFromServer()
     const nextPage = () => {
       if (state.currentPage+1===props.totalPage){
