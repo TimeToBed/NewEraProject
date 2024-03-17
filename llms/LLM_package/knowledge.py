@@ -64,7 +64,7 @@ class LLm_KnowledgeBase():
             self.cache_list.append(db_name)
 
         else:
-            db = FAISS.load_local(self.dbs_path, self.embeddings)
+            db = FAISS.load_local(self.dbs_path, self.embeddings, allow_dangerous_deserialization=True)
 
         return db
 
