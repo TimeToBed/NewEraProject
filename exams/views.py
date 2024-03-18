@@ -591,3 +591,40 @@ def delete_exam(request, exam_id):
     sftp.close()
     ssh.close()
     return JsonResponse({'msg':'success'})
+
+#一键生成指定数量学生的 数据
+@csrf_exempt
+def fake1(request):
+    if request.method == 'POST':
+        number = request.POST.get('number')
+        print("一键生成指定数量学生的 数据", number)
+
+        return JsonResponse({'msg':'success'})
+
+@csrf_exempt
+def fake2(request):
+    if request.method == 'POST':
+        startdate=request.POST.get('startdate')
+        enddate=request.POST.get('enddate')
+        isinterval=request.POST.get('isinterval')
+        interval=request.POST.get('interval')
+        print("批量生成考试",startdate, enddate, isinterval, interval)
+        
+        return JsonResponse({'msg':'success'})  
+
+#一键生成 属于该考试的 指定数量试卷(所有试卷随机或平均的分配给学生，
+#同时 mark_result_path 也要生成，在该路径下生成伪json )
+@csrf_exempt
+def fake3(request):
+    if request.method == 'POST':
+        exam_id=request.POST.get('exam_id')
+        number = request.POST.get('number')
+        print("一键生成属于某个考试的数据", exam_id, number)
+        
+        return JsonResponse({'msg':'success'})
+    
+#一键删除所有fake数据
+def fake4(request):
+    print("一键删除所有fake数据")
+
+    return JsonResponse({'msg':'success'})
