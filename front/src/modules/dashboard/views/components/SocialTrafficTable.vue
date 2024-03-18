@@ -16,7 +16,7 @@
 
       <div class="block overflow-x-auto w-full">
         <el-table :data="tableData" style="width: 100%" class="is-light">
-          <el-table-column label="REFERRAL" min-width="120">
+          <el-table-column label="题目类型" min-width="120">
             <template #default="scope">
               <div class="flex items-center">
                 <span class="mb-0 text-0.8125 font-semibold cursor-auto text-dark-lighter">{{
@@ -25,7 +25,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="VISITORS" width="110">
+          <el-table-column label="平均得分" width="110">
             <template #default="scope">
               <div class="flex items-center">
                 <span class="px-4 text-0.8125 font-normal text-dark-lighter">{{
@@ -34,7 +34,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column min-width="200">
+          <el-table-column label="失分率" min-width="200">
             <template #default="scope">
               <div class="px-4 flex flex-row items-center">
                 <div class="w-2/5 text-right">
@@ -64,42 +64,47 @@ export default defineComponent({
   props: {
     title: {
       type: String,
-      default: 'Social traffic',
+      default: '各类型题目失分率',
     },
   },
   setup() {
     const tableData: any[] = [
       {
-        referral: 'Facebook',
-        visitorNumber: '1,480',
-        completion: 60,
-      },
-      {
-        referral: 'Facebook',
-        visitorNumber: '5,480',
-        completion: 70,
-      },
-      {
-        referral: 'Google',
-        visitorNumber: '4,807',
-        completion: 80,
-      },
-      {
-        referral: 'Instagram',
-        visitorNumber: '3,678',
-        completion: 75,
-      },
-      {
-        referral: 'Twitter',
-        visitorNumber: '2,645',
+        referral: '单选题',
+        visitorNumber: '13',
         completion: 30,
+      },
+      {
+        referral: '多选题',
+        visitorNumber: '10',
+        completion: 40,
+      },
+      {
+        referral: '古诗文默写',
+        visitorNumber: '18',
+        completion: 10,
+      },
+      {
+        referral: '文言文',
+        visitorNumber: '19',
+        completion: 30,
+      },
+      {
+        referral: '阅读理解',
+        visitorNumber: '25',
+        completion: 20,
+      },
+      {
+        referral: '作文',
+        visitorNumber: '48',
+        completion: 10,
       },
     ]
     const theme = ref([
-      { completion: 60, color: '#F5365C' },
-      { completion: 70, color: '#2DCE89' },
-      { completion: 75, color: '#11CDEF' },
-      { completion: 80, color: '#6c6be4' },
+      { completion: 10, color: '#6c6be4' },
+      { completion: 20, color:  '#2DCE89'},
+      { completion: 30, color:  '#11CDEF'},
+      { completion: 40, color: '#F5365C' },
     ])
 
     const customColorMethod = (completion: number) => {
