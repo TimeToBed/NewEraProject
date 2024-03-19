@@ -12,6 +12,12 @@
 
         <div class="mx-20 my-10">
           <el-form  :model="formAddSetExam" class="demo-form-inline">
+            <el-form-item label="生成数量" >
+              <el-input-number
+                v-model="formAddSetExam.number"
+              />
+            </el-form-item>
+
             <el-form-item label="开始时间">
               <el-date-picker
                 v-model="formAddSetExam.startdate"
@@ -34,11 +40,6 @@
               <el-switch v-model="formAddSetExam.isinterval" />
             </el-form-item>
 
-            <el-form-item label="指定间隔" >
-              <el-input-number
-                v-model="formAddSetExam.interval"
-              />
-            </el-form-item>
 
             <el-form-item>
               <el-button type="primary" @click="AddSetExam">批量添加考试</el-button>
@@ -190,7 +191,7 @@
         startdate: '',
         enddate:'',
         isinterval:true,
-        interval:0
+        number:0
       })
 
 
@@ -224,12 +225,12 @@
       };
 
       const AddSetExam = async () => {
-        console.log('批量伪造考试',formAddSetExam.startdate, formAddSetExam.enddate, formAddSetExam.interval, formAddSetExam.interval)
+        console.log('批量伪造考试',formAddSetExam.startdate, formAddSetExam.enddate, formAddSetExam.isinterval, formAddSetExam.number)
         let form=new FormData()
         form.append('startdate',formatDate(new Date(formAddSetExam.startdate)))
         form.append('enddate',formatDate(new Date(formAddSetExam.enddate)))
         form.append('isinterval',formAddSetExam.isinterval?1:0)
-        form.append('interval',formAddSetExam.interval)
+        form.append('number',formAddSetExam.number)
         
         console.log("伪造指定数量的学生：",form)
         const response = await axios.post('exams/fake2/', form)
