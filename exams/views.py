@@ -605,7 +605,6 @@ def fake1(request):
                 fake_student=1,
                 sno = 6233112003 + i
             )
-        return JsonResponse({'msg':'success'})
 
 @csrf_exempt
 def fake2(request):
@@ -929,3 +928,4 @@ def fake4(request):
     ssh.close()
     return JsonResponse({'msg':'success'})
         
+
