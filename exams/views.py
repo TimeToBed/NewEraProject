@@ -598,6 +598,7 @@ def fake1(request):
     if request.method == 'POST':
         num = request.POST.get('number')
         print("一键生成指定数量学生的 数据", num)
+        num = int(num)
         for i in range(num):
             student = Students.objects.create(
                 user_name='student'+str(i),
@@ -614,6 +615,8 @@ def fake2(request):
         isinterval=request.POST.get('isinterval')
         num=request.POST.get('number')
         print("批量生成考试", begin_time, end_time, isinterval, num)
+        isinterval = int(isinterval)
+        num = int(num)
         res = end_time - begin_time
         res_days = res.days
         max_id = Exams.objects.all().aggregate(Max('id'))
@@ -855,6 +858,7 @@ def fake3(request):
         exam_id = request.POST.get('exam_id')
         num = request.POST.get('number')
         
+        num = int(num)
         student_paper_path = posixpath.join(settings.Remote_path, exam_id, 'student_papers')
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -894,7 +898,8 @@ def fake3(request):
                 pages=12,
                 cdate=timezone.now(),
                 pic_path=student_dir,
-                mark_result_path=file_path
+                mark_result_path=file_path,
+                fake_paper=1
             )
         sftp.close()
         ssh.close()
@@ -914,15 +919,15 @@ def fake4(request):
         print("连接错误：", str(e))
         return 'SSH connection error'
     sftp = ssh.open_sftp()
-    paper = Papers.objects.filter(fake=1)
+    paper = Papers.objects.filter(fake_paper=1)
     paper.delete()
-    exam = Exams.objects.filter(fake=1)
+    exam = Exams.objects.filter(fake_exam=1)
     for i in exam:
         exam_id = i.id
         dir_path = posixpath.join(settings.Remote_path, str(exam_id))
         remove_all(sftp,dir_path)
     exam.delete()
-    student = Students.objects.filter(fake=1)
+    student = Students.objects.filter(fake_student=1)
     student.delete()
     sftp.close()
     ssh.close()
