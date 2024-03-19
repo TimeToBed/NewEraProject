@@ -1046,7 +1046,11 @@ doctypes@^1.1.0:
 
 docx-preview@^0.3.0:
   version "0.3.0"
+<<<<<<< HEAD
   resolved "https://registry.npmjs.org/docx-preview/-/docx-preview-0.3.0.tgz"
+=======
+  resolved "https://registry.npmmirror.com/docx-preview/-/docx-preview-0.3.0.tgz"
+>>>>>>> d79cb94970bd44cf5b60e114383713e86f9ada91
   integrity sha512-uLrLhytJkXe420Q0C/cyYuZYcKr+2bh7aXjwR/XclEIuGq9ifDRH1/GVqLBn7+ZX29CKC1bZovtjyfhETjdKKg==
   dependencies:
     jszip ">=3.0.0"

@@ -33,15 +33,17 @@ async def analyse_topic(info, model):
 
     return dictionary
 
-def pre_exam(exam_path, answer_path, save_json_path):
+def pre_exam(exam_path, answer_path, save_json_path, kdb_path):
 
     print("开始预处理试卷...")
     raw_exam_dict = load_exam(exam_path)
     answer_dict = load_answer(answer_path)
 
     exam_dict = add_answer_to_exam(raw_exam_dict, answer_dict)
+    if not os.path.exists(kdb_path):
+        os.makedirs(kdb_path)
 
-    simplify_content(exam_dict, save_json_path)
+    simplify_content(exam_dict, save_json_path, kdb_path)
 
 #耗费toekn 预估 20w
 async def llm_analysis_exam(exam_json_path, save_json_path):

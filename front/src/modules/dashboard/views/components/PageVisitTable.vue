@@ -16,7 +16,7 @@
 
       <div class="block overflow-x-auto w-full p-0">
         <el-table :data="tableData" style="width: 100%" class="is-light">
-          <el-table-column label="PAGE NAME" min-width="200">
+          <el-table-column label="学生姓名" min-width="200">
             <template #default="scope">
               <div class="flex items-center">
                 <span class="mb-0 text-0.8125 font-semibold cursor-auto text-dark-lighter">{{
@@ -25,7 +25,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="VISITORS" min-width="150">
+          <el-table-column label="成绩" min-width="150">
             <template #default="scope">
               <div class="flex items-center">
                 <span class="px-4 text-0.8125 font-normal cursor-auto text-dark-lighter">{{
@@ -34,7 +34,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="UNIQUE USERS" min-width="150">
+          <el-table-column label="排名" min-width="150">
             <template #default="scope">
               <div class="flex items-center">
                 <span class="px-4 text-0.8125 font-normal text-dark-lighter">{{
@@ -43,7 +43,7 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="BOUNCE RATE" min-width="150">
+          <el-table-column label="排名变化" min-width="150">
             <template #default="scope">
               <div class="flex items-center">
                 <div class="px-4 flex justify-center gap-1">
@@ -84,39 +84,39 @@ export default defineComponent({
   props: {
     title: {
       type: String,
-      default: 'Page visits',
+      default: '学生成绩表',
     },
   },
   setup() {
     const tableData: PageVisitInfo[] = [
       {
-        pageName: '/argon/',
-        visitorNumber: '4,569',
-        userNumber: 340,
+        pageName: '学生1',
+        visitorNumber: '98',
+        userNumber: 1,
         rate: 46.53,
       },
       {
-        pageName: '/argon/index.html',
-        visitorNumber: '3,985',
-        userNumber: 319,
+        pageName: '学生2',
+        visitorNumber: '96',
+        userNumber: 2,
         rate: 46.53,
       },
       {
-        pageName: '/argon/charts.html',
-        visitorNumber: '3,513	',
-        userNumber: 294,
+        pageName: '学生3',
+        visitorNumber: '96	',
+        userNumber: 3,
         rate: 36.49,
       },
       {
-        pageName: '/argon/tables.html',
-        visitorNumber: '2,000',
-        userNumber: 147,
+        pageName: '学生4',
+        visitorNumber: '94',
+        userNumber: 4,
         rate: 50.87,
       },
       {
-        pageName: '/argon/profile.html',
-        visitorNumber: '1,795',
-        userNumber: 190,
+        pageName: '学生5',
+        visitorNumber: '89',
+        userNumber: 5,
         rate: 42.53,
       },
     ]

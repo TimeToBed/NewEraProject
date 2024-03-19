@@ -45,6 +45,7 @@ const UploadPapers = () => import('modules/uploadpapers/views/index.vue')
 const MarkingPapers = () => import('modules/markingpapers/views/index.vue')
 const MarkingPaper = () => import('modules/markingpaper/views/index.vue')
 const PreviewLLM = () => import('modules/previewLLM/views/index.vue')
+const Fake = () => import('modules/fake/views/index.vue')
 
 const ComponentLayout = () => import('components/ComponentLayout/index.vue')
 const ExamLayout = () => import('components/ExamLayout/index.vue')
@@ -309,6 +310,15 @@ const routes = [
     ]
   },
   
+  {
+    path: '/fake',
+    component: Fake,
+    name: 'Fake',
+    meta: {
+      requiresAuth: true,
+    },
+  },
+
   {
     path: '/profile',
     component: Profile,

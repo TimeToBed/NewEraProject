@@ -36,22 +36,22 @@ export default defineComponent({
   props: {
     title: {
       type: String,
-      default: 'Performance',
+      default: '最近一次考试',
     },
     subcription: {
       type: String,
-      default: 'Total orders',
+      default: '各分数段学生数量',
     },
   },
   setup() {
     const totalChart = ref()
     const totalData = computed(() => ({
-      labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+      labels: ['0-20', '20-40', '40-60', '60-80', '80-100'],
       datasets: [
         {
           label: ' Sales',
           fill: true,
-          data: [25, 20, 30, 22, 17, 29],
+          data: [15, 20, 30, 22, 17],
           backgroundColor: 'rgb(251 99 64)',
           borderColor: 'rgb(251 99 64)',
           borderRadius: Number.MAX_VALUE,

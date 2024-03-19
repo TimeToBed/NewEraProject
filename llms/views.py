@@ -80,16 +80,20 @@ def LLM_preprocess(request, exam_id):
         print(f"{exam_analysis_path} already exists.")
 
     else:
-        print("调用文心一言大模型...")
+        
         tmp_exam_path = os.path.join(settings.TEMP_URL,"exam_tmp.docx")
         tmp_answer_path = os.path.join(settings.TEMP_URL,"answer_tmp.docx")
         tmp_json_path = os.path.join(settings.TEMP_URL,"tmp.json")
+        temp_kdb_path = os.path.join(settings.TEMP_URL,"knowledge")
 
         sftp.get(exam_path, tmp_exam_path)
         sftp.get(exam_answer_path, tmp_answer_path)
+        print("开始预处理试卷...")
 
-        pre_exam(tmp_exam_path, tmp_answer_path, tmp_json_path)
+        pre_exam(tmp_exam_path, tmp_answer_path, tmp_json_path, temp_kdb_path)
 
+        print("调用文心一言大模型进行分析...")
+        print(os.environ.get("EB_AGENT_ACCESS_TOKEN"))
         asyncio.run(llm_analysis_exam(tmp_json_path,tmp_json_path))
 
         #保存知识分析路径
@@ -104,9 +108,10 @@ def LLM_preprocess(request, exam_id):
         exam_detail_info = json.loads(f.read().decode('utf-8'))  # 读取文件内容并解析为Python数据结构
     
     del_object(sftp,ssh)
+    clean_server_cache()
     return JsonResponse(exam_detail_info, safe=False)
 
-@csrf_exempt
+@csrf_exempt #保存llm修改
 def LLM_update(request:HttpRequest, exam_id):
 
     print('LLM_update 从前端传回来的考试exam_id：',exam_id)
@@ -203,26 +208,11 @@ def LLM_preview(request, exam_id):
     sftp = ssh.open_sftp()
 
     remote_file = sftp.open(exam_path, 'rb')
-    
+  
     # 创建一个FileResponse对象
     response = FileResponse(remote_file, content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
 
-    # 添加头部信息以允许跨域请求
-    #response['Access-Control-Allow-Origin'] = '*'
-
-
-    #binary_data = remote_file.read()
-
-    #response = FileResponse(remote_file)
-
-    # 设置正确的 content_type
-    #response['Content-Type'] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-
-    # response = HttpResponse(binary_data, content_type='application/octet-stream')
-    # response['Content-Disposition'] = 'attachment; filename="{0}"'.format(exam_path.split('/')[-1])
     return response
-
-    #return JsonResponse(images_base64, safe=False)
 
 
 #@csrf_exempt
@@ -254,9 +244,9 @@ async def rectangle(request):
                 result+=item['contents']
         print('result:', result)
         context=''
-        async for content in analysis_problem(result):
-            context+=content
-            print(content, end="")
+        #async for content in analysis_problem(result):
+        #    context+=content
+        #    print(content, end="")
             
 
         # return JsonResponse({'status': 'ok', 'message': 'Data received.'})

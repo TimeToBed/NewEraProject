@@ -599,6 +599,7 @@ def fake1(request):
         num = request.POST.get('number')
         print("一键生成指定数量学生的 数据", num)
         num = int(num)
+
         for i in range(num):
             student = Students.objects.create(
                 user_name='student'+str(i),
@@ -857,7 +858,6 @@ def fake3(request):
     if request.method == 'POST':
         exam_id = request.POST.get('exam_id')
         num = request.POST.get('number')
-        
         num = int(num)
         student_paper_path = posixpath.join(settings.Remote_path, exam_id, 'student_papers')
         ssh = paramiko.SSHClient()
