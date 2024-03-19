@@ -31,7 +31,8 @@ class Teachers(models.Model):
     user_name = models.CharField(max_length=10) #教师用户名 必填
     password = models.CharField(max_length=30,validators=[MinLengthValidator(6)])  #教师密码 必填
     team = models.ForeignKey(Teams, models.DO_NOTHING, null=True)
-
+    fake_teahcer = models.IntegerField(null=True) #是否是虚拟教师，0代表不是，1代表是
+    
     class Meta:
         db_table = 'Teachers'
     
@@ -44,6 +45,8 @@ class Students(models.Model):
     team = models.ForeignKey(Teams, models.DO_NOTHING, null=True)
     user_name = models.CharField(max_length=10)
     password = models.CharField(max_length=30,validators=[MinLengthValidator(6)])
+    sno = models.IntegerField(null=True)
+    fake_student = models.IntegerField(null=True) #是否是虚拟学生，0代表不是，1代表是
 
     class Meta:
         db_table = 'Students'
@@ -63,7 +66,9 @@ class Exams(models.Model):
     paper_answer_path = models.CharField(max_length=100, null=True)   #试卷答案 非必填
 
     teacher = models.ForeignKey(Teachers, models.CASCADE)  # 依附于教师，教师删除则依附教师的实例也删除
-
+    
+    fake_exam = models.IntegerField(null=True) #是否是虚拟考试，0代表不是，1代表是
+    
     class Meta:
         db_table = 'Exams'
     
