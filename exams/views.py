@@ -32,6 +32,10 @@ import re
 import urllib.request
 import numpy as np
 from io import StringIO
+from datetime import datetime
+import pytz
+# 创建一个有时区的datetime对象
+tz = pytz.timezone('Asia/Shanghai')
 json_dir = './server/ocr'
 class OverwriteStorage(FileSystemStorage):
     def _save(self, name, content):
@@ -557,6 +561,7 @@ def querypaper_old(request, paper_id):
 def remove_all(sftp, remote_dir_path):
     # 获取remote_dir_path下所有文件和文件夹
     for entry in sftp.listdir_attr(remote_dir_path):
+        print(entry.filename)
         # 拼接全路径
         path = posixpath.join(remote_dir_path, entry.filename)
         # 如果是个文件夹，则递归删除
@@ -599,13 +604,27 @@ def fake1(request):
         num = request.POST.get('number')
         print("一键生成指定数量学生的 数据", num)
         num = int(num)
+        max_sno = Students.objects.all().aggregate(Max('sno'))
+        if max_sno['sno__max'] == None:
+            max_sno = 112003
+        else:
+            max_sno = max_sno['sno__max']
+        
+        max_id = Students.objects.all().aggregate(Max('id'))
+        if max_id['id__max'] == None:
+            max_id = 6233112003
+        else:
+            max_id = max_id['id__max']
+            
         for i in range(num):
             student = Students.objects.create(
-                user_name='student'+str(i),
+                id = max_id + i + 1,
+                user_name=str(max_sno + i + 1),
                 password='123456',
                 fake_student=1,
-                sno = 6233112003 + i
+                sno = max_sno + i + 1
             )
+        return JsonResponse({'msg':'success'})
 
 @csrf_exempt
 def fake2(request):
@@ -617,6 +636,8 @@ def fake2(request):
         print("批量生成考试", begin_time, end_time, isinterval, num)
         isinterval = int(isinterval)
         num = int(num)
+        begin_time = datetime.strptime(begin_time, '%Y-%m-%d')
+        end_time = datetime.strptime(end_time, '%Y-%m-%d')
         res = end_time - begin_time
         res_days = res.days
         max_id = Exams.objects.all().aggregate(Max('id'))
@@ -637,7 +658,7 @@ def fake2(request):
             return 'SSH connection error'
         sftp = ssh.open_sftp()
         for i in range(num):
-            exam_path = posixpath.join(settings.Remote_path, str(max_id + i))
+            exam_path = posixpath.join(settings.Remote_path, 'temp')
             try:
                 # 尝试切换到指定的目录
                 sftp.chdir(exam_path)
@@ -676,16 +697,29 @@ def fake2(request):
                 time = begin_time + timezone.timedelta(days=np.random.randint(0, res_days))
             else:
                 time = begin_time + timezone.timedelta(days=i * (res_days // num))
+            time = time + timezone.timedelta(hours=8)
+            print(time)
+            # time = time(tz)
+            time = time.astimezone(pytz.UTC)
             exam = Exams.objects.create(
-                exam_name= f'{time.year}年{time.month}月语文考试',
                 subject='语文',
                 edate = time,
                 cdate = time,
+                exam_name= f'{time.year}年{time.month}月语文考试',
                 paper_identity_path=paper_identity_path,
                 paper_answer_path=paper_answer_path,
                 teacher_id=1,
                 fake_exam=1,
             )
+            new_paper_path = posixpath.join(settings.Remote_path, str(exam.id))
+            sftp.rename(exam_path, new_paper_path)
+            
+            exam = Exams.objects.get(id=exam.id)
+            paper_identity_path = posixpath.join(new_paper_path, 'papers', '语文第一次月考_identity.docx')
+            paper_answer_path = posixpath.join(new_paper_path, 'papers', '语文第一次月考_answer.docx')
+            exam.paper_identity_path = paper_identity_path
+            exam.paper_answer_path = paper_answer_path
+            exam.save()    
         
         sftp.close()
         ssh.close()
@@ -834,9 +868,9 @@ def generate_paper():
         file_content['三'][f'{i}']['llm_comment'] = np.random.choice(llm_second, 1)[0]
         file_content['三'][f'{i}']['comment'] = np.random.choice(teacher_second, 1)[0]
         if min(int(seed * 5), 5) == 5:
-            file_content['二']['（一）']['13'][f'({i})']['llm_comment'] = ''
+            file_content['三'][f'{i}']['llm_comment'] = ''
         if min(int((seed + seed2) * 5), 5) == 5:
-            file_content['二']['（一）']['13'][f'({i})']['comment'] = ''
+            file_content['三'][f'{i}']['comment'] = ''
 
     seed = np.random.rand()
     seed2 = np.random.uniform(-0.2, 0.2)
@@ -857,7 +891,6 @@ def fake3(request):
     if request.method == 'POST':
         exam_id = request.POST.get('exam_id')
         num = request.POST.get('number')
-        
         num = int(num)
         student_paper_path = posixpath.join(settings.Remote_path, exam_id, 'student_papers')
         ssh = paramiko.SSHClient()
@@ -875,10 +908,20 @@ def fake3(request):
         students = Students.objects.all()
         # 提取所有学生的id
         student_ids = [student.id for student in students]
-    
         sftp = ssh.open_sftp()
-        for i in range(num):
+        try:
+            # 尝试切换到指定的目录
+            sftp.chdir(student_paper_path)
+        except FileNotFoundError:
+            # 如果切换目录失败，说明目录不存在，我们在此创建目录
+            sftp.mkdir(student_paper_path)
+        i = 0
+        while i < num:
+            exist_student_id = [paper.student_id for paper in Papers.objects.filter(exam_id=exam_id)]
             student_id = np.random.choice(student_ids)
+            if student_id in exist_student_id:
+                student_ids.remove(student_id)
+                continue
             student_dir = posixpath.join(student_paper_path, str(student_id))
             try:
                 # 尝试切换到指定的目录
@@ -887,8 +930,8 @@ def fake3(request):
                 # 如果切换目录失败，说明目录不存在，我们在此创建目录
                 sftp.mkdir(student_dir)
             file = generate_paper()
-            data_str = json.dumps(file)
-            data_io = StringIO(data_str)
+            data_str = json.dumps(file, ensure_ascii=False)
+            data_io = BytesIO(data_str.encode())
             file_path = posixpath.join(student_dir, f'llm.json')
             sftp.putfo(data_io, file_path)  # 上传StringIO到远程服务器
             paper = Papers.objects.create(
@@ -901,6 +944,7 @@ def fake3(request):
                 mark_result_path=file_path,
                 fake_paper=1
             )
+            i += 1
         sftp.close()
         ssh.close()
         return JsonResponse({'msg':'success'})
@@ -920,17 +964,21 @@ def fake4(request):
         return 'SSH connection error'
     sftp = ssh.open_sftp()
     paper = Papers.objects.filter(fake_paper=1)
-    paper.delete()
+    for i in paper:
+        pic_path = i.pic_path
+        print(i.pic_path)
+        remove_all(sftp,pic_path)
+        i.delete()
     exam = Exams.objects.filter(fake_exam=1)
     for i in exam:
         exam_id = i.id
         dir_path = posixpath.join(settings.Remote_path, str(exam_id))
+        print(dir_path)
         remove_all(sftp,dir_path)
-    exam.delete()
+        i.delete()
     student = Students.objects.filter(fake_student=1)
     student.delete()
     sftp.close()
     ssh.close()
     return JsonResponse({'msg':'success'})
         
-

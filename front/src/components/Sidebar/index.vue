@@ -85,8 +85,7 @@
                     <span
                       v-if="route.name === subItem.name"
                       class="absolute inset-y-1 -left-2 w-0.5 h-5/6 rounded-tr-lg rounded-br-lg bg-indigo-410"
-                      aria-hidden="true"
-                    />  
+                      aria-hidden="true"/>  
                     <!-- span是一个装饰性元素，显示与否取决于v-if的条件是否被满足 -->
                     <router-link
                       class="inline-flex ml-2 items-center w-full h-full text-sm my-0.5 font-normal transition-all duration-200 hover:text-gray-500/100 focus:text-gray-800"
@@ -259,6 +258,7 @@ export default defineComponent({
     const handleMenuClick = () => {
       store.dashboard.toggleMenu()
     }
+
     console.log('define sidebar')
     return {
       leftSideBarItems,
