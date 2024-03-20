@@ -598,9 +598,12 @@ def delete_exam(request, exam_id):
     ssh.close()
     return JsonResponse({'msg':'success'})
 
+
 @csrf_exempt
 def fake1(request):
     if request.method == 'POST':
+        surname_list = ['赵', '钱', '孙', '李', '周', '吴', '郑', '王', '冯', '陈', '褚', '卫', '蒋', '沈', '韩', '杨', '朱', '秦', '尤', '许', '何', '吕', '施', '张', '孔', '曹', '严', '华', '金', '魏', '陶', '姜', '戚', '谢', '邹', '喻', '柏', '水', '窦', '章', '云', '苏', '潘', '葛', '奚', '范', '彭', '郎', '鲁', '韦', '昌', '马', '苗', '凤', '花', '方', '俞', '任', '袁', '柳', '酆', '鲍', '史', '唐', '费', '廉', '岑', '薛', '雷', '贺', '倪', '汤', '滕', '殷', '罗', '毕', '郝', '邬', '安', '常', '乐', '于', '时', '傅', '皮', '卞', '齐', '康', '伍', '余', '元', '卜', '顾', '孟', '平', '黄', '和', '穆', '萧', '尹']
+        characters = ["华", "梅", "兰", "菊", "春", "夏", "秋", "冬", "晓", "宇", "浩", "泽", "勇", "强", "明", "亮", "星", "月", "飞", "雄", "翔", "鹏", "震", "鑫", "洋", "辉", "帅", "志", "坚", "毅", "晨", "盛", "骏", "凡", "俊", "彬", "斌", "炎", "焱", "研", "乐", "良", "嘉", "诺", "欣", "行", "阳", "瑞", "韵", "林", "杨", "廷", "义", "涛", "海", "川", "峰", "岩", "松", "森", "楠", "正", "贤", "茂", "运", "铭", "翰", "锐", "勤", "慧"]
         num = request.POST.get('number')
         print("一键生成指定数量学生的 数据", num)
         num = int(num)
@@ -617,9 +620,13 @@ def fake1(request):
             max_id = max_id['id__max']
             
         for i in range(num):
+            choices = np.random.randint(1,3)
+            first_name = np.random.choice(surname_list)
+            second_name = np.random.choice(characters, choices)
+            user_name = first_name + ''.join(second_name)
             student = Students.objects.create(
                 id = max_id + i + 1,
-                user_name=str(max_sno + i + 1),
+                user_name=user_name,
                 password='123456',
                 fake_student=1,
                 sno = max_sno + i + 1
@@ -629,6 +636,7 @@ def fake1(request):
 @csrf_exempt
 def fake2(request):
     if request.method == 'POST':
+        exam_name_list = ['语文摸底考试', '语文月考', '语文模拟考试', '语文周考']
         begin_time = request.POST.get('startdate')
         end_time = request.POST.get('enddate')
         isinterval=request.POST.get('isinterval')
@@ -658,6 +666,18 @@ def fake2(request):
             return 'SSH connection error'
         sftp = ssh.open_sftp()
         for i in range(num):
+            exist_exam_name_list = [exam.exam_name for exam in Exams.objects.all()]
+            if isinterval == 0:
+                time = begin_time + timezone.timedelta(days=np.random.randint(0, res_days))
+            else:
+                time = begin_time + timezone.timedelta(days=i * (res_days // num))
+            time = time + timezone.timedelta(hours=8)
+            print(time)
+            name = np.random.choice(exam_name_list)
+            exam_name = f'{time.year}年{time.month}月{name}'
+            if exam_name in exist_exam_name_list:
+                exam_name_list.remove(name)
+                continue
             exam_path = posixpath.join(settings.Remote_path, 'temp')
             try:
                 # 尝试切换到指定的目录
@@ -665,7 +685,8 @@ def fake2(request):
             except FileNotFoundError:
                 # 如果切换目录失败，说明目录不存在，我们在此创建目录
                 sftp.mkdir(exam_path)
-            
+                print("创建成功")
+            print(exam_path)
             paper_path = posixpath.join(exam_path, 'papers')
             try:
                 # 尝试切换到指定的目录
@@ -693,25 +714,18 @@ def fake2(request):
             with sftp.open(paper_identity_path, 'wb') as file_target:
                 file_target.write(file_content)
             
-            if isinterval == 0:
-                time = begin_time + timezone.timedelta(days=np.random.randint(0, res_days))
-            else:
-                time = begin_time + timezone.timedelta(days=i * (res_days // num))
-            time = time + timezone.timedelta(hours=8)
-            print(time)
-            # time = time(tz)
-            time = time.astimezone(pytz.UTC)
             exam = Exams.objects.create(
                 subject='语文',
                 edate = time,
                 cdate = time,
-                exam_name= f'{time.year}年{time.month}月语文考试',
+                exam_name= exam_name,
                 paper_identity_path=paper_identity_path,
                 paper_answer_path=paper_answer_path,
                 teacher_id=1,
                 fake_exam=1,
             )
             new_paper_path = posixpath.join(settings.Remote_path, str(exam.id))
+            print(new_paper_path)
             sftp.rename(exam_path, new_paper_path)
             
             exam = Exams.objects.get(id=exam.id)
@@ -720,7 +734,7 @@ def fake2(request):
             exam.paper_identity_path = paper_identity_path
             exam.paper_answer_path = paper_answer_path
             exam.save()    
-        
+
         sftp.close()
         ssh.close()
         return JsonResponse({'msg':'success'})
@@ -769,7 +783,7 @@ def generate_paper():
         "你在文字运用上已经表现得很好了，我很高兴。不过，记住，总体定语和定语从句的使用可以增加你的句子的丰富性，这对于提高你的写作技巧而言非常有帮助。",
         "我欣赏你在答题中准确使用词汇的能力，这体现出你已经了解和掌握了这些词汇。在接下来的学习中，我希望你能够尝试更丰富、更具挑战性的词汇和表达方式。",
         "我注意到你在文字运用上的强项，那就是你的表达清晰易懂。不过，使用一些修辞手法，如比喻，夸张，可以使你的表达更生动，更富有表现力。"]
-    with open(r"C:\Users\16338\Downloads\paper_mark_result.json", "rb") as f:
+    with open(r'exams\temp\paper_mark_result.json', "rb") as f:
         file_content = json.load(f)
 
     for i in range(1, 4):

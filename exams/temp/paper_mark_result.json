@@ -1,0 +1,202 @@
+
+{
+    "一":{
+        "（一）":{
+            "1":{
+                "llm_mark": 0,
+                "llm_comment": "",
+                "mark_score": 0,
+                "score": 3,
+                "comment": "" 
+            },
+            "2":{
+                "llm_mark": 0,
+                "llm_comment": "",
+                "mark_score": 0,
+                "score": 3,
+                "comment": "" 
+            },
+            "3":{
+                "llm_mark": 0,
+                "llm_comment": "",
+                "mark_score": 0,
+                "score": 3,
+                "comment": "" 
+            }
+        },
+        "（二）":{
+            "4":{
+                "llm_mark": 0,
+                "llm_comment": "",
+                "mark_score": 0,
+                "score": 3,
+                "comment": "" 
+            },
+            "5":{
+                "llm_mark": 0,
+                "llm_comment": "",
+                "mark_score": 0,
+                "score": 3,
+                "comment": "" 
+            },
+            "6":{
+                "llm_mark": 0,
+                "llm_comment": "",
+                "mark_score": 0,
+                "score": 6,
+                "comment": "" 
+            }
+        },
+        "（三）":{
+            "7":{
+                "llm_mark": 0,
+                "llm_comment": "",
+                "mark_score": 0,
+                "score": 3,
+                "comment": "" 
+            },
+            "8":{
+                "llm_mark": 0,
+                "llm_comment": "",
+                "mark_score": 0,
+                "score": 6,
+                "comment": "" 
+            },
+            "9":{
+                "llm_mark": 0,
+                "llm_comment": "",
+                "mark_score": 0,
+                "score": 6,
+                "comment": "" 
+            }
+        }
+    },
+    "二":{
+        "（一）":{
+            "10":{
+                "llm_mark": 0,
+                "llm_comment": "",
+                "mark_score": 0,
+                "score": 3,
+                "comment": "" 
+            },
+            "11":{
+                "llm_mark": 0,
+                "llm_comment": "",
+                "mark_score": 0,
+                "score": 3,
+                "comment": "" 
+            },
+            "12":{
+                "llm_mark": 0,
+                "llm_comment": "",
+                "mark_score": 0,
+                "score": 3,
+                "comment": "" 
+            },
+            "13":{
+                "(1)":{
+                "llm_mark": 0,
+                "llm_comment": "",
+                "mark_score": 0,
+                "score": 5,
+                "comment": "" 
+                },
+                "(2)":{
+                    "llm_mark": 0,
+                    "llm_comment": "",
+                    "mark_score": 0,
+                    "score": 5,
+                    "comment": "" 
+                }
+            }
+    },
+        "（二）":{
+            "14":{
+                "llm_mark": 0,
+                "llm_comment": "",
+                "mark_score": 0,
+                "score": 3,
+                "comment": "" 
+            },
+            "15":{
+                "llm_mark": 0,
+                "llm_comment": "",
+                "mark_score": 0,
+                "score": 6,
+                "comment": "" 
+            }
+        },
+        "（三）":{
+            "16":{
+                "(1)":{
+                    "llm_mark": 0,
+                    "llm_comment": "",
+                    "mark_score": 0,
+                    "score": 2,
+                    "comment": "" 
+                    },
+                "(2)":{
+                    "llm_mark": 0,
+                    "llm_comment": "",
+                    "mark_score": 0,
+                    "score": 2,
+                    "comment": "" 
+                },
+                "(3)":{
+                    "llm_mark": 0,
+                    "llm_comment": "",
+                    "mark_score": 0,
+                    "score": 2,
+                    "comment": "" 
+                }
+            }
+        }
+    },
+    "三":{
+        "17":{
+            "llm_mark": 0,
+            "llm_comment": "",
+            "mark_score": 0,
+            "score": 3,
+            "comment": "" 
+        },
+        "18":{
+            "llm_mark": 0,
+            "llm_comment": "",
+            "mark_score": 0,
+            "score": 3,
+            "comment": "" 
+        },
+        "19":{
+            "llm_mark": 0,
+            "llm_comment": "",
+            "mark_score": 0,
+            "score": 3,
+            "comment": "" 
+        },
+        "20":{
+            "llm_mark": 0,
+            "llm_comment": "",
+            "mark_score": 0,
+            "score": 5,
+            "comment": "" 
+        },
+        "21":{
+            "llm_mark": 0,
+            "llm_comment": "",
+            "mark_score": 0,
+            "score": 5,
+            "comment": "" 
+        }
+    },
+    "四":{
+        "22":{
+            "llm_mark": 0,
+            "llm_comment": "",
+            "mark_score": 0,
+            "score": 60,
+            "comment": "" 
+        }
+    }
+}
