@@ -105,7 +105,7 @@
   import { defineComponent, inject } from 'vue'
   import { DotsVerticalIcon } from '@heroicons/vue/outline'
   import { AxiosInstance } from 'axios'
-  import { ElMessageBox } from 'element-plus';
+  import { ElMessageBox, ElLoading } from 'element-plus';
 
   export default defineComponent({
     
@@ -131,8 +131,27 @@
       
       const handleButtonClickLLMPreprocess = async (row) => {
         console.log('LLM 预处理', row)
+        const loading = ElLoading.service({
+          lock: true,
+          text: '处理中',
+          background: 'rgba(0, 0, 0, 0.7)',
+        })
         try {
-          const response = await axios.get(`llms/llm_preprocess/${row.exam_id}/`);
+          const response = await axios.get(`llms/llm_preprocess/${row.exam_id}/`)
+          .then(function (response) {
+                      console.log(response);
+                      loading.close()
+                      ElMessageBox.alert('预处理完成！', '提示', {
+                        confirmButtonText: '确定'
+                      })
+                    })
+                    .catch(function (error) {
+                      console.log(error);
+                      loading.close()
+                      ElMessageBox.alert('处理失败!', '警告', {
+                        confirmButtonText: '确定'
+                      })
+                    });
           console.log(response);
           row.llm_preprocess=1
         } catch (error) {

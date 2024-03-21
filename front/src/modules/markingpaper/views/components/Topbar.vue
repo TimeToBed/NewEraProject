@@ -45,7 +45,7 @@ import { defineComponent, inject, reactive, ref ,nextTick} from 'vue'
 import Paper from './Paper.vue'
 import Result from './Result.vue'
 import { AxiosInstance } from 'axios'
-import { ElMessageBox } from 'element-plus';
+import { ElMessageBox, ElLoading } from 'element-plus';
 import PaperData from 'modules/paperlist/views/components/PaperData.vue';
 import { stat } from 'fs';
 
@@ -86,10 +86,17 @@ export default defineComponent({
     });
     state.paper_id=props.paper_id
     console.log("TopBar props.paperData:", props.paperData)
-   const fetchImageFromServer = () => {
-      axios.get(`exams/querypaper/${state.paper_id}/`)
+    const fetchImageFromServer = () => {
+      const loading = ElLoading.service({
+          lock: true,
+          text: '处理中',
+          background: 'rgba(0, 0, 0, 0.7)',
+      })
+
+      const response = axios.get(`exams/querypaper/${state.paper_id}/`)
         .then(response => {
           state.imageSources = response.data.map(img_base64 => 'data:image/jpg;base64,' + img_base64);
+          loading.close()
       });
     };
 

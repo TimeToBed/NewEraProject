@@ -344,9 +344,10 @@ def ocr_preprocess(request, exam_id):
             lenth = len(sftp.listdir(entry_path))
             i = 1
             while(i <= lenth):
-                file = str(i) + '.jpg'
+                file = str(i) + '.png'
                 file_path = posixpath.join(entry_path, file)
                 # 如果条目是一个文件，将它添加到文件列表
+                # print(file_path)
                 if not stat.S_ISDIR(sftp.stat(file_path).st_mode):
                     remote_file = sftp.open(file_path, 'rb')
                     # 转换图片到numpy数组
@@ -408,9 +409,10 @@ def querypaper(request, paper_id):
         i = 1
         images=[]
         while(i <= length):
-            file = str(i) + '.jpg'
+            file = str(i) + '.png'
             file_path = posixpath.join(paper_path, file)
             # 如果条目是一个文件，将它添加到文件列表
+            print(file_path)
             if not stat.S_ISDIR(sftp.stat(file_path).st_mode):
                 file_data = sftp.file(file_path, 'rb').read()
                 image_bytes = io.BytesIO(file_data)
