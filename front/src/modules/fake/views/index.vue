@@ -279,7 +279,7 @@
   
       onMounted(async() => {
         try {
-          const user_id= '1'
+          const user_id= '2'
           const response = await axios.get(`exams/examlist/${user_id}/`);
           //const response = await axios.get('exams/test/');
           //state.exam = response.data;

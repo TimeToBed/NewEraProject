@@ -73,7 +73,7 @@ class Exams(models.Model):
         db_table = 'Exams'
     
     def __str__(self):
-        return f'{self.exam_name}_{self.subject}'
+        return f'{self.id}'
 
 
 class Papers(models.Model):

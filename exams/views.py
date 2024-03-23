@@ -721,7 +721,7 @@ def fake2(request):
                 exam_name= exam_name,
                 paper_identity_path=paper_identity_path,
                 paper_answer_path=paper_answer_path,
-                teacher_id=1,
+                teacher_id=2,
                 fake_exam=1,
             )
             new_paper_path = posixpath.join(settings.Remote_path, str(exam.id))
@@ -841,17 +841,28 @@ def generate_paper():
         if min(int((seed + seed2) * 5),5) == 5:
             file_content['二']['（一）']['13'][f'({i})']['comment'] = ''
 
-    for i in range(14, 16):
+    for i in range(14, 15):
         seed = np.random.rand()
         if seed < 0.5:
-            file_content['二']['（二）'][f'{i}']['llm_mark'] = seed * 3
-            file_content['二']['（二）'][f'{i}']['mark_score'] = seed * 3
+            file_content['二']['（二）'][f'{i}']['llm_mark'] = 0
+            file_content['二']['（二）'][f'{i}']['mark_score'] = 0
             file_content['二']['（二）'][f'{i}']['llm_comment'] = np.random.choice(llm_second, 1)[0]
             file_content['二']['（二）'][f'{i}']['comment'] = np.random.choice(teacher_second, 1)[0]
         else:
             file_content['二']['（二）'][f'{i}']['llm_mark'] = 3
             file_content['二']['（二）'][f'{i}']['mark_score'] = 3
-
+    
+    seed = np.random.rand()
+    seed2 = seed2 = np.random.uniform(-0.2, 0.2)
+    file_content['二']['（二）'][f'{15}']['llm_mark'] = min(int(seed * 6), 6)
+    file_content['二']['（二）'][f'{15}']['mark_score'] = min(int((seed + seed2) * 6), 6)
+    file_content['二']['（二）'][f'{15}']['llm_comment'] = np.random.choice(llm_second, 1)[0]
+    file_content['二']['（二）'][f'{15}']['comment'] = np.random.choice(teacher_second, 1)[0]
+    if min(int(seed * 6), 6) == 6:
+        file_content['二']['（二）'][f'{15}']['llm_comment'] = ''
+    if min(int((seed + seed2) * 6), 6) == 6:
+        file_content['二']['（二）'][f'{15}']['comment'] = ''
+            
     for i in range(1, 4):
         seed = np.random.rand()
         if seed < 0.5:
@@ -935,6 +946,7 @@ def fake3(request):
             student_id = np.random.choice(student_ids)
             if student_id in exist_student_id:
                 student_ids.remove(student_id)
+                i += 1
                 continue
             student_dir = posixpath.join(student_paper_path, str(student_id))
             try:
@@ -951,7 +963,7 @@ def fake3(request):
             paper = Papers.objects.create(
                 exam_id=exam_id,
                 student_id=student_id,
-                state=1,
+                state=2,
                 pages=12,
                 cdate=timezone.now(),
                 pic_path=student_dir,
@@ -995,4 +1007,189 @@ def fake4(request):
     sftp.close()
     ssh.close()
     return JsonResponse({'msg':'success'})
+
+
+def cur(data, mark_score, score):
+    # print(data)
+    if 'mark_score' in data.keys():
+        mark_score += data['mark_score']
+        score += data['score']
+        return mark_score, score
+    else:
+        for key in data.keys():
+           mark_score, score = cur(data[key], mark_score, score)
+    return mark_score, score
+@csrf_exempt
+def data_list(request, teacher_id):
+    # if request.method == 'POST':
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        try:
+            ssh.connect(hostname=settings.Remote_HOST, username=settings.Remote_user, password=settings.Remote_password, port=settings.Remote_PORT)
+            print("连接成功")
+        except paramiko.AuthenticationException:
+            print("认证失败")
+            return 'SSH Authentication failed'
+        except paramiko.SSHException as e:
+            print("连接错误：", str(e))
+            return 'SSH connection error'
+        sftp = ssh.open_sftp()
+        exams = Exams.objects.filter(teacher_id=teacher_id)
+        data_dict = {}
+        for exam in exams:
+            data_dict[exam.id] = {}
+            papers = Papers.objects.filter(exam_id=exam.id)
+            mark_already_num = 0
+            all_total_score = 0
+            first_total_score = 0
+            second_total_score = 0
+            third_total_score = 0
+            forth_total_score = 0
+            data_dict[exam.id]['0-30分段学生数量'] = 0
+            data_dict[exam.id]['30-60分段学生数量'] = 0
+            data_dict[exam.id]['60-90分段学生数量'] = 0
+            data_dict[exam.id]['90-120分段学生数量'] = 0
+            data_dict[exam.id]['120-150分段学生数量'] = 0
+            data_dict[exam.id]['学生数量'] = len(papers)
+            data_dict[exam.id]['学生成绩'] = {}
+            for paper in papers:
+                if paper.state == 2:
+                    mark_already_num += 1
+                    with sftp.file(paper.mark_result_path, 'r') as f:
+                        data = json.load(f)
+
+                    first_mark_score = 0
+                    first_score = 0
+                    second_mark_score = 0
+                    second_score = 0
+                    third_mark_score = 0
+                    third_score = 0
+                    forth_mark_score = 0
+                    forth_score = 0
+                    for key, values in data.items():
+                        if key == '一':
+                            first_mark_score, first_score = cur(data[key], 0, 0)
+                            print(first_mark_score, first_score)
+                        if key == '二':
+                            second_mark_score, second_score = cur(data[key], 0, 0)
+                            print(second_mark_score, second_score)
+                        if key == '三':
+                            third_mark_score, third_score = cur(data[key], 0, 0)
+                            print(third_mark_score, third_score)
+                        if key == '四':
+                            forth_mark_score, forth_score = cur(data[key], 0, 0)
+                            print(forth_mark_score, forth_score)
+
+                    total_score = first_mark_score + second_mark_score + third_mark_score + forth_mark_score  
+                    all_total_score += total_score
+                    first_total_score += first_mark_score
+                    second_total_score += second_mark_score
+                    third_total_score += third_mark_score
+                    forth_total_score += forth_mark_score
+                    data_dict[exam.id]['学生成绩'][paper.student_id] = total_score
+                    if total_score >= 0 and total_score <= 30:
+                        data_dict[exam.id]['0-30分段学生数量'] += 1
+                    elif total_score > 30 and total_score <= 60:
+                        data_dict[exam.id]['30-60分段学生数量'] += 1
+                    elif total_score > 60 and total_score <= 90:
+                        data_dict[exam.id]['60-90分段学生数量'] += 1
+                    elif total_score > 90 and total_score <= 120:
+                        data_dict[exam.id]['90-120分段学生数量'] += 1
+                    elif total_score > 120 and total_score <= 150:
+                        data_dict[exam.id]['120-150分段学生数量'] += 1
+                else:
+                    data_dict[exam.id]['学生成绩'][paper.student_id] = '-'
+            data_dict[exam.id]['已批改的数量'] = mark_already_num
+            data_dict[exam.id]['平均成绩'] = all_total_score / mark_already_num
+            data_dict[exam.id]['现代文阅读平均得分率'] = first_total_score / (mark_already_num * first_score)
+            data_dict[exam.id]['古代诗文阅读平均得分率'] = second_total_score / (mark_already_num * second_score)
+            data_dict[exam.id]['语言文字运用平均得分率'] = third_total_score / (mark_already_num * third_score)
+            data_dict[exam.id]['写作平均得分率'] = forth_total_score / (mark_already_num * forth_score)
+        # print(data_dict)
         
+        student_list = {}
+        #找出该老师发布的所有exam
+        ES = Exams.objects.filter(teacher_id=teacher_id)
+        # print(exams[0])
+        pos_num = 0
+        #通过这些exam的id去Paper模型中找出对应的paper并统计student_id
+        student_ids = Papers.objects.filter(exam__in=exams).values('student_id').distinct()
+        # print(student_ids)
+        data_dict['学生总数'] = len(student_ids)
+        i = 0
+        for sid in student_ids:
+            student_list[sid['student_id']] = {}
+            print(sid['student_id'])
+            exams = Papers.objects.filter(student_id=sid['student_id']).order_by('-exam__edate') 
+            i = 1
+            j = 0
+            first_score
+            while(j < len(exams)):
+                if exams[j].exam_id not in data_dict.keys():
+                    j += 1
+                    continue
+                if i == 3:
+                    break
+                student_list[sid['student_id']]['最近一次考试成绩'] = first_score = data_dict[exams[j].exam_id]['学生成绩'][sid['student_id']]
+                i += 1
+                j += 1
+                break
+            first_j = j - 1 
+            second_score = 0
+            while(j < len(exams)):
+                if exams[j].exam_id not in data_dict.keys():
+                    j += 1
+                    continue
+                if i == 3:
+                    break
+                second_score = data_dict[exams[j].exam_id]['学生成绩'][sid['student_id']]
+                i += 1
+                j += 1
+                break
+            second_j = j - 1
+            
+            if student_list[sid['student_id']]['最近一次考试成绩'] == '-':
+                    student_list[sid['student_id']]['上升幅度'] = '-'
+            else:
+                # 获取所有的成绩
+                scores = data_dict[exams[first_j].exam_id]['学生成绩']
+                # 过滤掉 "-" 的成绩
+                filtered_scores = [v for s,v in scores.items() if v != "-"]
+                # 将过滤后的成绩转换为浮点型，因为它们可能是字符串形式的数字
+                filtered_scores = [s for s in filtered_scores]
+                # 对成绩进行降序排序
+                sorted_scores = sorted(filtered_scores, reverse=True)
+                # 找出 score 在排序后的列表中的位置
+                try:
+                    position = sorted_scores.index(student_list[sid['student_id']]['最近一次考试成绩']) + 1
+                except ValueError:
+                    position = -1  # 如果 score 不在排序后的列表中，返回 -1
+                recent_sort = position / len(sorted_scores) * 100
+                
+                if data_dict[exams[second_j].exam_id]['学生成绩'][sid['student_id']] == '-':
+                    student_list[sid['student_id']]['上升幅度'] = '-'
+                else:
+                    scores = data_dict[exams[second_j].exam_id]['学生成绩']
+                    # print(scores)
+                    # 过滤掉 "-" 的成绩
+                    filtered_scores = [v for s,v in scores.items() if v != "-"]
+                    # 将过滤后的成绩转换为浮点型，因为它们可能是字符串形式的数字
+                    filtered_scores = [s for s in filtered_scores]
+                    # 对成绩进行降序排序
+                    sorted_scores = sorted(filtered_scores, reverse=True)
+                    # print(sorted_scores)
+                    # 找出 score 在排序后的列表中的位置
+                    try:
+                        position = sorted_scores.index(second_score) + 1
+                    except ValueError:
+                        position = -1  # 如果 score 不在排序后的列表中，返回 -1
+                    second_recent_sort = position / len(sorted_scores) * 100
+                    # print(recent_sort, second_recent_sort)
+                    student_list[sid['student_id']]['上升幅度'] = (second_recent_sort - recent_sort) / recent_sort * 100
+                    if student_list[sid['student_id']]['上升幅度'] > 0:
+                        pos_num += 1 
+            if i == 2:
+                student_list[sid['student_id']]['上升幅度'] = '-'
+            student_list['进步人数占比'] = pos_num / data_dict['学生总数'] * 100
+        response_dict = {'data_dict': data_dict, 'student_dict': student_list}
+        return JsonResponse(response_dict)

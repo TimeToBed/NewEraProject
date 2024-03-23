@@ -14,8 +14,9 @@ urlpatterns = [
     path('uploadpapers/<str:exam_id>/', views.upload_package),
     path('querypaper/<str:paper_id>/', views.querypaper),
     path('delete_exam/<str:exam_id>/', views.delete_exam),
+    path('data_list/', views.data_list),
     path('fake1/', views.fake1),
     path('fake2/', views.fake2),
     path('fake3/', views.fake3),
-    path('fake4/', views.fake4),
+    path('fake4/', views.fake4)
     ]
