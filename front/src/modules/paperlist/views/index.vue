@@ -4,7 +4,13 @@
       <ul class="py-5 px-6 border-b border-primary-white flex list-none justify-between flex-grow">
 
         <li><h3 class="cursor-auto">试 卷 列 表</h3></li>
-        <li><el-button  type="primary"  size="samll" @click="handleButtonClickOCRPreprocess()">预处理</el-button></li>
+        <li>
+          <el-button  
+          
+          type="primary"  size="samll" @click="handleButtonClickOCRPreprocess()">
+            预处理
+          </el-button>
+        </li>
       </ul>
       <div class="block overflow-x-auto w-full">
         <PaperData 
@@ -38,6 +44,7 @@
 import { AxiosInstance } from 'axios'
 import { defineComponent, inject, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { ElMessageBox, ElLoading } from 'element-plus' 
 import PaperData from './components/PaperData.vue'
 
 
@@ -78,9 +85,28 @@ export default defineComponent({
     const exam_id = route.query.exam_id
     const handleButtonClickOCRPreprocess = async () => {
       console.log('OCR预处理 received id is: ', exam_id);
+      const loading = ElLoading.service({
+        lock: true,
+        text: '处理中',
+        background: 'rgba(0, 0, 0, 0.7)',
+      })
       try {
       
-        const response = await axios.get(`exams/ocr_preprocess/${exam_id}/`);
+        const response = await axios.get(`exams/ocr_preprocess/${exam_id}/`)
+        .then(function (response) {
+                      console.log(response);
+                      loading.close()
+                      ElMessageBox.alert('预处理完成！', '提示', {
+                        confirmButtonText: '确定'
+                      })
+                    })
+                    .catch(function (error) {
+                      console.log(error);
+                      loading.close()
+                      ElMessageBox.alert('处理失败!', '警告', {
+                        confirmButtonText: '确定'
+                      })
+                    });
         console.log(response);
       } catch (error) {
         console.error("Error during HTTP request:", error);
