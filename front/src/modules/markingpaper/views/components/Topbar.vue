@@ -97,16 +97,23 @@ export default defineComponent({
         .then(response => {
           state.imageSources = response.data.map(img_base64 => 'data:image/jpg;base64,' + img_base64);
           loading.close()
-      });
+        }).catch(function (error) {
+                      console.log(error);
+                      loading.close()
+                      ElMessageBox.alert('加载失败!', '警告', {
+                        confirmButtonText: '确定'
+                      })
+                    });
+      
     };
 
     const getLLMPreprocess = async () => {
       console.log('get LLM Preprocess');
       try {
       
-        const response = await axios.get(`exams/llm_preprocess/${state.paper_id}/`);
+        const response = await axios.get(`exams/queryllm/${state.paper_id}/`);
         state.LLMData=response.data
-        console.log("TopBar LLM Preprocess Response.data:",state.LLMData);
+        console.log("TopBar LLM Marking Paper Response.data:",state.LLMData);
       } catch (error) {
         console.error("Error during HTTP request:", error);
       }

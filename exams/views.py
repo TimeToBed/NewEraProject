@@ -409,9 +409,6 @@ def querypaper(request, paper_id):
     print('查询试卷 从前端传回来的考试paper_id：',paper_id)
     paper = Papers.objects.filter(id=paper_id)[0]
     print(paper)
-    data={
-        'msg':'hello world!'
-        }
     exam_id=str(paper.exam_id)
     student_id=str(paper.student_id)
     print('exam id:', exam_id)
@@ -437,8 +434,9 @@ def querypaper(request, paper_id):
         print('Error for find:',paper_path)
 
     if stat.S_ISDIR(sftp.stat(paper_path).st_mode):
-        length = len(sftp.listdir(paper_path))
-        print("paper nums:", length)
+        length = paper.pages #len(sftp.listdir(paper_path))
+        
+        print("paper pages:", length)
         i = 1
         images=[]
         while(i <= length):
