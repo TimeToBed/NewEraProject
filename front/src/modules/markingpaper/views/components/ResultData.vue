@@ -4,30 +4,24 @@
             <div class="grid-items-white">
                 <p class="text-title-white">题目</p>
                 <br>
-                <p class="text-content-white">{{ content }} </p>
+                <p class="text-content-white">{{ index }} </p>
             </div>
 
-            <div class="grid-items-violet" v-if="analysis">
-                <p class="text-title-violet">大模型题目分析</p>
-                <br>
-                <p class="text-content-violet" v-if="analysis.analysis">题目解析</p>
-                <br>
-                <p class="text-content-violet" v-if="analysis.analysis">{{ analysis.analysis }} </p>
-                <br>
-                <p class="text-content-violet" v-if="analysis.knowledge_points">知识点</p>
-                <br>
-                <p class="text-content-violet" v-if="analysis.knowledge_points">{{ analysis.knowledge_points }} </p>
-            </div>
 
             <div class="grid-items-purple">
                 <p class="text-title-purple">大模型批阅结果</p>
                 <br>
-                <p class="text-content-purple">{{ LLM_marking }} </p>
+                <p class="text-content-purple">{{ llm_comment }} </p>
             </div>
 
             <div class="flex justify-between items-center"> 
-                <el-input v-model="input_score" style="width: 100px" placeholder="请输入评分"  />
-                <p class="text-content-white">大模型输出评分: {{ LLM_score }} </p>
+                <el-input 
+                v-model="input_score" 
+                style="width: 100px" 
+                placeholder="请输入评分"  
+                @input="handleInput_mark_score"
+                />
+                <p class="text-content-white">大模型输出评分: {{ llm_mark }}/{{ score }}</p>
             </div>
 
             <div class="w-full"> 
@@ -37,10 +31,9 @@
                     placeholder="请输入评语" 
                     type="textarea"  
                     :rows="4"
+                    @input="handleInput_comment"
                 />
             </div>
-    
-
 
         </div>
 
@@ -54,36 +47,75 @@ export default defineComponent({
     props: {
         // 定义一个 prop 来接收数据
         content: {
+            type: String, 
+            required: false
+        },
+
+        index: {
+            type: String, 
+            required: true
+        },
+
+        llm_mark: {
             type: String, // 根据你的数据类型来设定，这里假设是 Object
             required: true // 如果是必须传递的数据，可以设定 required: true
         },
 
-        answer: {
+        llm_comment: {
             type: String, 
             required: false
         },
-        analysis: {
+        score: {
             type: Object, 
             required: true
         },
-        LLM_analysis: {
+        mark: {
             type: String, 
             required: true
         },
-        LLM_marking: {
+        
+        comment: {
             type: String, 
             required: true
         },
 
-        LLM_score: {
-            type: String,
+        mark_score: {
+            type: String, 
             required: true
-        }
+        },
     },
-    setup() {
+
+    methods: {
+        handleInput_mark_score() {
+            //this.mark_score=this.input_score
+            this.$emit('updateScore', this.input_score);
+            console.log('change input score:', this.input_score)
+            let as_change=1
+            //this.updateBorder(this.$refs.input_kp, as_change);
+  
+        },
+        handleInput_comment() {
+            //this.analysis.change_analysis=this.llm_analysis
+            this.$emit('updateComment', this.input_comment);
+            console.log('change input comment:', this.input_comment)
+            let as_change=1
+            //this.updateBorder(this.$refs.input_as, as_change);
+  
+        },
+    },
+    setup(props) {
+        console.log('result data')
+        let input_comment = ref('')
+        let input_score= ref('')
+
+        if(props?.comment){
+            input_comment = ref(props.comment)
+        }
         
-        const input_comment = ref('')
-        const input_score= ref('')
+        
+        if(props?.mark_score){
+            input_score = ref(props.mark_score)
+        }
 
         return {
             input_comment,
@@ -98,72 +130,62 @@ export default defineComponent({
     @apply p-3 my-1 bg-white border-slate-200 
     rounded drop-shadow-[0_4px_16px_rgba(0,0,0,0.10)] 
     shadow-[0_0_0_1px_rgb(0,0,0,0.10)] text-left 
-    text-sm text-gray-410 border-0 font-normal;
+    text-gray-410 border-0 font-normal;
+    font-size:0.75rem
 }
 
 
 .text-title-white {
-    @apply text-base text-gray-410 font-bold;
+    @apply text-gray-410 font-bold;
+    font-size:0.825rem
 }
 .text-title-white {
-    @apply text-base text-gray-410 font-bold ;
-    line-height:1.2rem
+    @apply text-gray-410 font-bold ;
+    line-height:1.2rem;
+    font-size:0.825rem
 }
 .text-content-white {
-    @apply text-sm text-gray-410 font-normal ;
-    line-height:1rem
+    @apply text-gray-410 font-normal ;
+    line-height:1rem;
+    font-size:0.75rem
 }
-/* .grid-items-purple {
-    @apply p-3 my-1 bg-purple-200 border-slate-200 
-    rounded drop-shadow-[0_4px_16px_rgba(0,0,0,0.10)] 
-    shadow-[0_0_0_1px_rgb(0,0,0,0.10)] text-left 
-    text-sm text-gray-410 border-0 font-normal;
-} */
 
 .grid-items-violet {
-    @apply p-3 my-1 bg-violet-400 border-slate-200 
+    @apply p-1 my-1 bg-violet-400 border-slate-200 
     rounded drop-shadow-[0_4px_16px_rgba(0,0,0,0.10)] 
     shadow-[0_0_0_1px_rgb(0,0,0,0.10)] text-left 
-    text-sm text-white border-0 font-normal;
+    text-white border-0 font-normal;
+    font-size:0.75rem
 }
 .text-title-violet {
-    @apply text-base text-white font-bold ;
-    line-height:1.2rem
+    @apply text-white ;
+    line-height:1.2rem;
+    font-size:0.825rem
 }
 .text-content-violet {
-    @apply text-sm text-white font-normal ;
-    line-height:1rem
+    @apply text-white font-normal ;
+    line-height:1rem;
+    font-size:0.75rem
 }
-
-/* .grid-items-violet {
-    @apply p-3 my-1 bg-violet-200 border-slate-200 
-    rounded drop-shadow-[0_4px_16px_rgba(0,0,0,0.10)] 
-    shadow-[0_0_0_1px_rgb(0,0,0,0.10)] text-left 
-    text-sm text-white border-0 font-normal;
-}
-.text-title-violet {
-    @apply text-base text-gray-410 font-bold ;
-    line-height:1.2rem
-}
-.text-content-violet {
-    @apply text-sm text-gray-410 font-normal ;
-    line-height:1rem
-} */
 
 .grid-items-purple {
-    @apply p-3 my-1 bg-violet-500 border-slate-200 
+    @apply p-1 my-1 bg-violet-500 border-slate-200 
     rounded drop-shadow-[0_4px_16px_rgba(0,0,0,0.10)] 
     shadow-[0_0_0_1px_rgb(0,0,0,0.10)] text-left 
-    text-sm text-white border-0 font-normal;
+    text-white border-0 font-normal;
+    font-size:0.75rem
 }
 .text-title-purple {
-    @apply text-base text-white font-bold ;
-    line-height:1.2rem
+    @apply text-white font-bold ;
+    line-height:1.2rem;
+    font-size:0.825rem
 }
 .text-content-purple {
-    @apply text-sm text-white font-normal ;
-    line-height:1rem
+    @apply text-white font-normal ;
+    line-height:1rem;
+    font-size:0.75rem
 }
+
 
 .card-layout {
   padding: 5;

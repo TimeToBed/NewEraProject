@@ -400,7 +400,7 @@ def queryllm(request, paper_id):
         print(paper)
 
         llm_path = paper.llm_result_path
-
+        marking_result_path=paper.mark_result_path
     except Exams.DoesNotExist:
         return JsonResponse({"result":f"No exist id {paper_id}!"})
 
@@ -417,8 +417,12 @@ def queryllm(request, paper_id):
         return 'SSH connection error'
     
     sftp = ssh.open_sftp()
-
-    remote_file = sftp.open(llm_path, 'rb')
+    
+    try:
+        sftp.stat(llm_path)
+        remote_file = sftp.open(marking_result_path, 'rb')
+    except IOError:
+        remote_file = sftp.open(llm_path, 'rb')
   
     # 创建一个FileResponse对象
     response = FileResponse(remote_file, content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
@@ -1246,3 +1250,51 @@ def data_list(request, teacher_id):
             student_list['进步人数占比'] = pos_num / data_dict['学生总数'] * 100
         response_dict = {'data_dict': data_dict, 'student_dict': student_list}
         return JsonResponse(response_dict)
+
+
+@csrf_exempt #保存llm修改
+def marking_update(request, paper_id):
+
+    print('marking update 批改内容更新 从前端传回来的考试paper_id：',paper_id)
+    try:
+        paper = Papers.objects.get(id=paper_id)
+        mark_result_path = paper.mark_result_path
+
+    except Papers.DoesNotExist:
+        return JsonResponse({"result":f"No exist {paper_id}!"})
+  
+    if request.method == 'POST':
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        try:
+            ssh.connect(hostname=settings.Remote_HOST, username=settings.Remote_user, password=settings.Remote_password, port=settings.Remote_PORT)
+            print("连接成功")
+        except paramiko.AuthenticationException:
+            print("认证失败")
+            return 'SSH Authentication failed'
+        except paramiko.SSHException as e:
+            print("连接错误：", str(e))
+            
+        sftp = ssh.open_sftp()
+        # 对 JSON 数据解码
+        #data = json.loads(request.body.decode('utf-8')) #此时data为字典
+        bytes_io = io.BytesIO(request.body) #request.body utf-8 编码的二进制文件
+
+        try:
+            sftp.putfo(bytes_io, mark_result_path)
+            print("上传成功")
+        except Exception as e:
+            # 这里处理文件传输过程中可能出现的错误
+            print("文件传输错误：", str(e))
+            return 'File transfer error'
+        sftp.close()
+        ssh.close()
+        return JsonResponse({"result": "处理成功"})
+
+    return JsonResponse({"result":"No Post error!"})
+
+
+
+
+
+
