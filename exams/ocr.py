@@ -89,6 +89,7 @@ def select_cut(img, ocr):
 def ocr_progress(img, ocr):
     height, width, _ = img.shape
     
+    
     # 第一次纯检测
     result = ocr.ocr(img, det=True, rec=False, cls=False)
     

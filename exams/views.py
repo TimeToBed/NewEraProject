@@ -310,11 +310,11 @@ def ocr_preprocess(request, exam_id):
     start_time_initial = time.time()
     ocr = PaddleOCR(use_angle_cls=True, lang="ch",use_gpu=True,
  
-                rec_model_dir= os.path.join(weights_path,'ch_PP-OCRv4_rec_infer'),
+                rec_model_dir= os.path.join(weights_path,'ch_PP-OCRv4_rec_server_infer'),
  
                 cls_model_dir= os.path.join(weights_path,'ch_ppocr_mobile_v2.0_cls_infer'),
  
-                det_model_dir= os.path.join(weights_path,'ch_PP-OCRv4_det_infer'))
+                det_model_dir= os.path.join(weights_path,'ch_PP-OCRv4_det_server_infer'))
     end_time_initial = time.time()
     runtime_initial = end_time_initial - start_time_initial
     
@@ -347,21 +347,27 @@ def ocr_preprocess(request, exam_id):
         if stat.S_ISDIR(sftp.stat(entry_path).st_mode):
             lenth = len(sftp.listdir(entry_path))
             i = 1
+            json_data = {}
             while(i <= lenth):
                 file = str(i) + '.png'
                 file_path = posixpath.join(entry_path, file)
                 # 如果条目是一个文件，将它添加到文件列表
                 # print(file_path)
-                json_data = {}
                 if not stat.S_ISDIR(sftp.stat(file_path).st_mode):
                     remote_file = sftp.open(file_path, 'rb')
                     # 转换图片到numpy数组
                     np_image = imageio.imread(BytesIO(remote_file.read()))
-                    txt_path = posixpath.join(ocr_path, str(entry) + '.txt')
+                    # 检查是否为二维
+                    if np_image.ndim == 2:
+                        # 在最后一维添加新维度
+                        np_image = np.repeat(np_image[:, :, np.newaxis], 3, axis=2)
+                    print(np_image.shape)
+                    txt_path = posixpath.join(ocr_path, str(entry) + '.json')
                     if i == 1:
                         # 选择题单独处理
                         np_image, select_results = select_cut(np_image, ocr)
                         json_data['select'] = select_results
+                        print(json_data['select'])
                     ocr_results = ocr_progress(np_image, ocr)
                     json_data[str(i)] = ocr_results
                     # ocr_result = ocr.ocr(np_image, cls=True)
@@ -370,7 +376,8 @@ def ocr_preprocess(request, exam_id):
                     #     for line in res:
                     #         coords, contents, confidence = line[0], line[1][0], line[1][1]
                 i += 1
-            with sftp.open(txt_path, 'ab') as f:
+            # print(json_data)
+            with sftp.open(txt_path, 'w') as f:
                 f.write(json.dumps(json_data, ensure_ascii=False))
                 # f.write(contents.encode('utf-8'))
                 # f.write('\n'.encode('utf-8'))
