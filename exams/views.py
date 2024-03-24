@@ -34,6 +34,7 @@ import numpy as np
 from io import StringIO
 from datetime import datetime
 import pytz
+import time
 # 创建一个有时区的datetime对象
 tz = pytz.timezone('Asia/Shanghai')
 json_dir = './server/ocr'
@@ -306,6 +307,7 @@ def ocr_preprocess(request, exam_id):
     print('OCR预处理 从前端传回来的考试exam_id：',exam_id)
     
     weights_path = get_weights_path()
+    start_time_initial = time.time()
     ocr = PaddleOCR(use_angle_cls=True, lang="ch",use_gpu=True,
  
                 rec_model_dir= os.path.join(weights_path,'ch_PP-OCRv4_rec_infer'),
@@ -313,6 +315,8 @@ def ocr_preprocess(request, exam_id):
                 cls_model_dir= os.path.join(weights_path,'ch_ppocr_mobile_v2.0_cls_infer'),
  
                 det_model_dir= os.path.join(weights_path,'ch_PP-OCRv4_det_infer'))
+    end_time_initial = time.time()
+    runtime_initial = end_time_initial - start_time_initial
     
     path = posixpath.join(settings.Remote_path, exam_id, 'student_papers')
     ssh = paramiko.SSHClient()
@@ -348,20 +352,29 @@ def ocr_preprocess(request, exam_id):
                 file_path = posixpath.join(entry_path, file)
                 # 如果条目是一个文件，将它添加到文件列表
                 # print(file_path)
+                json_data = {}
                 if not stat.S_ISDIR(sftp.stat(file_path).st_mode):
                     remote_file = sftp.open(file_path, 'rb')
                     # 转换图片到numpy数组
                     np_image = imageio.imread(BytesIO(remote_file.read()))
                     txt_path = posixpath.join(ocr_path, str(entry) + '.txt')
-                    ocr_result = ocr.ocr(np_image, cls=True)
-                    for idx in range(len(ocr_result)):
-                        res = ocr_result[idx]
-                        for line in res:
-                            coords, contents, confidence = line[0], line[1][0], line[1][1]
-                            with sftp.open(txt_path, 'ab') as f:
-                                f.write(contents.encode('utf-8'))
-                                f.write('\n'.encode('utf-8'))
+                    if i == 1:
+                        # 选择题单独处理
+                        np_image, select_results = select_cut(np_image, ocr)
+                        json_data['select'] = select_results
+                    ocr_results = ocr_progress(np_image, ocr)
+                    json_data[str(i)] = ocr_results
+                    # ocr_result = ocr.ocr(np_image, cls=True)
+                    # for idx in range(len(ocr_result)):
+                    #     res = ocr_result[idx]
+                    #     for line in res:
+                    #         coords, contents, confidence = line[0], line[1][0], line[1][1]
                 i += 1
+            with sftp.open(txt_path, 'ab') as f:
+                f.write(json.dumps(json_data, ensure_ascii=False))
+                # f.write(contents.encode('utf-8'))
+                # f.write('\n'.encode('utf-8'))
+
             paper = Papers.objects.get(exam_id=exam_id, student_id=entry)
             paper.ocr_path = txt_path
             paper.save()
