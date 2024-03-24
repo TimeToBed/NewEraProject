@@ -371,6 +371,39 @@ def ocr_preprocess(request, exam_id):
     
     return HttpResponse("收到")
 
+def queryllm(request, paper_id):
+    print('查询试卷的大模型结果 从前端传回来的考试paper_id：',paper_id)
+    
+
+    try:
+        paper = Papers.objects.filter(id=paper_id)[0]
+        print(paper)
+
+        llm_path = paper.llm_result_path
+
+    except Exams.DoesNotExist:
+        return JsonResponse({"result":f"No exist id {paper_id}!"})
+
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    try:
+        ssh.connect(hostname=settings.Remote_HOST, username=settings.Remote_user, password=settings.Remote_password, port=settings.Remote_PORT)
+        print("连接成功")
+    except paramiko.AuthenticationException:
+        print("认证失败")
+        return 'SSH Authentication failed'
+    except paramiko.SSHException as e:
+        print("连接错误：", str(e))
+        return 'SSH connection error'
+    
+    sftp = ssh.open_sftp()
+
+    remote_file = sftp.open(llm_path, 'rb')
+  
+    # 创建一个FileResponse对象
+    response = FileResponse(remote_file, content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+
+    return response
 
 def querypaper(request, paper_id):
     print('查询试卷 从前端传回来的考试paper_id：',paper_id)

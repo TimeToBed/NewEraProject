@@ -215,6 +215,7 @@ def LLM_preview(request, exam_id):
     return response
 
 
+
 #@csrf_exempt
 async def rectangle(request):
     print('rectangle')

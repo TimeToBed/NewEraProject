@@ -89,7 +89,7 @@ export default defineComponent({
     const fetchImageFromServer = () => {
       const loading = ElLoading.service({
           lock: true,
-          text: '处理中',
+          text: '加载中',
           background: 'rgba(0, 0, 0, 0.7)',
       })
 
