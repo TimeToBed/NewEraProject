@@ -34,6 +34,7 @@
 import { AxiosInstance } from 'axios'
 import { defineComponent, inject, reactive, onMounted } from 'vue'
 import ExamData from './components/ExamData.vue'
+import { AUTH_TOKEN } from 'core/constants'
 
 
 interface User {
@@ -56,6 +57,7 @@ export default defineComponent({
   },
   
   setup(){
+    const user_id=localStorage.getItem('user_id')
     const axios = inject('axios') as AxiosInstance
     const state = reactive({  //  Vue 的响应性 API，当我们改变这个数据时，Vue 能知道需要重新渲染影响的组件。
       exam: null,
@@ -108,7 +110,7 @@ export default defineComponent({
     const handleUpdateValue = async () => {
       try {
         console.log('更新数据---------------------')
-        const user_id= '1'
+        
         const response = await axios.get(`exams/examlist/${user_id}/`);
         //const response = await axios.get('exams/test/');
         state.exam = response.data;
