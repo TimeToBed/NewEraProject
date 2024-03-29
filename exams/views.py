@@ -1294,7 +1294,20 @@ def marking_update(request, paper_id):
     return JsonResponse({"result":"No Post error!"})
 
 
-
+def login(request):
+    if request.method == 'POST':
+        telephone = request.POST.get('telephone')
+        password = request.POST.get('password')
+        print(telephone, password)
+        try:
+            teacher = Teachers.objects.get(telephone=telephone)
+        except Teachers.DoesNotExist:
+            return JsonResponse({'result': '用户名不存在'})
+        if teacher.password != password:
+            return JsonResponse({'result': '密码错误'})
+        else:
+            request.session['teacher_id'] = teacher.id
+            return JsonResponse({'result': '登录成功'})
 
 
 

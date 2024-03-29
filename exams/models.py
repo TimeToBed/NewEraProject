@@ -32,7 +32,7 @@ class Teachers(models.Model):
     password = models.CharField(max_length=30,validators=[MinLengthValidator(6)])  #教师密码 必填
     team = models.ForeignKey(Teams, models.DO_NOTHING, null=True)
     fake_teahcer = models.IntegerField(null=True) #是否是虚拟教师，0代表不是，1代表是
-    
+    telephone = models.CharField(default=13952647005, max_length=11)
     class Meta:
         db_table = 'Teachers'
     
@@ -47,7 +47,7 @@ class Students(models.Model):
     password = models.CharField(max_length=30,validators=[MinLengthValidator(6)])
     sno = models.IntegerField(null=True)
     fake_student = models.IntegerField(null=True) #是否是虚拟学生，0代表不是，1代表是
-
+    telephone = models.CharField(default=13952647005, max_length=11)
     class Meta:
         db_table = 'Students'
     def __str__(self):

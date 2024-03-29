@@ -20,5 +20,6 @@ urlpatterns = [
     path('fake1/', views.fake1),
     path('fake2/', views.fake2),
     path('fake3/', views.fake3),
-    path('fake4/', views.fake4)
+    path('fake4/', views.fake4),
+    path('login/', views.login)
     ]

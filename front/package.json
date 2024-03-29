@@ -39,6 +39,7 @@
     "vue-chart-3": "^3.1.8",
     "vue-router": "^4.3.0",
     "vue-sweetalert2": "^5.0.5",
+    "vue3-danmaku": "^1.6.0",
     "vue3-google-map": "^0.13.0",
     "vuex": "^4.0.2",
     "yup": "^0.32.9"
@@ -54,6 +55,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
     "fs-extra": "^10.0.0",
+    "less": "^4.2.0",
     "postcss": "^8.4.5",
     "prettier": "^2.5.1",
     "rollup-plugin-visualizer": "^5.5.0",
