@@ -93,6 +93,11 @@ python版本要求≥3.8
 6. **安装doc显示库**
    ##### 安装docx-preview（需要进入前端文件夹路径！！）
    <pre>npm i docx-preview --save</pre>
+7. **安装轮播图的显示库**
+    ##### 安装less (需要进入前端文件夹路径！！)
+    <pre>npm install less --save-dev</pre>
+    ##### 安装vue3-danmaku (需要进入前端文件夹路径！！)
+    <pre>npm install vue3-danmaku</pre>
 
 ## 项目运行
 
