@@ -11,7 +11,7 @@
             <div class="md:flex-9 md:max-w-9/12 lg:flex-8 lg:max-w-2/3">
               <WelcomeLabel />
             </div>
-            <div class="md:flex-6 md:max-w-1/2 lg:flex-5 lg:max-w-5/12">
+            <!-- <div class="md:flex-6 md:max-w-1/2 lg:flex-5 lg:max-w-5/12">
               <h3 class="text-white mt-12 mb-0">
                 <span class="font-bold">You can log in with 3 user types:</span>
               </h3>
@@ -23,7 +23,7 @@
                   </div>
                 </li>
               </ul>
-            </div>
+            </div> -->
           </div>
         </div>
       </div>
@@ -69,6 +69,7 @@ export default defineComponent({
   },
   setup() {
     const store = useStore()
+    
     const isAuthenticated = computed<boolean>(() => store.auth.getAuthenticationState)
     const accounts: string[] = ['admin@argon.com', 'creator@argon.com', 'member@argon.com']
     return {

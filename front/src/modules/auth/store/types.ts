@@ -6,4 +6,5 @@ export interface AuthState {
 export type ILogin = {
   email: string
   password: string
+  usertype: string
 }

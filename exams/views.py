@@ -1293,21 +1293,24 @@ def marking_update(request, paper_id):
 
     return JsonResponse({"result":"No Post error!"})
 
-
+@csrf_exempt
 def login(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-        print(email, password)
+        usertype=request.POST.get('usertype') # 1:教师  2：学生
+        print(email, password, usertype)
         try:
-            teacher = Teachers.objects.get(email=email)
+            teacher = Teachers.objects.get(telephone=email)
         except Teachers.DoesNotExist:
-            return JsonResponse({'result': '用户名不存在'})
+            return JsonResponse({'result': '用户名不存在'}) 
         if teacher.password != password:
             return JsonResponse({'result': '密码错误'})
         else:
             request.session['teacher_id'] = teacher.id
-            return JsonResponse({'result': '登录成功'})
+            return JsonResponse({'result': '登录成功', 
+                                 'teacher_id': teacher.id,
+                                 'username': teacher.user_name})
 
 
 
