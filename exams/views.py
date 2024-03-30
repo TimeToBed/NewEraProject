@@ -1296,11 +1296,11 @@ def marking_update(request, paper_id):
 
 def login(request):
     if request.method == 'POST':
-        telephone = request.POST.get('telephone')
+        email = request.POST.get('email')
         password = request.POST.get('password')
-        print(telephone, password)
+        print(email, password)
         try:
-            teacher = Teachers.objects.get(telephone=telephone)
+            teacher = Teachers.objects.get(email=email)
         except Teachers.DoesNotExist:
             return JsonResponse({'result': '用户名不存在'})
         if teacher.password != password:
