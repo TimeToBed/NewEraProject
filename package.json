@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "vue3-danmaku": "^1.6.0"
-  },
-  "devDependencies": {
-    "less": "^4.2.0"
-  }
-}
