@@ -120,8 +120,10 @@ export default defineComponent({
                         })
                         let teacher_id=response.data.teacher_id
                         let username=response.data.username
+                        let usertype=response.data.usertype
                         localStorage.setItem('user_id', teacher_id) 
                         localStorage.setItem('username', username) 
+                        localStorage.setItem('usertype', usertype) 
                         store.auth.actLogin(formData.value)
                       }else if (response.data.result=='用户名不存在'){
                         ElNotification({

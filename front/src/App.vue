@@ -28,7 +28,6 @@ export default defineComponent({
       //window.location.href = '/login'
       const router = useRouter();
       router.push({ path: '/login'});
-
     }
     const $message = inject<IMessage>('$message')
     const router = useRoute()

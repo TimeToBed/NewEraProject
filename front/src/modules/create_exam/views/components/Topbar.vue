@@ -93,7 +93,8 @@ export default defineComponent({
       formData.append('examname', examInfo.examname);
       formData.append('subject', examInfo.subject);
       formData.append('time', examInfo.time);
-      formData.append('teacher_id', examInfo.teacher_id.toString());
+      let teacher_id=localStorage.getItem('user_id')
+      formData.append('teacher_id', teacher_id);
 
       // Append the files
       if(examInfo.paper){
