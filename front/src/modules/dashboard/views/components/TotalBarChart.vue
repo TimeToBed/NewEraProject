@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref } from 'vue'
+import { defineComponent, computed, ref,toRefs } from 'vue'
 import { BarChart } from 'vue-chart-3'
 import { Chart, registerables } from 'chart.js'
 Chart.register(...registerables)
@@ -42,11 +42,39 @@ export default defineComponent({
       type: String,
       default: '各分数段学生数量',
     },
+    Datalist: {
+        type: Object,
+        required: true,
+      },
   },
+  
   setup() {
+    
+
+    const props = defineProps({
+      title: {
+        type: String,
+        default: '最近一次考试',
+      },
+      subcription: {
+        type: String,
+        default: '各分数段学生数量',
+      },
+      Datalist: {
+          type: Object,
+          required: true,
+      },
+    })
+
+        // 使用toRefs使props响应式
+    const { Datalist } = toRefs(props)
+
     const totalChart = ref()
     const totalData = computed(() => ({
-      labels: ['0-20', '20-40', '40-60', '60-80', '80-100'],
+      // 从Datalist中获取分数段对应的学生数量
+      //const dataValues = Object.values(Datalist.value.data_dict).map(Number),
+
+      labels: ['0-30', '30-60', '60-90', '90-120', '120-150'],
       datasets: [
         {
           label: ' Sales',
@@ -60,6 +88,8 @@ export default defineComponent({
         },
       ],
     }))
+
+
 
     const chartOptions = ref({
       elements: {
