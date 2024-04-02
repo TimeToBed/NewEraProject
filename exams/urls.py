@@ -15,7 +15,7 @@ urlpatterns = [
     path('querypaper/<str:paper_id>/', views.querypaper),
     path('queryllm/<str:paper_id>/', views.queryllm),
     path('delete_exam/<str:exam_id>/', views.delete_exam),
-    path('data_list/', views.data_list),
+    path('data_list/<str:teacher_id>/', views.data_list),
     path('marking_update/<str:paper_id>/', views.marking_update),
     path('fake1/', views.fake1),
     path('fake2/', views.fake2),

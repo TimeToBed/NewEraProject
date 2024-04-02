@@ -35,10 +35,50 @@
             </div>
           </template>
         </el-table-column>
-        
-        <el-table-column min-width="70">
+
+        <el-table-column label="知识点分析" min-width="100">
           <template #default="scope">
-            <!-- <el-button  type="primary" @click="handleButtonClickLLMPreprocess(scope.row)">预处理</el-button> -->
+              <div class="cursor-auto flex items-center justify-center">
+                  <BadgeCheckIcon v-if="scope.row.llm_preprocess === 1" class="h-5 w-5 text-indigo-410"/>
+                  <ExclamationCircleIcon v-if="scope.row.llm_preprocess === 0" class="h-5 w-5 text-red-500"/>
+
+                  <!-- <span class="ml-2 pb-0.5 text-0.875 font-normal">{{ scope.row.state }}</span> -->
+                  <span class="ml-4 pb-0.5 text-0.875 font-normal"
+                        v-if="scope.row.llm_preprocess === 0">未分析</span>
+                  <span class="ml-4 pb-0.5 text-0.875 font-normal"
+                        v-if="scope.row.llm_preprocess === 1">已分析</span>
+              </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="批改" min-width="100">
+          <template #default="scope">
+            <div class="cursor-auto flex items-center justify-center">
+              <i
+                class="w-2 h-2 rounded-full"
+                aria-hidden="true"
+                :class="[
+                  scope.row.markingable == 2
+                    ? 'bg-info'
+                    : scope.row.ismarkingable == 0
+                    ? 'bg-danger'
+                    : scope.row.ismarkingable == 1
+                    ? 'bg-warning'
+                    : 'bg-success',
+                ]"
+              ></i>
+              <!-- <span class="ml-2 pb-0.5 text-0.875 font-normal">{{ scope.row.state }}</span> -->
+              <span class="ml-4 pb-0.5 text-0.875 font-normal"
+              v-if="scope.row.ismarkingable==0">待上传考卷</span>
+              <span class="ml-4 pb-0.5 text-0.875 font-normal"
+              v-if="scope.row.ismarkingable==1">待分析</span>
+              <span class="ml-4 pb-0.5 text-0.875 font-normal"
+              v-if="scope.row.ismarkingable==2">可批改</span>
+            </div>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column min-width="70">
+          <template #default="scope">
             <el-button v-if="scope.row.llm_preprocess === 1" type="primary" @click="handleButtonClickLLMPreview(scope.row)">预览</el-button>
             <el-button v-if="scope.row.llm_preprocess === 0" type="primary" @click="handleButtonClickLLMPreprocess(scope.row)">预处理</el-button>
           </template>
@@ -59,38 +99,64 @@
               @click="handleButtonClickMarking(scope.row)">
               批改试卷
             </el-button>
+            
           </template>
-        </el-table-column>
+        </el-table-column> -->
 
-        <el-table-column width="60" fixed="right">
+
+        <el-table-column label="操作" width="200" fixed="right">
           <template #default="scope">
             <div class="text-center h-12 pt-2.5">
-              <el-dropdown placement="bottom-end" trigger="click" popper-class="action-column-popper"  @command="DeleteExam">
+              <el-dropdown placement="bottom-end" trigger="click" >
                 <el-button class="w-5 h-7 border-none bg-transparent hover:shadow-md" plain>
                   <div class="flex items-center space-x-2 2xl:space-x-4 text-black px-5">
                     <DotsVerticalIcon class="cursor-pointer h-5 w-5 text-[#ced4da] font-extrabold" />
                   </div>
                 </el-button>
+                
                 <template #dropdown>
                   <el-dropdown-menu class="my-0.5">
+                    <el-dropdown-item  v-if="scope.row.llm_preprocess === 1"
+                    class="mx-0 hover:bg-secondary text-zinc-800" 
+                    :command="() => handleButtonClickLLMPreview(scope.row)">
+                      <div class="flex items-center w-40 h-6">
+                        <span class="mb-0 text-sm font-normal">知识点预览</span>
+                      </div>
+                    </el-dropdown-item>
+
+                    <el-dropdown-item  v-if="scope.row.llm_preprocess === 0"
+                    class="mx-0 hover:bg-secondary text-zinc-800" 
+                    :command="() => handleButtonClickLLMPreprocess(scope.row)">
+                      <div class="flex items-center w-40 h-6">
+                        <span class="mb-0 text-sm font-normal">知识点分析</span>
+                      </div>
+                    </el-dropdown-item>
+
+    
                     <el-dropdown-item class="mx-0 hover:bg-secondary text-zinc-800" 
-                    :command="scope.row">
+                    :command="() => handleButtonClickUpload(scope.row)">
+                      <div class="flex items-center w-40 h-6">
+                        <span class="mb-0 text-sm font-normal">上传试卷</span>
+                      </div>
+                    </el-dropdown-item>
+    
+                    <el-dropdown-item class="mx-0 hover:bg-secondary" 
+                        
+                        :command="() => handleButtonClickMarking(scope.row)"
+                        :disabled="isButtonDisabled(scope.row.markingable)">
+                      <div class="flex items-center w-40 h-6">
+                        <span class="mb-0 text-sm">去批改</span>
+                      </div>
+                    </el-dropdown-item>
+    
+                    <el-dropdown-item class="mx-0 hover:bg-secondary text-zinc-800" 
+                    :command="() => DeleteExam(scope.row)">
                       <div class="flex items-center w-40 h-6">
                         <span class="mb-0 text-sm font-normal">删除考试</span>
                       </div>
                     </el-dropdown-item>
     
-                    <el-dropdown-item class="mx-0 hover:bg-secondary text-zinc-800">
-                      <div class="flex items-center w-40 h-6">
-                        <span class="mb-0 text-sm font-normal">Another Action</span>
-                      </div>
-                    </el-dropdown-item>
-    
-                    <el-dropdown-item class="mx-0 hover:bg-secondary text-zinc-800">
-                      <div class="flex items-center w-40 h-6">
-                        <span class="mb-0 text-sm font-normal">Something else here</span>
-                      </div>
-                    </el-dropdown-item>
+                    
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
@@ -106,12 +172,15 @@
   import { DotsVerticalIcon } from '@heroicons/vue/outline'
   import { AxiosInstance } from 'axios'
   import { ElMessageBox, ElLoading } from 'element-plus';
+  import {BadgeCheckIcon, ExclamationCircleIcon } from '@heroicons/vue/solid'
 
   export default defineComponent({
     
     name: 'ExamData',
     components: {
       DotsVerticalIcon,
+      BadgeCheckIcon, 
+      ExclamationCircleIcon
     },
     
     props: {
@@ -220,14 +289,10 @@
         //this.$router.push({ path: '/marking/marking_papers', query: { id: row.exam_id } });
         this.$router.push({ path: '/paperlist', query: { exam_id: row.exam_id } });
       },
-      getButtonType(markingable) {
-        return markingable ? 'primary' : '';
-      },
-      getButtonClass(markingable) {
-        return markingable ? '' : 'el-button--secondary';
-      },
+      
       isButtonDisabled(markingable) {
-        return !markingable;
+        console.log('批改状态', markingable, markingable==1)
+        return markingable != 0;
       },
       handleButtonClickLLMPreview (row){
         console.log('LLM 预览', row)
@@ -243,6 +308,10 @@
 .header-cell {
   text-align: center;
   font-weight: bold;
+}
+
+.disabled-item {
+  color: gray !important;
 }
 
 </style>

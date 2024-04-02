@@ -254,17 +254,25 @@ def examlist(request, user_id):
     data = []
     cnt=1
     for exam in exams:
-        markingable=False #判断能否批改
+        markingable=0 #判断能否批改。这里进行一下修改，除了需要保证已经有试卷上传之外，还需要已经完成大模型预处理
         """
         判断能不能批改，通过看是否上传了试卷
+        0：未上传试卷
+        1：未进行大模型预处理
+        2：可以批改
         """
         if exam.llm_knowledge_path is not None:
             llm_preprocess = 1
         else:
             llm_preprocess = 0
         papers = Papers.objects.filter(exam_id=exam.id)
-        if papers:
-            markingable=True           
+        if papers and llm_preprocess==1:
+            markingable=2
+        else:
+            if not papers:
+                markingable=0
+            elif llm_preprocess !=1:
+                markingable=1
         data.append({'index':cnt,
                      'exam_id':exam.id,
                      'exam_name':exam.exam_name, 
@@ -1077,7 +1085,7 @@ def cur(data, mark_score, score):
            mark_score, score = cur(data[key], mark_score, score)
     return mark_score, score
 @csrf_exempt
-def data_list(request, teacher_id):
+def data_list(request, teacher_id=2):
     # if request.method == 'POST':
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
