@@ -1301,7 +1301,7 @@ def login(request):
         usertype=request.POST.get('usertype') # 1:教师  2：学生
         print(email, password, usertype)
         try:
-            teacher = Teachers.objects.get(telephone=email)
+            teacher = Teachers.objects.get(email=email)
         except Teachers.DoesNotExist:
             return JsonResponse({'result': '用户名不存在'}) 
         if teacher.password != password:
