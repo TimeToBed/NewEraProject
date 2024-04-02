@@ -1077,7 +1077,7 @@ def cur(data, mark_score, score):
            mark_score, score = cur(data[key], mark_score, score)
     return mark_score, score
 @csrf_exempt
-def data_list(request, teacher_id):
+def data_list(request, teacher_id=2):
     # if request.method == 'POST':
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
