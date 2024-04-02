@@ -9,7 +9,8 @@ split_regular = {
     '小题号':r'\d+[．\.]\s*',
     '中题号':r'（[一二三四五六七八九十]）',
     '大题号':r'[一二三四五六七八九十]、\s*',
-    '子题号':r'（\d）'
+    '子题号':r'（\d）',
+    'ocr小题号':r'\b([0-9]|1[0-9]|2[0-2])\b'
 }
 
 def trans_key_values(exam_js_path, key):
@@ -132,6 +133,82 @@ def get_topic_dict(content_dict):
             topic_dict[topic_k].update({'sub_topic':None})
         
     return topic_dict
+
+#获得题目字典，给予每道题目上下文信息，用于遍历初版exam的每道题目
+def get_ocr_content_dict(chunk_dict):
+    """
+    获得题目字典，给予每道题目上下文信息。用作大语言模型分析
+    output:
+        {
+            "题号": {              #题号为数字 1 2 3...
+                "content": "....", #该题目内容},
+        }
+    """
+    ocr_dict = {}
+    #构建小题号键和值,此时大题号和中题号都被和为小题号的上下文
+    for key in chunk_dict:
+
+        if key.isdigit():
+            ocr_dict[key] = {"content":chunk_dict[key]}
+    
+    #构建小题号包含的子题号键值
+    for topic_k,topic_v in ocr_dict.items():
+        sub_dict = {}
+        content_lines = topic_v["content"].split('\n')
+        pattern = f"^({split_regular['子题号']}|{split_regular['ocr小题号']})"
+        dicts,_ = split_by_pattern(content_lines, pattern)
+
+        if len(dicts) > 1: #存在子题号
+
+            for key in dicts:
+                if not key.isdigit():
+                    sub_dict[key] = {"content":dicts[key]}
+
+            ocr_dict[topic_k] = sub_dict
+        
+    return ocr_dict
+
+#获得初版exam
+def load_ocr(json_path):
+
+    with open(json_path, 'r', encoding='utf-8') as json_file:
+    # 使用 json.load() 方法，将读取的文件内容转换成一个字典
+        data = json.load(json_file)
+
+    select = data.pop('select').split('\n')
+    _,answer_list = split_by_pattern(select, split_regular['ocr小题号'])
+
+    page_dict, content_dict, all_content = {},{}, ''
+    for k,v in data.items():
+        all_content += v
+        lines = v.split('\n')
+        for line in lines:
+            match = re.match(split_regular['ocr小题号'], line)
+
+            if match:
+                page_dict[match.group()] = {'page':int(k)}
+
+
+    pattern = f"^({split_regular['中题号']})"
+    lines_list = all_content.split('\n')
+    _,chunk_list = split_by_pattern(lines_list, pattern)
+
+    pattern = f"^({split_regular['ocr小题号']}|{split_regular['中题号']})"
+    for v in chunk_list:
+
+        item_dict,_ = split_by_pattern(v,pattern)
+        dict_data = get_ocr_content_dict(item_dict)
+        content_dict.update(dict_data)
+    
+    for k,v in content_dict.items():
+        content_dict[k].update(page_dict[k])
+    
+    for it in answer_list:
+        content_dict[it[0]]['content'] += '学生答案'+it[1]
+
+    #with open(json_path, 'w', encoding='utf-8') as json_file:
+    #    json.dump(paper_dict, json_file, ensure_ascii=False)
+    return content_dict
 
 #获得初版exam
 def load_exam(doc_path, json_path=None):
