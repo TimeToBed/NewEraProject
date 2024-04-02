@@ -104,7 +104,7 @@
         </el-table-column> -->
 
 
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="120" fixed="right">
           <template #default="scope">
             <div class="text-center h-12 pt-2.5">
               <el-dropdown placement="bottom-end" trigger="click" >
