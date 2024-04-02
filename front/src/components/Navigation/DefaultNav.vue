@@ -240,7 +240,7 @@
                       :underline="false"
                       href="#index"
                       class="text-sm font-semibold text-slate-50 hover:text-slate-300 pt-1"
-                      >Admin</el-link
+                      >{{ username }}</el-link
                     >
                   </h4>
                 </div>
@@ -378,7 +378,8 @@ export default defineComponent({
     const state = reactive({  //  Vue 的响应性 API，当我们改变这个数据时，Vue 能知道需要重新渲染影响的组件。
       isNavOpen:true
     });
-
+    
+    const username=localStorage.getItem('username') 
     const togglePagesMenu = () => {
       isSideMenuOpen.value = !isSideMenuOpen.value
     }
@@ -394,6 +395,7 @@ export default defineComponent({
 
     const handleLogoutClick = () => {
       store.auth.actLogout()
+      localStorage.removeItem('user_id')
     }
     let isNavOpen=true
     const handleArrowClick = () => {
@@ -413,6 +415,7 @@ export default defineComponent({
       clickIconBell,
       clickIconMenu,
       route,
+      username, 
       handleLogoutClick,
       handleMenuClick,
       handleArrowClick,

@@ -1,4 +1,5 @@
 workstream.ipynb
 gitnote.ipynb
 .vscode
+/model_weights
 **/__pycache__/

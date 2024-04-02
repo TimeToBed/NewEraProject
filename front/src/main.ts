@@ -28,6 +28,7 @@ const createNewApp = () => {
   })
   library.add(fas, fab)
 
+  app.config.globalProperties.axios = axios
   app.component('font-awesome-icon', FontAwesomeIcon)
   app.provide('eventHub', vueEmitter)
   app.use(router)
