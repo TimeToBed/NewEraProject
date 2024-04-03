@@ -15,19 +15,18 @@
                 
             </div>
             <div class="percent-state">
-                <div class="percentNum" v-if="!learning && percent>=60">可 学 习</div>
-                <div class="percentNum" v-if="!learning && percent<60">不 可 学 习</div>
-                <div class="percentNum" v-if="learning">学 习 中 . . .</div>
+                <div class="percentNum" v-if="percent>=60">可 学 习</div>
+                <div class="percentNum" v-if="percent<60">不 可 学 习</div>
             </div>
             <div
                 id="water"
                 class="water"
                 :style="{ transform: 'translate(0,' + (100 - percent) + '%)' }"
             >
-                <svg viewBox="0 0 560 20" class="water_wave water_wave_back"  v-if="percent>0">
+                <svg viewBox="0 0 560 20" class="water_wave water_wave_back">
                     <use xlink:href="#wave" />
                 </svg>
-                <svg viewBox="0 0 560 20" class="water_wave water_wave_front"  v-if="percent>0">
+                <svg viewBox="0 0 560 20" class="water_wave water_wave_front">
                     <use xlink:href="#wave" />
                 </svg>
             </div>
@@ -46,8 +45,6 @@
 </template>
 
 <script>
-import { computed } from 'vue';
-
 export default {
     // data() {
     //     return {
@@ -56,13 +53,8 @@ export default {
     //     };
     // },
     props:{
-        num:{
+        percent:{
             type: Number,
-            required: true,
-        },
-        
-        learning:{
-            type: Boolean,
             required: true,
         },
     },
@@ -77,13 +69,6 @@ export default {
     },
     beforeDestroy() {
         clearInterval(this.interval);
-    },
-    setup(props){
-        let percent = computed(() => Number(props.num / 100));
-        console.log('percent', percent)
-        return {
-            percent,
-        }
     }
 };
 </script>
