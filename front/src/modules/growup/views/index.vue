@@ -6,7 +6,7 @@
            <h3 class="cursor-auto">智能生长</h3> 
         </div>
         
-      <div class="p-2 flex flex-col w-full h-800">
+      <div class="p-2 flex flex-col w-full h-860">
         <div class="p-2 m-2 flex-1 lg:max-h-1/2 border h-400">
             <OCR />
         </div>

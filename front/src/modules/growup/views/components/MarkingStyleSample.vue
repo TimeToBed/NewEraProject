@@ -6,22 +6,23 @@
       :cell-style="{ textAlign: 'center' }"
       :header-cell-style="{ textAlign: 'center' }"
       height="320px"
+      class="no-border-lines"
       >
         <el-table-column label="真实样本" min-width="60" >
           <template #default="scope">
-            <div class="px-4 cursor-auto">
-                <img :src="scope.row.img_path" :style="{ 'height': '30px', 'object-fit': 'cover'}">
-                                            
-            </div>
+
+            <el-card class="bordered-card-llm">
+                <p>{{ scope.row.llmmarking }}</p>
+            </el-card>
           </template>
         </el-table-column>
        
 
         <el-table-column label="内容" min-width="60" >
           <template #default="scope">
-            <div class="px-4 cursor-auto">
-              <span class="text-0.8125 font-normal">{{ scope.row.content }}</span>
-            </div>
+            <el-card class="bordered-card-teacher">
+                <p>{{ scope.row.teachermarking }}</p>
+            </el-card>
           </template>
         </el-table-column>
        
@@ -38,7 +39,7 @@
 
   export default defineComponent({
     
-    name: 'ExamData',
+    name: 'MarkingStyleData',
     components: {
 
     },
@@ -74,5 +75,17 @@
 .disabled-item {
   color: gray !important;
 }
+.no-border-lines >>> .el-table__body .el-table__row td, 
+.no-border-lines >>> .el-table__body .el-table__row th {
+  border-top: none;
+  border-bottom: none;
+}
 
+.bordered-card-llm {
+  border: 1px solid green;
+}
+
+.bordered-card-teacher {
+  border: 1px solid rgb(141, 11, 248);
+}
 </style>
