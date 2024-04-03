@@ -9,9 +9,9 @@
           <div class="flex flex-wrap">
             <div class="basis-0 grow">
               <div class="card-header">
-                <h5 class="font-semibold text-0.8125 text-muted mb-0">TOTAL TRAFFIC</h5>
+                <h5 class="font-semibold text-0.8125 text-muted mb-0">学生数量</h5>
               </div>
-              <h2 class="text-xl textindigo-210 font-semibold mb-0 leading-7.5">350,897</h2>
+              <h2 class="text-xl textindigo-210 font-semibold mb-0 leading-7.5">{{Datalist[0]}}</h2>
             </div>
             <div
               class="w-12 h-12 text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#f5365c] to-[#f56036]"
@@ -24,7 +24,7 @@
               <ArrowUpIcon class="inline pb-1 h-5 w-4" aria-hidden="true" />
               3.48%
             </span>
-            <span class="whitespace-nowrap text-normal">Since last month</span>
+            <span class="whitespace-nowrap text-normal">自上个月以来</span>
           </p>
         </el-card>
       </div>
@@ -36,9 +36,9 @@
           <div class="flex flex-wrap">
             <div class="basis-0 grow">
               <div class="card-header">
-                <h5 class="font-semibold text-0.8125 text-muted mb-0">NEW USERS</h5>
+                <h5 class="font-semibold text-0.8125 text-muted mb-0">考试次数</h5>
               </div>
-              <h2 class="text-xl textindigo-210 font-semibold mb-0 leading-7.5">2,356</h2>
+              <h2 class="text-xl textindigo-210 font-semibold mb-0 leading-7.5">{{Datalist[1]}}</h2>
             </div>
             <div
               class="w-12 h-12 text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#fb6340] to-[#fbb140]"
@@ -51,7 +51,7 @@
               <ArrowUpIcon class="inline pb-1 h-5 w-4" aria-hidden="true" />
               3.48%
             </span>
-            <span class="whitespace-nowrap text-normal">Since last month</span>
+            <span class="whitespace-nowrap text-normal">自上个月以来</span>
           </p>
         </el-card>
       </div>
@@ -63,9 +63,9 @@
           <div class="flex flex-wrap">
             <div class="basis-0 grow">
               <div class="card-header">
-                <h5 class="font-semibold text-0.8125 text-muted mb-0">SALES</h5>
+                <h5 class="font-semibold text-0.8125 text-muted mb-0">批改试卷量</h5>
               </div>
-              <h2 class="text-xl textindigo-210 font-semibold mb-0 leading-7.5">924</h2>
+              <h2 class="text-xl textindigo-210 font-semibold mb-0 leading-7.5">{{Datalist[2]}}</h2>
             </div>
 
             <div
@@ -79,7 +79,7 @@
               <ArrowUpIcon class="inline pb-1 h-5 w-4" aria-hidden="true" />
               3.48%
             </span>
-            <span class="whitespace-nowrap text-normal">Since last month</span>
+            <span class="whitespace-nowrap text-normal">自上个月以来</span>
           </p>
         </el-card>
       </div>
@@ -91,9 +91,9 @@
           <div class="flex flex-wrap">
             <div class="basis-0 grow">
               <div class="card-header">
-                <h5 class="font-semibold text-0.8125 text-muted mb-0">PERFORMANCE</h5>
+                <h5 class="font-semibold text-0.8125 text-muted mb-0">进步人数占比</h5>
               </div>
-              <h2 class="text-xl textindigo-210 font-semibold mb-0 leading-7.5">49,65%</h2>
+              <h2 class="text-xl textindigo-210 font-semibold mb-0 leading-7.5">{{Datalist[3]}}%</h2>
             </div>
             <div
               class="w-12 h-12 text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#11cdef] to-[#1171ef]"
@@ -106,7 +106,7 @@
               <ArrowUpIcon class="inline pb-1 h-5 w-4" aria-hidden="true" />
               3.48%
             </span>
-            <span class="whitespace-nowrap text-normal">Since last month</span>
+            <span class="whitespace-nowrap text-normal">自上个月以来</span>
           </p>
         </el-card>
       </div>
@@ -121,6 +121,12 @@ export default defineComponent({
   name: 'AnalysisCard',
   components: {
     ArrowUpIcon,
+  },
+  props: {
+    Datalist: {
+        type: Object,
+        required: true,
+      },
   },
   setup() {
     return {}

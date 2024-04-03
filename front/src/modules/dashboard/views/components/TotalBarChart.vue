@@ -10,23 +10,23 @@
         </div>
       </template>
       <div class="card-body">
-        <BarChart
-          ref="totalChart"
-          :chartData="totalData"
-          :options="chartOptions"
-          :height="350"
-          class="h-83"
-        />
+        <BarChart ref="totalChart" :chartData="totalData" :options="chartOptions" :height="350" class="h-83"
+         />
       </div>
     </el-card>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref,toRefs, defineProps } from 'vue'
+import { defineComponent, computed, ref, toRefs, defineProps } from 'vue'
 import { BarChart } from 'vue-chart-3'
 import { Chart, registerables } from 'chart.js'
 Chart.register(...registerables)
+
+// 定义Props类型
+interface DatalistProp {
+  data_dict: Record<string, number>;
+}
 
 export default defineComponent({
   name: 'TotalBarChart',
@@ -43,43 +43,23 @@ export default defineComponent({
       default: '各分数段学生数量',
     },
     Datalist: {
-        type: Object,
-        required: true,
-      },
+      type: Object,
+      required: true,
+    },
   },
-  
-  setup() {
-    
 
-    const props = defineProps({
-      title: {
-        type: String,
-        default: '最近一次考试',
-      },
-      subcription: {
-        type: String,
-        default: '各分数段学生数量',
-      },
-      Datalist: {
-          type: Object,
-          required: true,
-      },
-    })
-
-        // 使用toRefs使props响应式
-    const { Datalist } = toRefs(props)
-
+  setup(props) {
+    console.log(props.Datalist)
     const totalChart = ref()
     const totalData = computed(() => ({
       // 从Datalist中获取分数段对应的学生数量
       //const dataValues = Object.values(Datalist.value.data_dict).map(Number),
-
       labels: ['0-30', '30-60', '60-90', '90-120', '120-150'],
       datasets: [
         {
-          label: ' Sales',
+          label: '人数',
           fill: true,
-          data: [15, 20, 30, 22, 17],
+          data: props.Datalist[1],
           backgroundColor: 'rgb(251 99 64)',
           borderColor: 'rgb(251 99 64)',
           borderRadius: Number.MAX_VALUE,
