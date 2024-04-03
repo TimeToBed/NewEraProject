@@ -14,6 +14,7 @@
           <div
             class="transition-all duration-300 mr-auto sm:mr-4 sm:transform-none sm:block overflow-hidden"
             :class="{ 'w-0 sm:w-full': isSearchOpen, 'w-full': !isSearchOpen }"
+            v-if="!isMobile"
           >
             <SearchBar @close-search="setSearchOpen(true)" />
           </div>
@@ -21,7 +22,8 @@
             class="transition-all duration-300 flex flex-1 flex-row ml-0 md:ml-auto items-center mt-0 text-slate-50 gap-7.25 md:gap-7.5"
             :class="[!isSearchOpen ? 'w-0 overflow-hidden sm:flex' : 'w-full']"
           >
-            <div class="relative inline-block lg:hidden text-white">
+            <div class="relative inline-block lg:hidden text-white" 
+              v-if="!isMobile">
               <div class="flex items-center">
                 <MenuIcon v-if="!isSBOpen" class="cursor-pointer h-6 w-6" @click="handleMenuClick" />
                 <MenuAlt1Icon v-else class="cursor-pointer h-6 w-6" @click="handleMenuClick" />
@@ -405,7 +407,7 @@ export default defineComponent({
     }
 
     const setSearchOpen = (v: boolean) => (isSearchOpen.value = v)
-
+    const isMobile = route.meta.isMobile;
     return {
       isPagesMenuOpen,
       isSideMenuOpen,
@@ -424,7 +426,8 @@ export default defineComponent({
       closeSideMenu,
       Logo_Url,
       John_Snow_Url,
-      state
+      state,
+      isMobile
     }
   },
 })
