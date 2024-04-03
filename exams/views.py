@@ -1104,6 +1104,8 @@ def data_list(request, teacher_id=2):
         for exam in exams:
             data_dict[exam.id] = {}
             papers = Papers.objects.filter(exam_id=exam.id)
+            if len(papers) == 0:
+                continue
             mark_already_num = 0
             all_total_score = 0
             first_total_score = 0
