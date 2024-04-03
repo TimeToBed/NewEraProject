@@ -7,10 +7,10 @@
         </div>
         
       <div class="p-2 flex flex-col w-full h-800">
-        <div class="p-2 m-2 flex-1 lg:max-h-1/2 border">
+        <div class="p-2 m-2 flex-1 lg:max-h-1/2 border h-400">
             <OCR />
         </div>
-        <div class="p-2 m-2 flex-1 lg:max-h-1/2 border">
+        <div class="p-2 m-2 flex-1 lg:max-h-1/2 border h-400">
             <MarkingStyle />
         </div>
     </div>
