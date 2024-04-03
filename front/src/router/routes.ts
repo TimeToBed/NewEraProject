@@ -17,7 +17,8 @@ import {
   LocationMarkerIcon,
   UserIcon,
   ViewGridIcon,
-  StarIcon
+  StarIcon,
+  LightBulbIcon
 } from '@heroicons/vue/outline'
 
 import {
@@ -48,6 +49,7 @@ const MarkingPapers = () => import('modules/markingpapers/views/index.vue')
 const MarkingPaper = () => import('modules/markingpaper/views/index.vue')
 const PreviewLLM = () => import('modules/previewLLM/views/index.vue')
 const Fake = () => import('modules/fake/views/index.vue')
+const GrowUp = () => import('modules/growup/views/index.vue')
 
 const ComponentLayout = () => import('components/ComponentLayout/index.vue')
 const ExamLayout = () => import('components/ExamLayout/index.vue')
@@ -192,6 +194,18 @@ const routes = [
       },
     ]
   },
+  {
+    path: '/growup',
+    component: GrowUp,
+    name: 'GrowUp',
+    meta: {
+      title: '模型生长',
+      icon: LightBulbIcon,
+      color: 'text-success-50',
+      requiresAuth: true,
+      parentPath: 'Home'
+    },
+  },
 
   {
     path: '/components/:componentItem?',
@@ -200,7 +214,7 @@ const routes = [
     meta: {
       title: '人员',
       icon: UserCircleIcon,
-      color: 'text-success-50',
+      color: 'text-indigo-410',
       requiresAuth: true,
       parentPath: 'Components'
     },
@@ -334,7 +348,7 @@ const routes = [
       },
     ]
   },
-  
+
   {
     path: '/fake',
     component: Fake,

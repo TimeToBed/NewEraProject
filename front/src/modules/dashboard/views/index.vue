@@ -1,7 +1,7 @@
 <template>
   <div class="w-full mx-auto">
     <div class="w-full">
-      <AnalysisCard />
+      <AnalysisCard :Datalist="dataList"/>
     </div>
 
     <div class="mt-6">
@@ -53,34 +53,45 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script lang="ts" setup>
+import { ref, inject, onMounted } from 'vue'
+import { AxiosInstance } from 'axios'
+import vueDanmaku from 'vue3-danmaku'
 
+// Components import
 import AnalysisCard from 'modules/cards/views/components/AnalysisCard.vue'
-// Chart
 import GradientLineChart from './components/GradientLineChart.vue'
 import TotalBarChart from './components/TotalBarChart.vue'
-// Table
 import SocialTrafficTable from './components/SocialTrafficTable.vue'
 import PageVisitTable from './components/PageVisitTable.vue'
 
-export default defineComponent({
-  name: 'DashBoard',
-  components: {
-    AnalysisCard,
-    GradientLineChart,
-    TotalBarChart,
-    PageVisitTable,
-    SocialTrafficTable,
-  },
-})
-</script>
+// 使用axios进行数据获取
+const axios = inject('axios') as AxiosInstance | undefined;
+// 数据
+const dataList = ref({});
+// 定义获取数据的异步函数
+const getDataList = async () => {
+  if (!axios) {
+    console.error("Axios instance not found");
+    return;
+  }
 
-<script lang="ts" setup>
-import vueDanmaku from 'vue3-danmaku'
-import { ref, computed } from 'vue'
+  try {
+    const response = await axios.get(`exams/data_list/2/`);
+    console.log(response.data);
+    dataList.value = response.data; // 将获取的数据存储到响应式引用中
+  } catch (error) {
+    console.error("Error during HTTP request:", error);
+  }
+};
 
-const danmus = ref([
+// 使用onMounted生命周期钩子在组件挂载时调用getDataList
+onMounted(() => {
+  getDataList();
+});
+
+// 弹幕数据和颜色
+const danmus = ref<string[]>([
   '今天天气不错，适合出去散步。',
   '明天有个重要的会议，需要准备一下。',
   '中午吃什么好呢？我想吃火锅。',
@@ -89,30 +100,15 @@ const danmus = ref([
   '生活总是充满了各种各样的惊喜。',
   '时间过得真快，转眼间又到了周末。',
   '每天都要保持好心情，生活才会更美好。'
-])
+]);
 
-const colors = ref([
-  "#ffb980",
-  "#2ec7c9",
-  "#5ab1ef",
-  "#b6a2de",
-  "#d87a80",
-  "#8d98b3",
-  "#e5cf0d",
-  "#97b552",
-  "#95706d",
-  "#dc69aa",
-  "#07a2a4",
-  "#9a7fd1",
-  "#588dd5",
-  "#f5994e",
-  "#c05050",
-  "#59678c",
-  "#c9ab00",
-  "#7eb00a",
-  "#6f5553",
-  "#c14089",
-  "#409eff",])
+const colors = ref<string[]>([
+  "#ffb980", "#2ec7c9", "#5ab1ef", "#b6a2de", "#d87a80",
+  "#8d98b3", "#e5cf0d", "#97b552", "#95706d", "#dc69aa",
+  "#07a2a4", "#9a7fd1", "#588dd5", "#f5994e", "#c05050",
+  "#59678c", "#c9ab00", "#7eb00a", "#6f5553", "#c14089",
+  "#409eff",
+]);
 </script>
 
 <style lang="less" scoped>

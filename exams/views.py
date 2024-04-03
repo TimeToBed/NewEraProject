@@ -1104,6 +1104,8 @@ def data_list(request, teacher_id=2):
         for exam in exams:
             data_dict[exam.id] = {}
             papers = Papers.objects.filter(exam_id=exam.id)
+            if len(papers) == 0:
+                continue
             mark_already_num = 0
             all_total_score = 0
             first_total_score = 0
@@ -1308,17 +1310,30 @@ def login(request):
         password = request.POST.get('password')
         usertype=request.POST.get('usertype') # 1:教师  2：学生
         print(email, password, usertype)
-        try:
-            teacher = Teachers.objects.get(email=email)
-        except Teachers.DoesNotExist:
-            return JsonResponse({'result': '用户名不存在'}) 
-        if teacher.password != password:
-            return JsonResponse({'result': '密码错误'})
-        else:
-            request.session['teacher_id'] = teacher.id
-            return JsonResponse({'result': '登录成功', 
-                                 'teacher_id': teacher.id,
-                                 'username': teacher.user_name})
+        if usertype == '1':
+            try:
+                teacher = Teachers.objects.get(email=email)
+            except Teachers.DoesNotExist:
+                return JsonResponse({'result': '用户名不存在'}) 
+            if teacher.password != password:
+                return JsonResponse({'result': '密码错误'})
+            else:
+                request.session['teacher_id'] = teacher.id
+                return JsonResponse({'result': '登录成功', 
+                                    'teacher_id': teacher.id,
+                                    'username': teacher.user_name})
+        if usertype == '2':
+            try:
+                student = Students.objects.get(email=email)
+            except Students.DoesNotExist:
+                return JsonResponse({'result': '用户名不存在'})
+            if student.password != password:
+                return JsonResponse({'result': '密码错误'})
+            else:
+                request.session['student_id'] = student.id
+                return JsonResponse({'result': '登录成功', 
+                                    'student_id': student.id,
+                                    'username': student.user_name})
 
 
 

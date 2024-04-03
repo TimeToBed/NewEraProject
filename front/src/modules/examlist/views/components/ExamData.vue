@@ -69,11 +69,11 @@
               ></i>
               <!-- <span class="ml-2 pb-0.5 text-0.875 font-normal">{{ scope.row.state }}</span> -->
               <span class="ml-4 pb-0.5 text-0.875 font-normal"
-              v-if="scope.row.ismarkingable==0">待上传考卷</span>
+              v-if="scope.row.markingable==0">待上传考卷</span>
               <span class="ml-4 pb-0.5 text-0.875 font-normal"
-              v-if="scope.row.ismarkingable==1">待分析</span>
+              v-if="scope.row.markingable==1">待分析</span>
               <span class="ml-4 pb-0.5 text-0.875 font-normal"
-              v-if="scope.row.ismarkingable==2">可批改</span>
+              v-if="scope.row.markingable==2">可批改</span>
             </div>
           </template>
         </el-table-column>
@@ -104,7 +104,7 @@
         </el-table-column> -->
 
 
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="120" fixed="right">
           <template #default="scope">
             <div class="text-center h-12 pt-2.5">
               <el-dropdown placement="bottom-end" trigger="click" >
