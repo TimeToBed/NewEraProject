@@ -111,6 +111,49 @@ def LLM_preprocess(request, exam_id):
     clean_server_cache()
     return JsonResponse(exam_detail_info, safe=False)
 
+def LLM_premark(request, paper_id):
+
+    print('LLM预览 从前端传回来的实体试卷paper_id:',paper_id)
+
+    try:
+        paper = Papers.objects.get(id=paper_id)
+        ocr_path = paper.ocr_path
+        exam = paper.exam
+        student_id = paper.student_id
+
+    except Papers.DoesNotExist:
+        return JsonResponse({"result":f"No exist id {paper_id}!"})
+
+
+    ssh = ssh_connect()
+    sftp = ssh.open_sftp()
+    
+    exam_doc_path = os.path.join(settings.TEMP_URL,"exam_doc.docx")
+    llm_analysis_json_path = os.path.join(settings.TEMP_URL,"llm_analysis_json_path.json")
+    ocr_json_path = os.path.join(settings.TEMP_URL,"ocr.json")
+    save_path = os.path.join(settings.TEMP_URL,"llm_result.json")
+
+    try:
+        sftp.get(exam.llm_knowledge_path, llm_analysis_json_path)
+        sftp.get(exam.paper_identity_path, exam_doc_path)
+        sftp.get(ocr_path, ocr_json_path)
+
+    except IOError:
+        print(f"exam {exam.id} llm_knowledge_path, paper_identity_path or ocr_path are not exist")
+
+
+    llm_json = init_llm_json(exam_doc_path,ocr_json_path,llm_analysis_json_path,save_path)
+
+    #上传llm_result到服务器
+    target_path = os.path.join(settings.Remote_path,exam.id,'student_papers',student_id)
+    sftp.putfo(save_path, target_path)
+
+    del_object(ssh, sftp)
+    clean_server_cache()
+
+    return JsonResponse(llm_json)
+
+
 @csrf_exempt #保存llm修改
 def LLM_update(request:HttpRequest, exam_id):
 
