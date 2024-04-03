@@ -34,19 +34,20 @@
       class="container relative xl:max-w-5.75xl lg:max-w-4.5xl md:max-w-2.625xl sm:max-w-0.25xl w-full mx-auto px-3.75 pb-12"
     >
       <div class="relative lg:max-w-5/12 md:max-w-7/12 w-full mx-auto md:px-2 -mt-32">
-        <LoginForm :email="'admin@gmail.com'" />
+        <!-- <LoginForm :email="'admin@gmail.com'" /> -->
+        <LoginForm />
         <div class="flex pt-8">
           <div class="text-sm text-left">
             <router-link
               to="/forgot-password"
               class="text-light text-90 font-normal hover:text-[#b1bbc4]"
             >
-              Forgot password?
+              忘记密码?
             </router-link>
           </div>
           <div class="text-sm ml-auto">
             <router-link to="/register" class="text-light text-90 font-normal hover:text-[#b1bbc4]">
-              Create new account
+              注册新账号
             </router-link>
           </div>
         </div>

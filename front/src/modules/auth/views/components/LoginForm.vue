@@ -34,7 +34,7 @@
                 <MailIcon class="w-5 h-5 text-gray-210" />
               </div>
             </div>
-            <el-input placeholder="Email" v-model="formData.email" />
+            <el-input placeholder="邮箱" v-model="formData.email" />
           </el-form-item>
           <el-form-item class="mb-6 rounded-md" prop="password">
             <div class="z-10 absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -42,13 +42,13 @@
                 <LockOpenIcon class="w-5 h-5 text-gray-210" />
               </div>
             </div>
-            <el-input type="password" placeholder="Password" v-model="formData.password" />
+            <el-input type="password" placeholder="密码" v-model="formData.password" />
           </el-form-item>
           <el-form-item class="mb-4">
-            <el-checkbox class="text-muted font-normal">Remember me</el-checkbox>
+            <el-checkbox class="text-muted font-normal">记住我</el-checkbox>
           </el-form-item>
         </el-form>
-        <el-button type="primary" @click="handleLoginClick"> Sign in </el-button>
+        <el-button type="primary" @click="handleLoginClick"> 登录 </el-button>
       </div>
     </el-card>
   </div>
@@ -59,7 +59,6 @@ import useStore from 'store'
 import { MailIcon, LockOpenIcon } from '@heroicons/vue/solid'
 import { ElNotification } from 'element-plus';
 import { AxiosInstance } from 'axios';
-
 
 export default defineComponent({
   name: 'LoginForm',

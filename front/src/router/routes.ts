@@ -24,6 +24,8 @@ import {
   CreditCardIcon,
 } from '@heroicons/vue/solid'
 
+
+
 const Login = () => import('modules/auth/views/login.vue')
 const Register = () => import('modules/auth/views/register.vue')
 const ForgotPassword = () => import('modules/auth/views/forgot-password.vue')
@@ -50,9 +52,30 @@ const Fake = () => import('modules/fake/views/index.vue')
 const ComponentLayout = () => import('components/ComponentLayout/index.vue')
 const ExamLayout = () => import('components/ExamLayout/index.vue')
 const MarkingLayout = () => import('components/MarkingLayout/index.vue')
-
+const Students = () => import('modules/students/views/index.vue')
 
 const routes = [
+  /*移动端的页面   目前只让进主页(即学情分析)*/
+  {
+    path: '/login',
+    component: Login,
+    name: 'login',
+    meta: {
+      requiresAuth: false,
+      isMobile: true,
+    },
+  },
+  {
+    path: '/students',
+    component: Students,
+    name: 'Students',
+    meta: {
+      title: '学生端',
+      isMobile: true,
+      requiresAuth: true,
+    }
+  },
+  /*PC端的页面 */
   {
     path: '/',
     component: Dashboard,
@@ -62,7 +85,8 @@ const routes = [
       icon: HomeIcon,
       color: 'text-indigo-410',
       requiresAuth: true,
-      parentPath: 'Home'
+      parentPath: 'Home',
+      isMobile: false
     },
   },
   {
@@ -74,7 +98,8 @@ const routes = [
       icon: ColorSwatchIcon,
       color: 'text-info',
       requiresAuth: true,
-      parentPath: 'Home'
+      parentPath: 'Home',
+      isMobile: false
     },
     children: [
       {
@@ -373,15 +398,6 @@ const routes = [
     path: '/forgot-password',
     component: ForgotPassword,
     name: 'forgot-password',
-    meta: {
-      requiresAuth: false,
-    },
-  },
-  {
-    
-    path: '/login',
-    component: Login,
-    name: 'login',
     meta: {
       requiresAuth: false,
     },

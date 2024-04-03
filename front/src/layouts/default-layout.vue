@@ -1,6 +1,8 @@
 <template>
   <div class="h-screen overflow-hidden flex bg-slate-20 w-full" v-loading.fullscreen.lock="loading">
-    <sidebar />
+    <div v-if="!isMobile">
+      <sidebar />
+    </div>
     <div
       class="main-content flex flex-col flex-1 w-full overflow-auto"
       :class="`${!isSBPin ? ' ml-17 ' : 'ml-62.5 cursor-pointer lg:cursor-default'}`"
@@ -85,7 +87,8 @@ export default defineComponent({
       isNavVisible.value = false // 鼠标移开时设置为隐藏
     }
 
-
+    const isMobile = route.meta.isMobile;
+    console.log("isMobile:", isMobile)
 
     return {
       isSBPin,
@@ -95,7 +98,8 @@ export default defineComponent({
       store,
       isNavVisible, 
       showNav, 
-      hideNav
+      hideNav,
+      isMobile
     }
   },
 })
