@@ -9,27 +9,20 @@
           </div>
           <div class="max-w-full basis-0 grow">
             <div class="flex flex-nowrap mb-0 pl-0 justify-end gap-x-3">
-              <div>
-                <el-button
-                  type="primary"
-                  size="small"
-                  class="py-2 px-3 lh:w-20 lg:h-9"
-                  @click="changeDataChart([0, 20, 10, 30, 15, 40, 20, 60])"
-                >
+              <!-- <div>
+                <el-button type="primary" size="small" class="py-2 px-3 lh:w-20 lg:h-9"
+                  @click="changeDataChart([0, 20, 10, 30, 15, 40, 20, 60])">
                   <span class="hidden md:block font-medium text-sm px-2">近半年</span>
                   <span class="md:hidden font-medium text-sm">M</span>
                 </el-button>
-              </div>
-              <div>
-                <el-button
-                  class="el-button--secondary py-2 px-3 lh:w-20 lg:h-9"
-                  size="small"
-                  @click="changeDataChart([0, 20, 5, 25, 10, 30, 15, 40])"
-                >
+              </div> -->
+              <!-- <div>
+                <el-button class="el-button--secondary py-2 px-3 lh:w-20 lg:h-9" size="small"
+                  @click="changeDataChart([0, 20, 5, 25, 10, 30, 15, 40])">
                   <span class="hidden md:block text-indigo-410 font-medium text-sm px-2">近一个月</span>
                   <span class="md:hidden text-indigo-410 font-medium text-sm">W</span>
                 </el-button>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
@@ -62,22 +55,26 @@ export default defineComponent({
       type: String,
       default: '学生考试平均成绩',
     },
+    Datalist: {
+      type: Object,
+      required: true,
+    },
   },
-  setup() {
-    const data = ref([78, 65, 63,80, 75, 63, 86, 84])
+  setup(props) {
+    const data = props.Datalist[1]
     const salesChart = ref()
     const salesData = computed(() => ({
-      labels: ['第一次周考', '第二次周考', '月考', '第三次周考', '摸底考试', '第四次周考', '第五次周考', '第二次月考'],
+      labels: props.Datalist[0],
       datasets: [
         {
-          label: ' Performance',
+          label: ' 平均分数',
           tension: 0.4,
           pointRadius: 0,
           borderColor: 'rgb(94 114 228)',
           backgroundColor: 'rgba(23, 43, 77, 0.01)',
           borderWidth: 4,
           fill: true,
-          data: data.value,
+          data: props.Datalist[1]
         },
       ],
     }))

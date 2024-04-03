@@ -7,7 +7,7 @@
     <div class="mt-6">
       <div class="flex flex-wrap">
         <div class="lg:flex-8 lg:max-w-2/3 w-full lg:mb-0 lg:pr-3.5 mb-6">
-          <GradientLineChart />
+          <GradientLineChart :Datalist="data3" />
         </div>
         <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
           <TotalBarChart :Datalist="data2" />
@@ -18,7 +18,7 @@
     <div class="mt-6">
       <div class="flex flex-wrap">
         <div class="lg:flex-8 lg:max-w-2/3 w-full lg:mb-0 lg:pr-3.5">
-          <PageVisitTable />
+          <PageVisitTable :Datalist="data4" :key="data5"/>
         </div>
         <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
           <SocialTrafficTable />
@@ -103,6 +103,7 @@ const data1 = ref<number[]>([]);
 const data2 = ref({});
 const data3 = ref({});
 const data4 = ref({});
+const data5 = ref(0);
 // 定义获取数据的异步函数
 const getDataList = async () => {
   if (!axios) {
@@ -114,6 +115,8 @@ const getDataList = async () => {
     const response = await axios.get(`exams/data_list/2/`);
     getData1(response.data);
     getData2(response.data);
+    getData3(response.data);
+    getData4(response.data);
     dataList.value = response.data; // 将获取的数据存储到响应式引用中
   } catch (error) {
     console.error("Error during HTTP request:", error);
@@ -175,12 +178,58 @@ function getData2(e: DataStructure) {
   data2.value = [studentScoreDistribution, studentScoreList]
   return [studentScoreDistribution, studentScoreList]
 };
-const getData3 = () => {
+function getData3(e: DataStructure): { examName: string; averageScore: number; }[] {
+  const re = Object.entries(e.data_dict)
+    .filter(([_, examDetails]) => examDetails.hasOwnProperty('平均成绩') && typeof examDetails['平均成绩'] === 'number')
+    .map(([examName, examDetails]) => ({
+      examName,
+      averageScore: examDetails['平均成绩']
+    }));
 
-};
-const getData4 = () => {
+  // 提取 labels 和 data
+  const labels = re.map(result => result.examName);
+  const data = re.map(result => result.averageScore);
+  data3.value = [labels, data]
+}
+function getData4(e: DataStructure) {
+  // 获取所有考试编号并找出最大编号
+  const examKeys = Object.keys(e.data_dict).filter(key => /^\d+$/.test(key)).map(Number);
+  const maxKey = Math.min(...examKeys);
 
-};
+  if (maxKey === -Infinity) {
+    console.error('No valid exams found.');
+    return [];
+  }
+
+  const maxExam = e.data_dict[maxKey.toString()];
+  if (!maxExam || !maxExam["学生成绩"]) {
+    console.error('Max exam or its scores are missing.');
+    return [];
+  }
+
+  const studentScores = maxExam["学生成绩"];
+
+  // 处理成绩并分配排名
+  const scoresArray = Object.entries(studentScores).map(([studentId, score]) => ({
+    studentId,
+    score: score !== "-" ? parseInt(score as string, 10) : null,
+  })).sort((a, b) => b.score - a.score || parseInt(a.studentId) - parseInt(b.studentId));
+
+  const results = scoresArray.map((item, index, array) => ({
+    pageName: `学生${item.studentId}`,
+    visitorNumber: item.score !== null ? `${item.score}` : "-",
+    userNumber: (index > 0 && item.score === array[index - 1].score) ? array[index - 1].userNumber : index + 1,
+    rate: 0, // Placeholder for 'rate', as it's unspecified how to calculate it
+  }));
+  console.log(results,data5.value)
+  console.log(typeof(results))
+  data4.value = results
+  data5.value++;
+  console.log(data4.value[0],data5.value)
+  console.log(typeof(data4))
+  return results;
+}
+
 
 // 弹幕数据和颜色
 const danmus = ref<string[]>([
