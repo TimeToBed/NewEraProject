@@ -353,14 +353,14 @@ def ocr_preprocess(request, exam_id):
         entry_path = posixpath.join(path, entry)
         # 如果这是一个文件夹
         if stat.S_ISDIR(sftp.stat(entry_path).st_mode):
-            lenth = len(sftp.listdir(entry_path))
+            lenth = len([f for f in sftp.listdir(entry_path) if posixpath.splitext(f)[1] != '.json'])
             i = 1
             json_data = {}
             while(i <= lenth):
                 file = str(i) + '.png'
                 file_path = posixpath.join(entry_path, file)
                 # 如果条目是一个文件，将它添加到文件列表
-                # print(file_path)
+                print(file_path)
                 if not stat.S_ISDIR(sftp.stat(file_path).st_mode):
                     remote_file = sftp.open(file_path, 'rb')
                     # 转换图片到numpy数组
