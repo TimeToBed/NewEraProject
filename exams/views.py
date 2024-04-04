@@ -92,6 +92,7 @@ def create_exam(request):
             paper_path = posixpath.join(paper_path, dir)
             try:
                 # 尝试切换到指定的目录
+                print(paper_path)
                 sftp.chdir(paper_path)
             except FileNotFoundError:
                 # 如果切换目录失败，说明目录不存在，我们在此创建目录
@@ -134,7 +135,7 @@ def create_exam(request):
         sftp.close()
         ssh.close()
         
-    return JsonResponse({'msg':'success'})
+    return JsonResponse({'msg':'success', 'exam_id':exam.id})
 
 
 @csrf_exempt
@@ -197,6 +198,7 @@ def upload_package(request, exam_id):
         students_papers = posixpath.join(settings.Remote_path, str(exam_id), 'student_papers')
         try:
             # 尝试切换到指定的目录
+            print(students_papers)
             sftp.chdir(students_papers)
         except FileNotFoundError:
             # 如果切换目录失败，说明目录不存在，我们在此创建目录
