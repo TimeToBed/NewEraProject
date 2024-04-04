@@ -11,7 +11,7 @@ import json, base64, paramiko, os
 from pathlib import Path
 from docx2pdf import convert
 import fitz,io,shutil
-
+import posixpath
 from datetime import datetime
 from .models import *  # assuming you have an Exam model
 from exams.models import *
@@ -124,6 +124,9 @@ def LLM_premark(request, paper_id):
     except Papers.DoesNotExist:
         return JsonResponse({"result":f"No exist id {paper_id}!"})
 
+    if paper.llm_result_path: 
+        print(f"{paper.llm_result_path} has already existed!")
+        return JsonResponse({"result":f"{paper.llm_result_path} has already existed!"})
 
     ssh = ssh_connect()
     sftp = ssh.open_sftp()
@@ -131,12 +134,13 @@ def LLM_premark(request, paper_id):
     exam_doc_path = os.path.join(settings.TEMP_URL,"exam_doc.docx")
     llm_analysis_json_path = os.path.join(settings.TEMP_URL,"llm_analysis_json_path.json")
     ocr_json_path = os.path.join(settings.TEMP_URL,"ocr.json")
+
     save_path = os.path.join(settings.TEMP_URL,"llm_result.json")
 
     try:
-        sftp.get(exam.llm_knowledge_path, llm_analysis_json_path)
-        sftp.get(exam.paper_identity_path, exam_doc_path)
-        sftp.get(ocr_path, ocr_json_path)
+        sftp.get(exam.llm_knowledge_path, llm_analysis_json_path) #需要大语言模型的知识点分析
+        sftp.get(exam.paper_identity_path, exam_doc_path)  #需要原始doc试卷
+        sftp.get(ocr_path, ocr_json_path)                  #需要ocr内容
 
     except IOError:
         print(f"exam {exam.id} llm_knowledge_path, paper_identity_path or ocr_path are not exist")
@@ -144,14 +148,23 @@ def LLM_premark(request, paper_id):
 
     llm_json = init_llm_json(exam_doc_path,ocr_json_path,llm_analysis_json_path,save_path)
 
-    #上传llm_result到服务器
-    target_path = os.path.join(settings.Remote_path,exam.id,'student_papers',student_id)
-    sftp.putfo(save_path, target_path)
+    #这里要小心，调用大模型了！
+    asyncio.run(llm_mark(save_path))
+
+    target_path = posixpath.join(settings.Remote_path,str(exam.id),'student_papers',str(student_id),'llm_result.json')
+    paper.llm_result_path = target_path
+    print(paper.llm_result_path)
+
+    with open(save_path, 'rb') as file_obj:
+        sftp.putfo(file_obj, paper.llm_result_path)
 
     del_object(ssh, sftp)
     clean_server_cache()
 
+    paper.save()
+
     return JsonResponse(llm_json)
+
 
 
 @csrf_exempt #保存llm修改
@@ -185,56 +198,6 @@ def LLM_update(request:HttpRequest, exam_id):
 
     return JsonResponse({"result":"No Post error!"})
 
-
-def LLM_preview2(request, exam_id):
-
-    print('LLM预览 从前端传回来的考试exam_id：',exam_id)
-
-    try:
-        exam = Exams.objects.get(id=exam_id)
-        exam_path = exam.paper_identity_path
-
-    except Exams.DoesNotExist:
-        return JsonResponse({"result":f"No exist id {exam_id}!"})
-
-    ssh = ssh_connect()
-    sftp = ssh.open_sftp()
-    
-    pdf_path = exam_path.replace('docx','pdf')
-    tmp_doc_path = os.path.join(settings.TEMP_URL,"tmp.docx")
-    tmp_pdf_path = os.path.join(settings.TEMP_URL,"tmp.pdf")
-    print(pdf_path)
-
-    try:
-        sftp.stat(pdf_path)
-        sftp.get(pdf_path, tmp_pdf_path)
-
-        print(f"{pdf_path} already exists.")
-    except IOError:
-
-        sftp.get(exam_path, tmp_doc_path)
-        print('docx 转换至 pdf')
-        convert(tmp_doc_path, tmp_pdf_path)
-        print(f'传送 pdf 至服务器: {pdf_path}')
-        with open(tmp_pdf_path, 'rb') as f:  # 使用二进制模式打开本地PDF文件
-            sftp.putfo(f, pdf_path)  # 上传PDF文件到服务器 
-
-
-    with fitz.open(tmp_pdf_path) as pdf:
-        images=[]
-        if isinstance(pdf,fitz.Document):
-            for pg_i in range(pdf.page_count):
-
-                matrix = fitz.Matrix(300/72, 300/72)
-                pixmap = pdf[pg_i].get_pixmap(matrix=matrix ,alpha=False)         
-                images.append(pixmap)
-
-    images_base64 = [base64.b64encode(img.tobytes(output='jpg')).decode('utf-8') for img in images]
-
-    del_object(ssh, sftp)
-    clean_server_cache()
-
-    return JsonResponse(images_base64, safe=False)
 
 def LLM_preview(request, exam_id):
 
