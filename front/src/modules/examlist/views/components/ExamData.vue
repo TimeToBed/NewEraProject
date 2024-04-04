@@ -107,7 +107,7 @@
         <el-table-column label="操作" width="120" fixed="right">
           <template #default="scope">
             <div class="text-center h-12 pt-2.5">
-              <el-dropdown placement="bottom-end" trigger="click" >
+              <el-dropdown placement="bottom-end" trigger="click" @command="handleCommand">
                 <el-button class="w-5 h-7 border-none bg-transparent hover:shadow-md" plain>
                   <div class="flex items-center space-x-2 2xl:space-x-4 text-black px-5">
                     <DotsVerticalIcon class="cursor-pointer h-5 w-5 text-[#ced4da] font-extrabold" />
@@ -118,7 +118,7 @@
                   <el-dropdown-menu class="my-0.5">
                     <el-dropdown-item  v-if="scope.row.llm_preprocess === 1"
                     class="mx-0 hover:bg-secondary text-zinc-800" 
-                    :command="() => handleButtonClickLLMPreview(scope.row)">
+                    :command="['llmpreview',scope.row]">
                       <div class="flex items-center w-40 h-6">
                         <span class="mb-0 text-sm font-normal">知识点预览</span>
                       </div>
@@ -126,7 +126,7 @@
 
                     <el-dropdown-item  v-if="scope.row.llm_preprocess === 0"
                     class="mx-0 hover:bg-secondary text-zinc-800" 
-                    :command="() => handleButtonClickLLMPreprocess(scope.row)">
+                    :command="['llmpreprocess',scope.row]">
                       <div class="flex items-center w-40 h-6">
                         <span class="mb-0 text-sm font-normal">知识点分析</span>
                       </div>
@@ -134,15 +134,14 @@
 
     
                     <el-dropdown-item class="mx-0 hover:bg-secondary text-zinc-800" 
-                    :command="() => handleButtonClickUpload(scope.row)">
+                    :command="['upload',scope.row]">
                       <div class="flex items-center w-40 h-6">
                         <span class="mb-0 text-sm font-normal">上传试卷</span>
                       </div>
                     </el-dropdown-item>
     
                     <el-dropdown-item class="mx-0 hover:bg-secondary" 
-                        
-                        :command="() => handleButtonClickMarking(scope.row)"
+                        :command="['marking',scope.row]"
                         :disabled="isButtonDisabled(scope.row.markingable)">
                       <div class="flex items-center w-40 h-6">
                         <span class="mb-0 text-sm">去批改</span>
@@ -150,7 +149,7 @@
                     </el-dropdown-item>
     
                     <el-dropdown-item class="mx-0 hover:bg-secondary text-zinc-800" 
-                    :command="() => DeleteExam(scope.row)">
+                    :command="['deleteexam',scope.row]">
                       <div class="flex items-center w-40 h-6">
                         <span class="mb-0 text-sm font-normal">删除考试</span>
                       </div>
@@ -291,13 +290,27 @@
       },
       
       isButtonDisabled(markingable) {
-        console.log('批改状态', markingable, markingable==1)
-        return markingable != 0;
+        //console.log('批改状态', markingable, markingable==1)
+        return markingable == 0;
       },
       handleButtonClickLLMPreview (row){
         console.log('LLM 预览', row)
-        console.log('LLM预览',row)
         this.$router.push({path: '/previewllm', query: { exam_id: row.exam_id }});
+      },
+      handleCommand (command){
+        console.log(command[0])
+        console.log(command[1])
+        if(command[0]=='marking'){
+          this.handleButtonClickMarking(command[1])
+        }else if(command[0]=='upload'){
+          this.handleButtonClickUpload(command[1])
+        }else if(command[0]=='llmpreview'){
+          this.handleButtonClickLLMPreview(command[1])
+        }else if(command[0]=='llmpreprocess'){
+          this.handleButtonClickLLMPreprocess(command[1])
+        }else if(command[0]=='deleteexam'){
+          this.DeleteExam(command[1])
+        }
       }
     },
   })

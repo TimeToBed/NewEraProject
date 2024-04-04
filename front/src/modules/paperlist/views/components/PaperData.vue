@@ -78,51 +78,55 @@
         </el-table-column>
 
 
-        <el-table-column min-width="100">
+        <!-- <el-table-column min-width="100">
           <template #default="scope">
             <el-button  type="primary" @click="handleButtonClickMarking(scope.row)">批改试卷</el-button>
           </template>
-        </el-table-column>
+        </el-table-column> -->
 
-        <el-table-column width="60" fixed="right">
-          <div class="text-center h-12 pt-2.5">
-            <el-dropdown placement="bottom-end" trigger="click" popper-class="action-column-popper">
-              <el-button class="w-5 h-7 border-none bg-transparent hover:shadow-md" plain>
-                <div class="flex items-center space-x-2 2xl:space-x-4 text-black px-5">
-                  <DotsVerticalIcon class="cursor-pointer h-5 w-5 text-[#ced4da] font-extrabold" />
-                </div>
-              </el-button>
-              <template #dropdown>
-                <el-dropdown-menu class="my-0.5">
-                  <el-dropdown-item class="mx-0 hover:bg-secondary text-zinc-800">
-                    <div class="flex items-center w-40 h-6">
-                      <span class="mb-0 text-sm font-normal">Action</span>
-                    </div>
-                  </el-dropdown-item>
-  
-                  <el-dropdown-item class="mx-0 hover:bg-secondary text-zinc-800">
-                    <div class="flex items-center w-40 h-6">
-                      <span class="mb-0 text-sm font-normal">Another Action</span>
-                    </div>
-                  </el-dropdown-item>
-  
-                  <el-dropdown-item class="mx-0 hover:bg-secondary text-zinc-800">
-                    <div class="flex items-center w-40 h-6">
-                      <span class="mb-0 text-sm font-normal">Something else here</span>
-                    </div>
-                  </el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
+        <el-table-column label="操作" width="120" fixed="right">
+          <template #default="scope">
+            <div class="text-center h-12 pt-2.5">
+              <el-dropdown placement="bottom-end" trigger="click" @command="handleCommand">
+                <el-button class="w-5 h-7 border-none bg-transparent hover:shadow-md" plain>
+                  <div class="flex items-center space-x-2 2xl:space-x-4 text-black px-5">
+                    <DotsVerticalIcon class="cursor-pointer h-5 w-5 text-[#ced4da] font-extrabold" />
+                  </div>
+                </el-button>
+                
+                <template #dropdown>
+                  <el-dropdown-menu class="my-0.5">    
+                    <el-dropdown-item class="mx-0 hover:bg-secondary" 
+                        :command="['premark',scope.row]" >
+                      <div class="flex items-center w-40 h-6">
+                        <span class="mb-0 text-sm">大模型预批改</span>
+                      </div>
+                    </el-dropdown-item>
+    
+                    <el-dropdown-item class="mx-0 hover:bg-secondary" 
+                        :command="['marking',scope.row]"
+                        >
+                      <div class="flex items-center w-40 h-6">
+                        <span class="mb-0 text-sm">去批改</span>
+                      </div>
+                    </el-dropdown-item>
+                    
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
+          </template>
+          
         </el-table-column>
       </el-table>
     </div>
   </template>
   <script lang="ts">
-  import { defineComponent, ref } from 'vue'
+  import { defineComponent, ref, inject } from 'vue'
   import { DotsVerticalIcon } from '@heroicons/vue/outline'
   import {BadgeCheckIcon, ExclamationCircleIcon } from '@heroicons/vue/solid'
+  import { AxiosInstance } from 'axios'
+  import { ElMessageBox, ElLoading } from 'element-plus';
 
   export default defineComponent({
     
@@ -165,8 +169,21 @@
             } 
           });
       },
+      
+      
+      handleCommand (command){
+        console.log(command[0])
+        console.log(command[1])
+        if(command[0]=='marking'){
+          this.handleButtonClickMarking(command[1])
+        }else if(command[0]=='premark'){
+          this.handleButtonClickPreMark(command[1])
+        }
+      }
     },
     setup () {
+      
+      const axios = inject('axios') as AxiosInstance;
       const theme = ref([
         { status: 'on schedule', color: '#11CDEF' },
         { status: 'delayed', color: '#F5365C' },
@@ -175,8 +192,37 @@
       const customColorMethod = (status: string) => {
         return theme.value.find((el: any) => el.status == status)?.color ?? '#2DCE89'
       }
+      const handleButtonClickPreMark = async (row) => {
+        console.log('LLM 预批改', row)
+        const loading = ElLoading.service({
+          lock: true,
+          text: '处理中',
+          background: 'rgba(0, 0, 0, 0.7)',
+        })
+        try {
+          const response = await axios.get(`llms/llm_premark/${row.paper_id}/`)
+          .then(function (response) {
+                      console.log(response);
+                      loading.close()
+                      ElMessageBox.alert('预批改完成！', '提示', {
+                        confirmButtonText: '确定'
+                      })
+                    })
+                    .catch(function (error) {
+                      console.log(error);
+                      loading.close()
+                      ElMessageBox.alert('处理失败!', '警告', {
+                        confirmButtonText: '确定'
+                      })
+                    });
+          console.log(response);
+        } catch (error) {
+          console.error("Error during HTTP request:", error);
+        }
+      };
       return {
         customColorMethod,
+        handleButtonClickPreMark
       }
     }
   })
