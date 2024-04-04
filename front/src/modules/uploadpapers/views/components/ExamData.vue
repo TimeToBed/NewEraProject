@@ -32,7 +32,6 @@
           <el-button type="primary" size="large" @click="handleButtonClickUpload(scope.row)">上传试卷</el-button>
         </template>
       </el-table-column>
-
       <el-table-column width="60" fixed="right">
         <div class="text-center h-12 pt-2.5">
           <el-dropdown placement="bottom-end" trigger="click" popper-class="action-column-popper">
@@ -67,107 +66,54 @@
         </div>
       </el-table-column>
     </el-table>
-    <el-dialog title="上传试卷" :model-value.sync="dialogVisible" width="30%" :before-close="handleClose">
-      <span>请按照上传文件格式上传：</span>
-      <el-tree :data="data" :props="defaultProps" :default-expanded-keys="[3]" node-key="id"></el-tree>
-      <br />
-      <span slot="footer" class="dialog-footer">
-        <div class="upload-actions">
-          <input class="upload-demo" placeholder="上传试卷文件" type="file" @change="handleFolderUpload" webkitdirectory
-            directory multiple>
-          <el-button @click="dialogVisible = false">取 消</el-button>
-        </div>
-        <!-- <div v-if="filesTree">
-          <pre>{{ filesTree }}</pre>
-        </div> -->
-      </span>
-    </el-dialog>
+    <UploadPapers :dialogVisible.sync="dialogVisible" :exam_id="exam_id"
+    @update:dialogVisible="updateDialogVisible"></UploadPapers>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, reactive, onMounted, ref } from 'vue'
+import { defineComponent, inject, reactive, onMounted, ref, watch } from 'vue'
 import { DotsVerticalIcon } from '@heroicons/vue/outline'
 import { AxiosInstance } from 'axios'
 import { componentSize } from 'element-plus/es/utils/props';
+import UploadPapers from './UploadPapers.vue'
 
 export default defineComponent({
-
   name: 'ExamData',
   components: {
     DotsVerticalIcon,
-  },
-  data() {
-    return {
-      dialogVisible: false,
-      data: [{
-        label: '总文件',
-        children: [{
-          label: '学生学号1',
-          children: [{
-            id: 3,
-            label: '学生试卷照片1'
-          },
-          {
-            id: 4,
-            label: '学生试卷照片2'
-          },
-          {
-            id: 5,
-            label: '...'
-          }]
-        }, {
-          label: '学生学号2',
-          children: [{
-            id: 3,
-            label: '学生试卷照片1'
-          },
-          {
-            id: 4,
-            label: '学生试卷照片2'
-          },
-          {
-            id: 5,
-            label: '...'
-          }]
-        }, {
-          label: '...',
-        }
-        ]
-      }],
-      defaultProps: {
-        children: 'children',
-        label: 'label'
-      },
-      filesTree: null,
-    };
+    UploadPapers
   },
   setup() {
-    const axios = inject('axios') as AxiosInstance; // 确保你的项目中已经全局注册了 axios
-    // 使用 getCurrentInstance().appContext.config.globalProperties 访问全局属性
-    // 所选考试的id和文件列表
-    let dataToSend = reactive({
-      exam_id: 7,
-      filelist: null,
+    // 所选考试的id
+    const exam_id = ref(0);
+
+    const dialogVisible = ref(false);
+
+    watch(dialogVisible, (newValue, oldValue) => {
+      console.log('dialogVisible 变化了, 旧值: ', oldValue, ', 新值: ', newValue);
     });
 
-    const postPaperData = (e: any) => {
-      dataToSend.filelist = e
-      axios.post(`exams/uploadpapers/${dataToSend.exam_id}/`, dataToSend)
-        .then((response) => {
-          console.log('响应数据：', response.data);
-        })
-        .catch((error) => {
-          console.error('请求错误：', error);
-        });
+    const handleButtonClickUpload = (row: any) => {
+      dialogVisible.value = true
+      console.log('dialogVisible:', dialogVisible.value)
+      exam_id.value = row.exam_id // 对应到所选考试的exam_id
+      console.log('exam_id:', exam_id.value)
     };
+
+    const updateDialogVisible = (newValue: boolean) => {
+      dialogVisible.value = newValue
+    };
+
     // 控制台打印，证明 setup() 函数被调用
     console.log('create exam html');
 
     // 返回组件的响应式数据和方法，以便在模板中使用
     return {
-      postPaperData, // 将 postPaperData 方法暴露给模板
-      dataToSend
+      handleButtonClickUpload,
+      exam_id,
+      dialogVisible,
+      updateDialogVisible
     };
   },
   props: {
@@ -179,85 +125,6 @@ export default defineComponent({
       type: String,
       required: false,
       default: 'light',
-    },
-  },
-  methods: {
-    handleButtonClickUpload(row: any) {
-      this.dialogVisible = true
-      console.log('dialogVisible:', this.dialogVisible)
-      console.log('exam_id:', row.exam_id)
-      this.dataToSend.exam_id = row.exam_id // 对应到所选考试的exam_id
-    },
-    handleButtonClickMarking(row: any) {
-      console.log('批改试卷', row)
-      this.$router.push('/marking/marking_papers');
-    },
-    getButtonType(ismarking: any) {
-      return ismarking ? 'primary' : '';
-    },
-    getButtonClass(ismarking: any) {
-      return ismarking ? '' : 'el-button--secondary';
-    },
-    isButtonDisabled(ismarking: any) {
-      return !ismarking;
-    },
-    handleClose(done: () => void) {
-      this.$confirm('确认关闭？')
-        .then((_: any) => {
-          this.dialogVisible = false,
-          done();
-        })
-        .catch((_: any) => { });
-    },
-    async handleFolderUpload(event: { target: { files: any; }; }) {
-      const files = event.target.files;
-      let filelist = [];
-
-      // 创建一个临时存储结构来容易地访问和更新文件列表
-      let tempStorage = {};
-
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (file.type.startsWith('image/')) {
-          try {
-            const base64 = await this.image2file(file); // 异步获取文件的 Base64 编码
-            const parts = file.webkitRelativePath.split('/'); // 使用文件的相对路径
-            const filename = parts[parts.length - 2]; // 假设倒数第二部分是文件名
-
-            if (!tempStorage[filename]) {
-              tempStorage[filename] = { filename, file: [] };
-              filelist.push(tempStorage[filename]);
-            }
-            tempStorage[filename].file.push(base64); // 将 Base64 编码添加到对应的文件名下
-          } catch (error) {
-            console.error('Error converting file to base64:', error);
-          }
-        }
-      }
-
-      this.filesTree = filelist; // 最终的文件列表结构
-      this.postPaperData(filelist)
-    },
-
-    getPicList(e: any) {
-
-    },
-    // 将图片文件转换为 Base64
-    fileToBase64(file: Blob) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          resolve(e.target.result); // 返回 Base64 编码的字符串
-        };
-        reader.onerror = (e) => {
-          reject(e);
-        };
-        reader.readAsDataURL(file); // 异步读取文件内容，结果用data:url的字符串形式表示
-      });
-    },
-    async image2file(e: any) {
-      let base64 = await this.fileToBase64(e);
-      return base64
     },
   },
 });

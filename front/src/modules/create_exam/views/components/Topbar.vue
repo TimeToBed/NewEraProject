@@ -62,6 +62,7 @@ import Finish from './Finish.vue'
 import { AxiosInstance } from 'axios'
 import {PencilAltIcon, CheckIcon } from '@heroicons/vue/solid'
 
+
 export default defineComponent({
   name: 'Topbar',
   components: {
@@ -69,11 +70,12 @@ export default defineComponent({
     UploadPaper,
     Finish,
     PencilAltIcon,
-    CheckIcon
+    CheckIcon,
   },
 
   setup(){
     const initialExamInfo = {
+      exam_id: 1,
       examname: '',
       subject: '',
       time: '',
@@ -107,7 +109,9 @@ export default defineComponent({
       
       // 通过axios发送一个POST请求到您的后端
       const response = await axios.post('exams/create_exam/', formData);
+      examInfo.exam_id = response.data.exam_id;
       console.log(response.data);
+      console.log(examInfo.exam_id);
     }
 
     const nextStep = () => {
