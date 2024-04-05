@@ -193,6 +193,10 @@ export default {
           type: "answer"
         }],
       prequestions: [
+        { text: "预设问题1：如何创建一场考试？", time: Date.now(), type: "prequestion" },
+         { text: "预设问题2：批改试卷的大模型是什么？", time: Date.now(), type: "prequestion" },
+         { text: "预设问题3：这个阅卷系统的优势是什么？", time: Date.now(), type: "prequestion" }
+
       ],
       showPopover: false,
     }
