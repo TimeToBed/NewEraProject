@@ -23,8 +23,12 @@ async def item_mark(info, model):
 
     ai_message = await model.chat(messages=messages, system=system_message.content)
 
-    output = ai_message.content.replace("```json", "").replace("```", "").replace("\n","").strip()
-    dictionary = json.loads(output)
+    try:
+        output = ai_message.content.replace("```json", "").replace("```", "").replace("\n","").strip()
+        dictionary = json.loads(output)
+    except json.JSONDecodeError:
+        print("item_mark output is not a valid JSON string")
+        dictionary = json.loads("""{"score":"0", "comment":"文心一言未输出指定格式"}""")
 
     return dictionary
 
@@ -135,8 +139,17 @@ async def analyse_topic(info, model):
     #dur = time.time() - start
 
     #print(f"题目 耗时{dur:.2f}s\n {ai_message.content} ")
-    output = ai_message.content.replace("```json", "").replace("```", "").replace("\n","").strip()
-    dictionary = json.loads(output)
+    try:
+        output = ai_message.content.replace("```json", "").replace("```", "").replace("\n","").strip()
+        dictionary = json.loads(output)
+    except json.JSONDecodeError:
+        print("analyse_topic output is not a valid JSON string")
+        dictionary = json.loads("""{
+            "knowledge_points": "略",
+            "analysis": "略"
+        }""")
+
+    return dictionary
 
     return dictionary
 
