@@ -22,6 +22,14 @@
             </div>
           </div>
         </div>
+        
+        <div  v-for="msg in prequestions" :key="msg.time">
+          <div class="toleft prequestion" @click="handleClickPrequestion(msg.text)">
+            {{ msg.text }}
+        </div>
+        
+
+        </div>
       </div>
       <div class="chat-input flex">
         <el-input 
@@ -102,12 +110,12 @@ export default {
     ];
     var prequestionlist=[
       "预设问题1：世界灿烂盛大，欢迎回家", 
-      "预设问题2：世界灿烂盛大，欢迎回家", 
-      "预设问题3：世界灿烂盛大，欢迎回家", 
-      "预设问题4：世界灿烂盛大，欢迎回家", 
-      "预设问题5：世界灿烂盛大，欢迎回家", 
-      "预设问题6：世界灿烂盛大，欢迎回家", 
-      "预设问题7：世界灿烂盛大，欢迎回家", 
+      "预设问题2：12345", 
+      "预设问题3：在温暖的阳光下，老树的影子在雪白的墙壁上慢慢地移动", 
+      "预设问题4：他们一起在小路上散步，欣赏着沿途的风景", 
+      "预设问题5：破晓时分，湖面上升起一层淡淡的薄雾，宛如仙境一般", 
+      "预设问题6：她笑容可鞠，望着落日的余晖", 
+      "预设问题7：世界灿烂盛大", 
     ];
       if (this.message !== '') {
         this.messages.push({
@@ -116,7 +124,7 @@ export default {
           type:"ask"
         });
         this.message = '';
-        
+        this.prequestions=[]
         this.$nextTick(() => {
           this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
         });
@@ -128,17 +136,33 @@ export default {
             time: Date.now(),
             type: "answer"
           });
+
+          // 确保DOM更新后再滚动
+          this.$nextTick(() => {
+            this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
+          });
+          for (let i = 0; i < 3; i++) {
+            let idx=this.getRandomInt(0, prequestionlist.length-1)
+            this.prequestions.push({
+              text: prequestionlist[idx],
+              time: Date.now(),
+              type: "prequestion"
+            });
+          }
           // 确保DOM更新后再滚动
           this.$nextTick(() => {
             this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
           });
 
-          
 
-          console.log("这行代码在延时后执行");
         }, 1000); // 2000毫秒后执行，即2秒后
         
       }
+    },
+
+    handleClickPrequestion(msg){
+      this.message=msg
+      this.sendMessage()
     }
   }
 }
@@ -193,7 +217,7 @@ export default {
   padding: 10px;
   height: calc(100% - 120px);
   overflow-y: scroll;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 .toright {
@@ -208,6 +232,25 @@ export default {
   align-items: flex-start;
   width: 100%;
 }
+
+.prequestion {
+  display: flex;
+  justify-content: flex-start;
+  padding: 5px 10px;
+  border: 1px solid #d8d9d8;
+  background-color: #e8ece8;
+  border-radius: 10px;
+  margin: 5px 25px 5px 5px;
+  min-width: 60px;
+  max-width: 100%;
+  display: inline-block;
+  word-wrap: break-word; 
+  align-self: flex-start;  
+  margin-right: auto;
+  color: #8f8c8c;
+  font-size: 12px;
+}
+
 .message {
   display: flex;
   justify-content: flex-end;
