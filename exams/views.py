@@ -444,10 +444,22 @@ def queryllm(request, paper_id):
     
     sftp = ssh.open_sftp()
     
-    try:
-        sftp.stat(llm_path)
+    # try:
+    #     print('marking_result_path:', marking_result_path)
+    #     sftp.stat(marking_result_path)
+    #     remote_file = sftp.open(marking_result_path, 'rb')
+    # except IOError:
+    #     print('llm_path:', llm_path)
+    #     remote_file = sftp.open(llm_path, 'rb')
+    if marking_result_path is not None:
+        """
+        如果没有批改过，就打开大模型的批改结果
+        """
+        print('marking_result_path:', marking_result_path)
+        sftp.stat(marking_result_path)
         remote_file = sftp.open(marking_result_path, 'rb')
-    except IOError:
+    else:
+        print('llm_path:', llm_path)
         remote_file = sftp.open(llm_path, 'rb')
   
     # 创建一个FileResponse对象
@@ -1308,7 +1320,13 @@ def marking_update(request, paper_id):
         #data = json.loads(request.body.decode('utf-8')) #此时data为字典
         bytes_io = io.BytesIO(request.body) #request.body utf-8 编码的二进制文件
 
+        
+        if mark_result_path is None:
+            mark_result_path=f'/hdd/server/{paper.exam_id}/student_papers/{paper.student_id}/marking_result.json'
+            paper.mark_result_path=mark_result_path
+            paper.save()  
         try:
+            print('mark_result_path:',mark_result_path)
             sftp.putfo(bytes_io, mark_result_path)
             print("上传成功")
         except Exception as e:
@@ -1352,6 +1370,5 @@ def login(request):
                 return JsonResponse({'result': '登录成功', 
                                     'student_id': student.id,
                                     'username': student.user_name})
-
 
 

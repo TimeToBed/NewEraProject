@@ -199,6 +199,8 @@ export default defineComponent({
         let response_data=response.data
         state.original_data=response_data
         console.log('response_data:',response_data)
+        delete response_data["学号"];
+        delete response_data["姓名"];
         let result=getAllValues('',response_data).result
         console.log('转换得到的data：',result)
         state.LLMData=result

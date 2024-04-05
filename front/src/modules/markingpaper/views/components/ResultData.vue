@@ -4,7 +4,7 @@
             <div class="grid-items-white">
                 <p class="text-title-white">题目</p>
                 <br>
-                <p class="text-content-white">{{ index }} </p>
+                <p class="text-content-white">{{ content }}</p>
             </div>
 
 
@@ -105,8 +105,8 @@ export default defineComponent({
     },
     setup(props) {
         console.log('result data')
-        let input_comment = ref('')
-        let input_score= ref('')
+        let input_comment = ref(props.mark)
+        let input_score= ref(props.mark_score)
 
         if(props?.comment){
             input_comment = ref(props.comment)

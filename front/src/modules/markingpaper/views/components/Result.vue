@@ -56,6 +56,7 @@ export default defineComponent({
 
     state.questions=props.LLMData
     state.length=Object.keys(state.questions).length;
+    
     console.log('result.vue:', state.questions)
     console.log('result.vue length:', state.length)
     return {
