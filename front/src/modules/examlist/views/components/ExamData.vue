@@ -164,14 +164,19 @@
           
         </el-table-column>
       </el-table>
+      <UploadPapers :dialogVisible.sync="dialogVisible" :exam_id="upload_exam_id"
+              @update:dialogVisible="updateDialogVisible"
+              @upload:upload="update"
+              ></UploadPapers>
     </div>
   </template>
   <script lang="ts">
-  import { defineComponent, inject } from 'vue'
+  import { defineComponent, inject, ref, watch } from 'vue'
   import { DotsVerticalIcon } from '@heroicons/vue/outline'
   import { AxiosInstance } from 'axios'
   import { ElMessageBox, ElLoading } from 'element-plus';
   import {BadgeCheckIcon, ExclamationCircleIcon } from '@heroicons/vue/solid'
+  import UploadPapers from '../../../uploadpapers/views/components/UploadPapers.vue'
 
   export default defineComponent({
     
@@ -179,7 +184,8 @@
     components: {
       DotsVerticalIcon,
       BadgeCheckIcon, 
-      ExclamationCircleIcon
+      ExclamationCircleIcon,
+      UploadPapers
     },
     
     props: {
@@ -227,22 +233,34 @@
         }
       };
       
-      // const handleButtonClickLLMPreview = async (row) => {
-      //   console.log('LLM 预览', row)
-      //   try {
-      //     console.log('上传试卷',row)
-      //     this.$router.push('/marking/upload_papers');
 
-      //     const response = await axios.get(`exams/llm_preview/${row.exam_id}/`);
-      //     console.log(response);
+      const upload_exam_id = ref(0);
 
+      const dialogVisible = ref(false);
 
+      watch(dialogVisible, (newValue, oldValue) => {
+        console.log('dialogVisible 变化了, 旧值: ', oldValue, ', 新值: ', newValue);
+      });
 
-      //   } catch (error) {
-      //     console.error("Error during HTTP request:", error);
-      //   }
-      // };
+      const handleButtonClickUpload = (row) => {
+        dialogVisible.value = true
+        // console.log('dialogVisible:', dialogVisible.value)
+        upload_exam_id.value = row.exam_id // 对应到所选考试的exam_id
+        console.log('exam_id:', upload_exam_id.value)
+        
+      };
+
+      const updateDialogVisible = (newValue: boolean) => {
+        dialogVisible.value = newValue
+      };
+
       
+      const update = (newValue: boolean) => {
+        if(newValue){
+          context.emit('updateExamList');
+        }
+      };
+
       const DeleteExam = (row) => {
         console.log("删除考试：",row)
         ElMessageBox.confirm('确认删除考试：'+row.exam_name+'?', '警告', {
@@ -274,6 +292,11 @@
       return { 
         handleButtonClickLLMPreprocess ,
         DeleteExam,
+        upload_exam_id,
+        handleButtonClickUpload,
+        updateDialogVisible,
+        dialogVisible,
+        update
       };
     },
     methods: {

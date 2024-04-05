@@ -3,7 +3,7 @@
         <div class="flex justify-between py-1 px-6 border-b border-primary-white">
            <h3 class="cursor-auto">文字识别学习库</h3> 
            <div class="flex space-x-4 text-sm">
-                            <p style="font-size: 14px;">当前累积样本: {{ state.num }}/{{ 10000 }}</p>
+                            <p style="font-size: 14px;">当前累积样本: {{ state.sample_num }}/{{ 10000 }}</p>
                             <p style="font-size: 14px;">建议累积样本：{{ 6000 }}</p>
             </div>
         </div>
@@ -67,7 +67,9 @@
       const state = reactive({  
         num: 6300,
         learning: false,
+        sample_num:0
       })
+      state.sample_num=state.num
       const ocrList: OCRData[] = [
       {
         img_path: "/src/assets/growup/1.png",
@@ -131,11 +133,12 @@
           if (state.num === 0){
             clearInterval(interval);
             state.learning=false
+            state.sample_num=0
             ElMessageBox.alert('已完成学习！', '提示', {
               confirmButtonText: '确定'
             })
           }
-        }, 200);
+        }, 60000);
       }
       function handleClick() {
         state.learning=true;

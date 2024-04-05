@@ -86,7 +86,7 @@
         filesTree: null,
       };
     },
-    emits: ['update:dialogVisible'],
+    emits: ['update:dialogVisible', 'upload:upload'],
     setup(props, {emit}) {
         const axios = inject('axios') as AxiosInstance; // 确保你的项目中已经全局注册了 axios
         const filesTree = ref<any[]>([]);
@@ -128,7 +128,6 @@
 
             filesTree.value = filelist; // 最终的文件列表结构
             postPaperData(filelist)
-            emit('update:dialogVisible', false);
         }
         
         // 将图片文件转换为 Base64
@@ -159,9 +158,19 @@
             const response = await axios.post(`exams/uploadpapers/${dataToSend.exam_id}/`, dataToSend)
             .then((response) => {
                 console.log('响应数据：', response.data);
+                
+                emit('update:dialogVisible', false);
+                ElMessageBox.alert('上传成功！', '提示', {
+                        confirmButtonText: '确定'
+                      })
+                emit('upload:upload', true)
+
             })
             .catch((error) => {
                 console.error('请求错误：', error);
+                ElMessageBox.alert('上传失败!', '警告', {
+                        confirmButtonText: '确定'
+                      })
             });
         };
         // 关闭上传框

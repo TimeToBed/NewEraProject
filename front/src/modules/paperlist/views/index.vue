@@ -99,6 +99,7 @@ export default defineComponent({
                       ElMessageBox.alert('预处理完成！', '提示', {
                         confirmButtonText: '确定'
                       })
+                      handleUpdateValue()
                     })
                     .catch(function (error) {
                       console.log(error);
@@ -151,6 +152,21 @@ export default defineComponent({
       console.log(data,'data')
       state.tableData = data;
     }
+        
+    const handleUpdateValue = async () => {
+      try {
+        console.log('更新试卷数据---------------------')
+        
+        const response = await axios.get(`/exams/paperlist/${exam_id}/`);
+        // //const response = await axios.get('exams/test/');
+        state.paper = response.data;
+        console.log('state.paper:',state.paper)
+        console.log('response.data:', response.data)
+        queryTableData()
+      }catch(e) {
+        console.log('Exam Error:', e)
+      } 
+    }
     onMounted(async() => {
       try {
         // const route = useRoute();
@@ -171,6 +187,7 @@ export default defineComponent({
       handlehCurrentChange,
       queryTableData,
       handleButtonClickOCRPreprocess,
+      handleUpdateValue,
     }
   }
 })

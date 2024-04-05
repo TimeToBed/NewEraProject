@@ -1,5 +1,6 @@
 <template>
   <div class="h-screen overflow-hidden flex bg-slate-20 w-full" v-loading.fullscreen.lock="loading">
+    <AIBot />
     <div v-if="!isMobile">
       <sidebar />
     </div>
@@ -61,11 +62,13 @@ import { defineComponent, computed, ref } from 'vue'
 import useStore from 'store'
 import { HomeFilled } from '@element-plus/icons-vue'
 import { useRoute } from 'vue-router'
+import AIBot from './../modules/AIBot/views/index.vue'
 
 export default defineComponent({
   name: 'Layout',
   components: {
     HomeFilled,
+    AIBot
   },
 
   setup() {
