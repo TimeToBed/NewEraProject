@@ -258,6 +258,16 @@ const routes = [
     ]
   },
   {
+    path: '/fake',
+    component: Fake,
+    name: 'Fake',
+    meta: {
+      requiresAuth: true,
+    },
+  },
+
+
+  {
     path: '/components/:componentItem?',
     component: ComponentLayout,
     name: 'Components',
@@ -348,42 +358,32 @@ const routes = [
       },
     ]
   },
-
-  {
-    path: '/fake',
-    component: Fake,
-    name: 'Fake',
-    meta: {
-      requiresAuth: true,
-    },
-  },
-
-  {
-    path: '/profile',
-    component: Profile,
-    name: 'Profile',
-    meta: {
-      title: 'Profile',
-      icon: UserIcon,
-      color: 'text-success-50',
-      isDarkBackground: true,
-      isFullWidthLayout: true,
-      requiresAuth: true,
-      parentPath: 'Home'
-    },
-  },
-  {
-    path: '/map',
-    component: Map,
-    name: 'Map',
-    meta: {
-      title: 'Map',
-      icon: LocationMarkerIcon,
-      color: 'text-red-410',
-      requiresAuth: true,
-      parentPath: 'Home'
-    },
-  },
+  // {
+  //   path: '/profile',
+  //   component: Profile,
+  //   name: 'Profile',
+  //   meta: {
+  //     title: 'Profile',
+  //     icon: UserIcon,
+  //     color: 'text-success-50',
+  //     isDarkBackground: true,
+  //     isFullWidthLayout: true,
+  //     requiresAuth: true,
+  //     parentPath: 'Home'
+  //   },
+  // },
+  // {
+  //   path: '/map',
+  //   component: Map,
+  //   name: 'Map',
+  //   meta: {
+  //     title: 'Map',
+  //     icon: LocationMarkerIcon,
+  //     color: 'text-red-410',
+  //     requiresAuth: true,
+  //     parentPath: 'Home'
+  //   },
+  // },
   {
     path: '/paperlist',
     component: PaperList,

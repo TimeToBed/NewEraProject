@@ -1,11 +1,13 @@
 <template>
   <div>
     <el-button class="floating-button" type="secondary" @click="openChat=true">
-      <el-icon style="font-size: 24px;"><ChatLineRound /></el-icon>
+      <el-icon style="font-size: 24px;">
+        <ChatLineRound />
+      </el-icon>
     </el-button>
     <div class="chat-window" v-if="openChat">
       <div class="chat-header">
-        <img src="/src/assets/images/blue.png" style="height: 20px;">
+        <img src="/src/assets/images/logo-ch-blue.png" style="height: 20px;">
         <el-icon class="close-icon" @click="openChat=false"><Close /></el-icon>
       </div>
       <div class="chat-messages" ref="chatMessages" >
@@ -38,9 +40,126 @@
           v-model="message" 
           @keypress.enter.exact.prevent="sendMessage" 
           placeholder="Type a message..." 
-          :autosize="{ minRows: 1, maxRows: 4}"
-          />
-        <el-button size="small" type="primary" @click="sendMessage">
+          :autosize="{ minRows: 1, maxRows: 4}"/>
+
+        <el-popover
+          placement="left"
+          trigger="click"
+          popper-class="menu-popper"
+          :show-arrow="false"
+          @show="clickIconMenu = !clickIconMenu"
+          @hide="clickIconMenu = !clickIconMenu"
+        >
+          <template #reference>
+            <el-button style="margin-left: 3px;" size="small" type="primary" @click="uploadKnowledge">
+              <el-icon style="font-size: 16px;"><CirclePlus /></el-icon>
+            </el-button>
+          </template>
+          <div class="w-full m-0">
+            <div class="flex flex-wrap w-full m-0">
+              <a
+                href="#!"
+                class="flex flex-col w-2/6 py-3 text-center items-center content-center"
+              >
+                <div class="flex h-13 w-14 content-center items-center text-center">
+                  <div class="mx-auto">
+                    <div
+                    class="transition-all duration-150 hover:h-13 hover:w-13 h-12 w-12 mx-auto text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#8965e0] to-[#bc65e0]"
+                  >
+                    <el-icon :size="22" class="cursor-pointer w-8 h-6">
+                      <Files />
+                    </el-icon>
+                  </div>
+                  </div>
+                </div>
+                <span class="text-0.8125 text-white font-semibold mt-2.5">上传外部知识库</span>
+              </a>
+
+              <!-- <a
+                href="#!"
+                class="flex flex-col w-2/6 py-3 text-center items-center content-center"
+              >
+                <div class="flex h-13 w-14 content-center items-center text-center">
+                  <div class="mx-auto">
+                    <font-awesome-icon
+                      class="transition-all p-3.4 hover:p-4.4 duration-150 text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#fb6340] to-[#fbb140]"
+                      :icon="['fas', 'envelope']"
+                      size="lg"
+                    />
+                  </div>
+                </div>
+                <span class="text-0.8125 text-white font-semibold mt-2.5">Email</span>
+              </a> -->
+
+              <!-- <a
+                href="#!"
+                class="flex flex-col w-2/6 py-3 text-center items-center content-center"
+              >
+                <div class="flex h-13 w-14 content-center items-center text-center">
+                  <div class="mx-auto">
+                    <font-awesome-icon
+                      class="transition-all duration-150 px-4 py-3.4 hover:p-4.4 text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#11cdef] to-[#1171ef]"
+                      :icon="['fas', 'credit-card']"
+                      size="lg"
+                    />
+                  </div>
+                </div>
+                <span class="text-0.8125 text-white font-semibold mt-2.5">Payments</span>
+              </a> -->
+
+              <!-- <a
+                href="#!"
+                class="flex flex-col w-2/6 py-3 text-center items-center content-center"
+              >
+                <div class="flex text-center items-center content-center h-13 w-13">
+                  <div
+                    class="transition-all duration-150 hover:h-13 hover:w-13 h-12 w-12 mx-auto text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#2dce89] to-[#2dcecc]"
+                  >
+                    <el-icon :size="22" class="cursor-pointer w-8 h-6">
+                      <List />
+                    </el-icon>
+                  </div>
+                </div>
+                <span class="text-0.8125 text-white font-semibold mt-2.5">Reports</span>
+              </a> -->
+
+              <!-- <a
+                href="#!"
+                class="flex flex-col w-2/6 py-3 text-center items-center content-center"
+              >
+                <div class="flex text-center items-center content-center h-13 w-13">
+                  <div
+                    class="transition-all duration-150 hover:h-13 hover:w-13 h-12 w-12 mx-auto text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#8965e0] to-[#bc65e0]"
+                  >
+                    <el-icon :size="22" class="cursor-pointer w-8 h-6">
+                      <LocationFilled />
+                    </el-icon>
+                  </div>
+                </div>
+                <span class="text-0.8125 text-white font-semibold mt-3">Maps</span>
+              </a> -->
+
+              <!-- <a
+                href="#!"
+                class="flex flex-col w-2/6 py-3 text-center items-center content-center"
+              >
+                <div class="flex text-center items-center content-center h-13 w-13">
+                  <div
+                    class="transition-all duration-150 hover:h-13 hover:w-13 h-12 w-12 mx-auto text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#ffd600] to-[#beff00]"
+                  >
+                    <el-icon :size="22" class="cursor-pointer w-8 h-6">
+                      <GoodsFilled />
+                    </el-icon>
+                  </div>
+                </div>
+                <span class="text-0.8125 text-white font-semibold mt-3">Shop</span>
+              </a> -->
+            </div>
+          </div>
+        </el-popover>
+
+
+        <el-button style="margin-left: 3px;" size="small" type="primary" @click="sendMessage">
           <el-icon style="font-size: 16px;"><Promotion /></el-icon>
         </el-button>
       </div>
@@ -48,9 +167,11 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { ElButton, ElInput, ElIcon } from 'element-plus'
-import { ChatLineRound, Close, Promotion } from '@element-plus/icons-vue';
+import { ChatLineRound, Close, Promotion, CirclePlus, Files } from '@element-plus/icons-vue';
+import { ref  } from 'vue'
+import { useRoute } from 'vue-router'
 export default {
   components: {
     ElButton,
@@ -58,7 +179,9 @@ export default {
     ElIcon,
     ChatLineRound,
     Close,
-    Promotion
+    Promotion,
+    CirclePlus,
+    Files
   },
   data() {
     return {
@@ -70,18 +193,18 @@ export default {
           type: "answer"
         }],
       prequestions: [
-
-      ]
+      ],
+      showPopover: false,
     }
   },
-  directives: {
-    'auto-size': {
-      update: function(el) {
-        el.style.height = 'auto';
-        el.style.height = el.scrollHeight + 'px';
-      }
-    }
-  },
+  // directives: {
+  //   'auto-size': {
+  //     update: function(el) {
+  //       el.style.height = 'auto';
+  //       el.style.height = el.scrollHeight + 'px';
+  //     }
+  //   }
+  // },
 
   methods: {
     getRandomInt: function (min, max) {
@@ -163,8 +286,22 @@ export default {
     handleClickPrequestion(msg){
       this.message=msg
       this.sendMessage()
+    },
+  },
+  setup() {
+    const route: any = useRoute()
+    const clickIconMenu = ref(false)
+    const uploadKnowledge = () => {
+      console.log("上传外部知识库")
+      clickIconMenu.value = true
+      console.log(clickIconMenu.value)
     }
-  }
+    return {
+      route,
+      clickIconMenu,
+      uploadKnowledge
+    };
+  },
 }
 </script>
 
@@ -297,5 +434,10 @@ export default {
 }
 .chat-input el-button {
   float: right;
+}
+
+.popper {
+  width: auto !important;
+  min-width: 0 !important;
 }
 </style>

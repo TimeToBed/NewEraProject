@@ -13,10 +13,10 @@
         <router-link
           v-if="(isSBOpen && !isSBPin) || isSBPin"
           :class="{ 'opacity-0': !isSBOpen && !isSBPin }"
-          class="transition-opacity duration-300 opacity-1 p-6 block"
+          class="transition-opacity duration-300 opacity-1 p-5  block"
           :to="{ name: 'Dashboard' }"
         >
-          <img src="@/assets/images/blue.png" class="max-h-8 max-w-full align-middle" alt="..." />
+          <img src="@/assets/images/logo-ch-blue.png" class="max-h-12 max-w-full align-middle" alt="..." />
         </router-link>
         <div class="ml-auto">
           <div class="lg:col-span-10 xl:col-span-10 flex">
