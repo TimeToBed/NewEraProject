@@ -3,8 +3,7 @@
         <div >
             <div class="grid-items-white">
                 <p class="text-title-white">题目</p>
-                <!-- <br> -->
-                <p class="text-content-white" v-html="content.replace(/\n/g, '<br/>')" > </p>
+                <p v-if="content" class="text-content-white" v-html="content.replace(/\n/g, '<br/>')" > </p>
             </div>
 
             <div class="grid-items-violet" v-if="analysis">
