@@ -43,12 +43,12 @@
                 aria-hidden="true"
                 :class="[
                   scope.row.state == 2
-                    ? 'bg-info'
+                    ? 'bg-success'
                     : scope.row.state == 0
                     ? 'bg-danger'
                     : scope.row.state == 1
-                    ? 'bg-warning'
-                    : 'bg-success',
+                    ? 'bg-info'
+                    : 'bg-info',
                 ]"
               ></i>
               <!-- <span class="ml-2 pb-0.5 text-0.875 font-normal">{{ scope.row.state }}</span> -->
@@ -162,7 +162,8 @@
           path: '/marking_paper', 
           query: 
             { 
-              paper_id: row.paper_id , 
+              paper_id: row.paper_id ,
+              exam_id: row.exam_id, 
               totalSet: this.totalSet,
               totalPage:row.pages,
               paperData:JSON.stringify(this.tableData)

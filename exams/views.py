@@ -242,6 +242,21 @@ def upload_package(request, exam_id):
         
         return JsonResponse({'msg':'success'})
     
+@csrf_exempt
+def update_paper_state(request, paper_id):
+    data = json.loads(request.body)
+    state = int(data)
+    print(state)
+
+    paper = Papers.objects.filter(id=paper_id)[0]
+    print(paper)
+    paper.state=state
+    paper.save()
+    return HttpResponse({'msg':'success'})
+
+
+
+
 
 
 async def index_fun(request):
@@ -301,6 +316,7 @@ def paperlist(request, exam_id):
             ocr_preprocess = 0
         data.append({'index': cnt,
                      'paper_id':paper.id,
+                     'exam_id':paper.exam_id,
                      'state':paper.state,
                      'pages':paper.pages, 
                      'student_id':paper.student_id,

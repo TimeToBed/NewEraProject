@@ -1,6 +1,33 @@
 <template>
   
   <div class="w-full block mx-auto h-auto py-2">
+    <el-dialog 
+      :model-value.sync="dialogVisible" 
+      title="提示" 
+      @close="closeDialog" 
+    >
+      <p>
+        当前批改已保存！
+      </p>
+      <br>
+      <br>
+      <p>
+        请标记本份试卷批改进度：
+      </p>
+      <div class="w-full flex justify-between radio-group">
+        <el-radio v-model="chosen" label="0">未批改</el-radio>
+        <el-radio v-model="chosen" label="1">批改中</el-radio>
+        <el-radio v-model="chosen" label="2">批改完</el-radio>
+      </div>
+      
+      <br>
+      <br>
+      <div slot="footer" class="dialog-footer">
+        <el-button size="small" @click="closeDialog">取消</el-button>
+        <el-button size="small" type="primary" @click="submit">确定</el-button>
+      </div>
+    </el-dialog>
+
     <div class="flex-wrap flex-col bg-white shadow mb-7 mx-auto rounded-md">
       <div class="flex justify-between py-5 px-6 border-b border-primary-white">
         <h3 class="cursor-auto">批改试卷</h3>
@@ -39,12 +66,13 @@
       </div>
 
     </div>
-    
+
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, inject, reactive, ref ,nextTick} from 'vue'
+import { defineComponent, inject, reactive, ref ,nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import Paper from './Paper.vue'
 import Result from './Result.vue'
 import { AxiosInstance } from 'axios'
@@ -60,6 +88,10 @@ export default defineComponent({
   },
   props:{
     paper_id:{
+        type: Number,
+        required: true,
+      },
+    exam_id:{
         type: Number,
         required: true,
       },
@@ -83,7 +115,7 @@ export default defineComponent({
     }
   },
   setup(props){
-    
+    const router = useRouter()
     const axios = inject('axios') as AxiosInstance
     const state = reactive({  //  Vue 的响应性 API，当我们改变这个数据时，Vue 能知道需要重新渲染影响的组件。
       currentPage: 0,
@@ -216,76 +248,147 @@ export default defineComponent({
       
     }
 
+    const nextop = ref('')
     const nextOne = async () => {
-      try {
-
-        for (let i in state.LLMData){
-          let obj=state.LLMData[i]
-          console.log(obj.index, obj)
-          let parts=obj.index.split(" ")
-
-          console.log('parts:', parts)
-          Update(parts,0, obj, state.original_data)
-        }
-
-        const response =await axios.post(`exams/marking_update/${state.paper_id}/`,state.original_data)
-        console.log(response);
-        await ElMessageBox.alert('当前批改内容已经保存！', '提示', {
-        confirmButtonText: '确定'
-     })
-      }catch (error) {
-        console.log(error);
-        await ElMessageBox.alert('当前批改内容保存失败！', '警告', {
-          confirmButtonText: '确定'
-        })
-      }
-      
-      if (state.currentSet+1===props.totalSet){
-        nextTick(() => {
-          ElMessageBox.alert('你已经在最后一份了!', '提示', {
-            confirmButtonText: '确定'
-          })
-        });
-      }else{
-        state.currentSet+=1
-        console.log("下一份:",state.currentSet )
-        console.log("下一份:",props.paperData[state.currentSet] )
-        state.currentPage=0
-        state.paper_id=props.paperData[state.currentSet].paper_id
-        
-        fetchImageFromServer();
-      }
-      
+      nextop.value='nextOne'
+      save()
     };
 
     const prevOne = () => {
-      if (state.currentSet===0){
-        nextTick(() => {
-          ElMessageBox.alert('你已经在第一份了!', '提示', {
-            confirmButtonText: '确定'
-          })
-        });
-      }else{
-        state.currentSet-=1
-        console.log("上一份:",state.currentSet )
-        console.log("上一份:",props.paperData[state.currentSet] )
-        state.currentPage=0
-        state.paper_id=props.paperData[state.currentSet].paper_id
-
-        fetchImageFromServer();
-      }
-      
+      nextop.value='prevOne'
+      save()
     };
+    const dialogVisible = ref(false)
+    const chosen = ref('0')
 
+
+    const openDialog = () => {
+      console.log("open dialog")
+      dialogVisible.value = true
+      console.log("open dialog", dialogVisible.value)
+    }
+
+    const closeDialog = () => {
+      dialogVisible.value = false
+      chosen.value = '0'
+      console.log('close')
+    }
+
+    const submit = async() => {
+      console.log('submit',nextop.value,chosen.value)
+      if (chosen.value) {
+        console.log(`选择了 ${chosen.value}`)
+        const response =axios.post(`exams/update_paper_state/${props.paper_id}/`,chosen.value)
+        .then(function (response) {
+                    console.log(response);
+                  })
+                  .catch(function (error) {
+                    console.log(error);
+                    nextop.value=''
+                    ElMessageBox.alert('标记失败!', '警告', {
+                      confirmButtonText: '确定'
+                    })
+                  });
+
+        dialogVisible.value = false
+        if(nextop.value=='exit'){
+          console.log('exit nextop.value')
+          router.push({ path: '/paperlist', query: { exam_id: props.exam_id } }); 
+        }else if(nextop.value=='nextOne'){
+          if (state.currentSet+1===props.totalSet){
+              ElMessageBox.alert('你已经在最后一份了!', '提示', {
+                confirmButtonText: '确定'
+              })
+          }else{
+            state.currentSet+=1
+            console.log("下一份:",state.currentSet )
+            console.log("下一份:",props.paperData[state.currentSet] )
+            state.currentPage=0
+            state.paper_id=props.paperData[state.currentSet].paper_id
+            
+            fetchImageFromServer();
+          }
+        }else if(nextop.value=='prevOne'){
+          if (state.currentSet===0){
+              ElMessageBox.alert('你已经在第一份了!', '提示', {
+                confirmButtonText: '确定'
+              })
+          }else{
+            state.currentSet-=1
+            console.log("上一份:",state.currentSet )
+            console.log("上一份:",props.paperData[state.currentSet] )
+            state.currentPage=0
+            state.paper_id=props.paperData[state.currentSet].paper_id
+
+            fetchImageFromServer();
+          }
+        }
+      } else {
+        console.log('No option is chosen');
+      }
+    }
+
+    const save = async() => {
+      try {
+
+          for (let i in state.LLMData){
+            let obj=state.LLMData[i]
+            console.log(obj.index, obj)
+            let parts=obj.index.split(" ")
+
+            console.log('parts:', parts)
+            Update(parts,0, obj, state.original_data)
+          }
+
+          const response =await axios.post(`exams/marking_update/${state.paper_id}/`,state.original_data)
+          console.log(response);
+          // await ElMessageBox.alert('当前批改内容已经保存！', '提示', {
+          //   confirmButtonText: '确定'
+          // })
+          dialogVisible.value = true
+          }catch (error) {
+            console.log(error);
+            await ElMessageBox.alert('当前批改内容保存失败！', '警告', {
+              confirmButtonText: '确定'
+            })
+          }
+    }
+    const exit = () => {
+      nextop.value='exit'
+      save()
+      
+    }
     return {
       state,
+      exit,
       nextPage,
       prevPage,
       nextOne,
       prevOne,
       fetchImageFromServer,
-      getLLMPreprocess
+      getLLMPreprocess,
+      dialogVisible, chosen, openDialog, closeDialog, submit,
     }
   }
 })
 </script>
+
+<style scoped>
+.custom-dialog {
+  display: flex;
+  flex-direction: column;  /* 该属性将内容设置为列布局 */
+}
+
+.radio-group {
+  flex: 1;  /* 该属性允许单选按钮组占据剩余的可用空间 */
+  display: flex; 
+  flex-direction: column;  /* 该属性将单选按钮设置为列布局 */
+  justify-content: space-around;  /* 该属性在单选按钮之间添加平均分布的空间 */
+}
+.dialog-footer {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 60px;
+}
+
+</style>
