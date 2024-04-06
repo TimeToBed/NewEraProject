@@ -1,7 +1,16 @@
 <template>
   <div class="w-full mx-auto">
-    <div class="w-full">
-      <AnalysisCard :Datalist="data1" />
+    <div class="w-full" style="display:flex ;align-items:center">
+      <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"></el-avatar>
+      <div>
+        <div>　高伟鹏</div>
+        <div>　三年级十八班</div>
+      </div>
+      <!-- 这个空div将推动后面的元素到最右边 -->
+      <div style="flex-grow: 1;"></div>
+      <div>
+        欢迎
+      </div>
     </div>
 
     <div class="mt-6">
@@ -9,9 +18,9 @@
         <div class="lg:flex-8 lg:max-w-2/3 w-full lg:mb-0 lg:pr-3.5 mb-6">
           <GradientLineChart />
         </div>
-        <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
+        <!-- <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
           <TotalBarChart :Datalist="data2" />
-        </div>
+        </div> -->
       </div>
     </div>
 
@@ -22,31 +31,6 @@
         </div>
         <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
           <SocialTrafficTable />
-        </div>
-      </div>
-    </div>
-    <div class="mt-6">
-      <div class="flex flex-wrap">
-        <div class="lg:flex-8 lg:max-w-2/3 w-full lg:mb-0 lg:pr-3.5">
-          <div class="carousel">
-            <el-carousel height="400px">
-              <el-carousel-item v-for="item in danmus" :key="item">
-                <h3 class="carousel-text" text="2xl"
-                  :style="[{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }, { color: colors[Math.round(Math.random() * 20)] }]">
-                  {{ item }}</h3>
-              </el-carousel-item>
-            </el-carousel>
-          </div>
-        </div>
-        <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
-          <div class="baberrage">
-            <vue-danmaku class="danmaku" ref="danmakuRef" v-model:danmus="danmus" useSlot loop :speeds="100" :top="50"
-              :right="50" :fontSize="50" :randomChannel=true>
-              <template v-slot:dm="{ danmu }">
-                <div :style="{ color: colors[Math.round(Math.random() * 20)] }">{{ danmu }}</div>
-              </template>
-            </vue-danmaku>
-          </div>
         </div>
       </div>
     </div>

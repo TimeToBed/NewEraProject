@@ -5,45 +5,38 @@
         <div class="max-w-full basis-0 grow">
           <h3 class="mb-0 cursor-auto text-primary-dark">{{ title }}</h3>
         </div>
-        <div class="max-w-full basis-0 grow">
-          <div class="flex flex-wrap mb-0 pl-0 justify-end gap-x-3">
-            <div>
-              <el-button type="primary" size="small"> See all </el-button>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div class="block overflow-x-auto w-full p-0">
         <el-table :data="tableData" style="width: 100%" class="is-light">
-          <el-table-column label="学生姓名" min-width="200">
+          <el-table-column label="考试名称" min-width="80">
             <template #default="scope">
               <div class="flex items-center">
                 <span class="mb-0 text-0.8125 font-semibold cursor-auto text-dark-lighter">{{
-                  scope.row.pageName
-                }}</span>
+            scope.row.pageName
+          }}</span>
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="成绩" min-width="150">
+          <el-table-column label="成绩" min-width="60">
             <template #default="scope">
               <div class="flex items-center">
                 <span class="px-4 text-0.8125 font-normal cursor-auto text-dark-lighter">{{
-                  scope.row.visitorNumber
-                }}</span>
+            scope.row.visitorNumber
+          }}</span>
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="排名" min-width="150">
+          <el-table-column label="排名" min-width="60">
             <template #default="scope">
               <div class="flex items-center">
                 <span class="px-4 text-0.8125 font-normal text-dark-lighter">{{
-                  scope.row.userNumber
-                }}</span>
+            scope.row.userNumber
+          }}</span>
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="排名变化" min-width="150">
+          <el-table-column label="排名变化" min-width="80 ">
             <template #default="scope">
               <div class="flex items-center">
                 <div class="px-4 flex justify-center gap-1">
@@ -52,9 +45,7 @@
                     <ArrowNarrowDownIcon v-else class="w-4 h-4 text-warning" />
                   </div>
 
-                  <span class="text-0.8125 font-normal text-dark-lighter"
-                    >{{ scope.row.rate }}%</span
-                  >
+                  <span class="text-0.8125 font-normal text-dark-lighter">{{ Math.floor(scope.row.rate) }}%</span>
                 </div>
               </div>
             </template>
@@ -90,31 +81,31 @@ export default defineComponent({
   setup() {
     const tableData: PageVisitInfo[] = [
       {
-        pageName: '学生1',
+        pageName: '考试1',
         visitorNumber: '98',
         userNumber: 1,
         rate: 46.53,
       },
       {
-        pageName: '学生2',
+        pageName: '考试2',
         visitorNumber: '96',
         userNumber: 2,
         rate: 46.53,
       },
       {
-        pageName: '学生3',
+        pageName: '考试3',
         visitorNumber: '96	',
         userNumber: 3,
         rate: 36.49,
       },
       {
-        pageName: '学生4',
+        pageName: '考试4',
         visitorNumber: '94',
         userNumber: 4,
         rate: 50.87,
       },
       {
-        pageName: '学生5',
+        pageName: '考试5',
         visitorNumber: '89',
         userNumber: 5,
         rate: 42.53,

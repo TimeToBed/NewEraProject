@@ -36,7 +36,7 @@
       </template>
 
       <div class="card-body bg-transparent">
-        <LineChart ref="salesChart" :chartData="salesData" :options="chartOptions" :height="350" />
+        <LineChart ref="salesChart" :chartData="salesData" :options="chartOptions" :height="290" />
       </div>
     </el-card>
   </div>
@@ -60,7 +60,7 @@ export default defineComponent({
     },
     subcription: {
       type: String,
-      default: '学生考试平均成绩',
+      default: '学生考试成绩',
     },
   },
   setup() {
