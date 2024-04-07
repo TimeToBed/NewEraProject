@@ -1129,7 +1129,7 @@ def data_list(request, teacher_id=2):
             print("连接错误：", str(e))
             return 'SSH connection error'
         sftp = ssh.open_sftp()
-        exams = Exams.objects.filter(teacher_id=teacher_id).order_by('edate')
+        exams = Exams.objects.filter(teacher_id=teacher_id).order_by('-edate')
         data_dict = {}
         for exam in exams:
             data_dict[exam.exam_name] = {}
@@ -1253,7 +1253,7 @@ def data_list(request, teacher_id=2):
                 if i == 3:
                     break
                 second_score = data_dict[second_exam_name.exam_name]['学生成绩'][student.user_name]
-                print(student.user_name, second_exam_name.exam_name, second_score)
+                # print(student.user_name, second_exam_name.exam_name, second_score)s
                 i += 1
                 j += 1
                 break
@@ -1278,7 +1278,7 @@ def data_list(request, teacher_id=2):
                 recent_sort = position / len(sorted_scores) * 100
                 
                 exam_name_second = Exams.objects.get(id=exams[second_j].exam_id)
-                print(exam_name_second.exam_name)
+                # print(exam_name_second.exam_name)
                 if data_dict[exam_name_second.exam_name]['学生成绩'][student.user_name] == '-':
                     student_list[student.user_name]['上升幅度'] = '-'
                 else:
@@ -1298,7 +1298,7 @@ def data_list(request, teacher_id=2):
                         position = -1  # 如果 score 不在排序后的列表中，返回 -1
                     second_recent_sort = position / len(sorted_scores) * 100
                     # print(recent_sort, second_recent_sort)
-                    print(student.user_name, second_score, position, second_recent_sort, recent_sort)
+                    # print(student.user_name, second_score, position, second_recent_sort, recent_sort)
                     student_list[student.user_name]['上升幅度'] = int((second_recent_sort - recent_sort) / recent_sort * 100)
                     if student_list[student.user_name]['上升幅度'] > 0:
                         pos_num += 1 
