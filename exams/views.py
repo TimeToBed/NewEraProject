@@ -1129,10 +1129,10 @@ def data_list(request, teacher_id=2):
             print("连接错误：", str(e))
             return 'SSH connection error'
         sftp = ssh.open_sftp()
-        exams = Exams.objects.filter(teacher_id=teacher_id)
+        exams = Exams.objects.filter(teacher_id=teacher_id).order_by('edate')
         data_dict = {}
         for exam in exams:
-            data_dict[exam.id] = {}
+            data_dict[exam.exam_name] = {}
             papers = Papers.objects.filter(exam_id=exam.id)
             if len(papers) == 0:
                 continue
@@ -1142,13 +1142,13 @@ def data_list(request, teacher_id=2):
             second_total_score = 0
             third_total_score = 0
             forth_total_score = 0
-            data_dict[exam.id]['0-30分段学生数量'] = 0
-            data_dict[exam.id]['30-60分段学生数量'] = 0
-            data_dict[exam.id]['60-90分段学生数量'] = 0
-            data_dict[exam.id]['90-120分段学生数量'] = 0
-            data_dict[exam.id]['120-150分段学生数量'] = 0
-            data_dict[exam.id]['学生数量'] = len(papers)
-            data_dict[exam.id]['学生成绩'] = {}
+            data_dict[exam.exam_name]['0-30分段学生数量'] = 0
+            data_dict[exam.exam_name]['30-60分段学生数量'] = 0
+            data_dict[exam.exam_name]['60-90分段学生数量'] = 0
+            data_dict[exam.exam_name]['90-120分段学生数量'] = 0
+            data_dict[exam.exam_name]['120-150分段学生数量'] = 0
+            data_dict[exam.exam_name]['学生数量'] = len(papers)
+            data_dict[exam.exam_name]['学生成绩'] = {}
             for paper in papers:
                 if paper.state == 2:
                     mark_already_num += 1
@@ -1183,25 +1183,26 @@ def data_list(request, teacher_id=2):
                     second_total_score += second_mark_score
                     third_total_score += third_mark_score
                     forth_total_score += forth_mark_score
-                    data_dict[exam.id]['学生成绩'][paper.student_id] = total_score
+                    student = Students.objects.get(id=paper.student_id)
+                    data_dict[exam.exam_name]['学生成绩'][student.user_name] = total_score
                     if total_score >= 0 and total_score <= 30:
-                        data_dict[exam.id]['0-30分段学生数量'] += 1
+                        data_dict[exam.exam_name]['0-30分段学生数量'] += 1
                     elif total_score > 30 and total_score <= 60:
-                        data_dict[exam.id]['30-60分段学生数量'] += 1
+                        data_dict[exam.exam_name]['30-60分段学生数量'] += 1
                     elif total_score > 60 and total_score <= 90:
-                        data_dict[exam.id]['60-90分段学生数量'] += 1
+                        data_dict[exam.exam_name]['60-90分段学生数量'] += 1
                     elif total_score > 90 and total_score <= 120:
-                        data_dict[exam.id]['90-120分段学生数量'] += 1
+                        data_dict[exam.exam_name]['90-120分段学生数量'] += 1
                     elif total_score > 120 and total_score <= 150:
-                        data_dict[exam.id]['120-150分段学生数量'] += 1
+                        data_dict[exam.exam_name]['120-150分段学生数量'] += 1
                 else:
-                    data_dict[exam.id]['学生成绩'][paper.student_id] = '-'
-            data_dict[exam.id]['已批改的数量'] = mark_already_num
-            data_dict[exam.id]['平均成绩'] = all_total_score / mark_already_num
-            data_dict[exam.id]['现代文阅读平均得分率'] = first_total_score / (mark_already_num * first_score)
-            data_dict[exam.id]['古代诗文阅读平均得分率'] = second_total_score / (mark_already_num * second_score)
-            data_dict[exam.id]['语言文字运用平均得分率'] = third_total_score / (mark_already_num * third_score)
-            data_dict[exam.id]['写作平均得分率'] = forth_total_score / (mark_already_num * forth_score)
+                    data_dict[exam.exam_name]['学生成绩'][student.user_name] = '-'
+            data_dict[exam.exam_name]['已批改的数量'] = mark_already_num
+            data_dict[exam.exam_name]['平均成绩'] = round(all_total_score / mark_already_num, 1)
+            data_dict[exam.exam_name]['现代文阅读平均得分率'] = int(first_total_score * 100 / (mark_already_num * first_score))
+            data_dict[exam.exam_name]['古代诗文阅读平均得分率'] = int(second_total_score * 100 / (mark_already_num * second_score))
+            data_dict[exam.exam_name]['语言文字运用平均得分率'] = int(third_total_score * 100 / (mark_already_num * third_score))
+            data_dict[exam.exam_name]['写作平均得分率'] = int(forth_total_score * 100 / (mark_already_num * forth_score))
         # print(data_dict)
         
         student_list = {}
@@ -1215,41 +1216,54 @@ def data_list(request, teacher_id=2):
         data_dict['学生总数'] = len(student_ids)
         i = 0
         for sid in student_ids:
-            student_list[sid['student_id']] = {}
-            print(sid['student_id'])
-            exams = Papers.objects.filter(student_id=sid['student_id']).order_by('-exam__edate') 
+            student = Students.objects.get(id=sid['student_id'])
+            student_list[student.user_name] = {}
+            
+            # 从数据库中取出对应的 Exams 对象
+            exams = Exams.objects.filter(teacher_id=teacher_id)
+
+            # 创建一个列表存储所有 exams 的 id
+            exam_ids = exams.values_list('id', flat=True)
+
+            # 选择 exam_id 在 exams 的 id 列表中的 papers
+            exams = Papers.objects.filter(exam_id__in=exam_ids, student_id=sid['student_id']).order_by('-exam__edate')
+            
+
             i = 1
             j = 0
             first_score
             while(j < len(exams)):
-                if exams[j].exam_id not in data_dict.keys():
+                exam_name = Exams.objects.get(id=exams[j].exam_id)
+                if exam_name.exam_name not in data_dict.keys():
                     j += 1
                     continue
                 if i == 3:
                     break
-                student_list[sid['student_id']]['最近一次考试成绩'] = first_score = data_dict[exams[j].exam_id]['学生成绩'][sid['student_id']]
+                student_list[student.user_name]['最近一次考试成绩'] = first_score = data_dict[exam_name.exam_name]['学生成绩'][student.user_name]
                 i += 1
                 j += 1
                 break
             first_j = j - 1 
-            second_score = 0
+            # second_score = 0
             while(j < len(exams)):
-                if exams[j].exam_id not in data_dict.keys():
+                second_exam_name = Exams.objects.get(id=exams[j].exam_id)
+                if second_exam_name.exam_name not in data_dict.keys():
                     j += 1
                     continue
                 if i == 3:
                     break
-                second_score = data_dict[exams[j].exam_id]['学生成绩'][sid['student_id']]
+                second_score = data_dict[second_exam_name.exam_name]['学生成绩'][student.user_name]
+                print(student.user_name, second_exam_name.exam_name, second_score)
                 i += 1
                 j += 1
                 break
             second_j = j - 1
             
-            if student_list[sid['student_id']]['最近一次考试成绩'] == '-':
-                    student_list[sid['student_id']]['上升幅度'] = '-'
+            if student_list[student.user_name]['最近一次考试成绩'] == '-':
+                    student_list[student.user_name]['上升幅度'] = '-'
             else:
                 # 获取所有的成绩
-                scores = data_dict[exams[first_j].exam_id]['学生成绩']
+                scores = data_dict[exam_name.exam_name]['学生成绩']
                 # 过滤掉 "-" 的成绩
                 filtered_scores = [v for s,v in scores.items() if v != "-"]
                 # 将过滤后的成绩转换为浮点型，因为它们可能是字符串形式的数字
@@ -1258,15 +1272,17 @@ def data_list(request, teacher_id=2):
                 sorted_scores = sorted(filtered_scores, reverse=True)
                 # 找出 score 在排序后的列表中的位置
                 try:
-                    position = sorted_scores.index(student_list[sid['student_id']]['最近一次考试成绩']) + 1
+                    position = sorted_scores.index(student_list[student.user_name]['最近一次考试成绩']) + 1
                 except ValueError:
                     position = -1  # 如果 score 不在排序后的列表中，返回 -1
                 recent_sort = position / len(sorted_scores) * 100
                 
-                if data_dict[exams[second_j].exam_id]['学生成绩'][sid['student_id']] == '-':
-                    student_list[sid['student_id']]['上升幅度'] = '-'
+                exam_name_second = Exams.objects.get(id=exams[second_j].exam_id)
+                print(exam_name_second.exam_name)
+                if data_dict[exam_name_second.exam_name]['学生成绩'][student.user_name] == '-':
+                    student_list[student.user_name]['上升幅度'] = '-'
                 else:
-                    scores = data_dict[exams[second_j].exam_id]['学生成绩']
+                    scores = data_dict[exam_name_second.exam_name]['学生成绩']
                     # print(scores)
                     # 过滤掉 "-" 的成绩
                     filtered_scores = [v for s,v in scores.items() if v != "-"]
@@ -1282,12 +1298,13 @@ def data_list(request, teacher_id=2):
                         position = -1  # 如果 score 不在排序后的列表中，返回 -1
                     second_recent_sort = position / len(sorted_scores) * 100
                     # print(recent_sort, second_recent_sort)
-                    student_list[sid['student_id']]['上升幅度'] = (second_recent_sort - recent_sort) / recent_sort * 100
-                    if student_list[sid['student_id']]['上升幅度'] > 0:
+                    print(student.user_name, second_score, position, second_recent_sort, recent_sort)
+                    student_list[student.user_name]['上升幅度'] = int((second_recent_sort - recent_sort) / recent_sort * 100)
+                    if student_list[student.user_name]['上升幅度'] > 0:
                         pos_num += 1 
             if i == 2:
-                student_list[sid['student_id']]['上升幅度'] = '-'
-            student_list['进步人数占比'] = pos_num / data_dict['学生总数'] * 100
+                student_list[student.user_name]['上升幅度'] = '-'
+            student_list['进步人数占比'] = round(pos_num / data_dict['学生总数'] * 100, 1)
         response_dict = {'data_dict': data_dict, 'student_dict': student_list}
         return JsonResponse(response_dict)
 
