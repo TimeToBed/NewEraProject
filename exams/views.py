@@ -1115,7 +1115,7 @@ def cur(data, mark_score, score):
            mark_score, score = cur(data[key], mark_score, score)
     return mark_score, score
 @csrf_exempt
-def data_list(request, teacher_id=2):
+def data_list(request, teacher_id):
     # if request.method == 'POST':
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -1389,3 +1389,31 @@ def login(request):
                                     'username': student.user_name})
 
 
+def comment(request):
+    if request.method == 'POST':
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        try:
+            ssh.connect(hostname=settings.Remote_HOST, username=settings.Remote_user, password=settings.Remote_password, port=settings.Remote_PORT)
+            print("连接成功")
+        except paramiko.AuthenticationException:
+            print("认证失败")
+            return 'SSH Authentication failed'
+        except paramiko.SSHException as e:
+            print("连接错误：", str(e))
+            
+        sftp = ssh.open_sftp()
+
+        try:
+            with sftp.open("/hdd/server/comment.json") as f:
+                data = f.read()
+                json_data = json.loads(data)
+
+            # 这里，你可以处理json_data ...
+            print(json_data)
+        finally:
+            sftp.close()
+
+        ssh.close()
+        return JsonResponse(json_data)
+        
