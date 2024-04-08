@@ -6,10 +6,56 @@
       title="提示" 
       @close="closeDialog" 
     >
-      <p>
+      <p style="font-weight: bold;">
         当前批改已保存！
       </p>
       <br>
+      <div class="mb-4">
+        <el-button
+          type="info"
+          plain
+          loading
+          class="w-full"
+          style="font-size: 16px; font-weight: normal;"
+          v-if="state.ocrloading"
+          >正在将OCR修正内容加入到智能生长库...</el-button
+        >
+      </div>
+      
+      <div class="mb-4">
+        <el-button
+          type="success"
+          plain
+          class="w-full"
+          style="font-size: 16px; font-weight: normal;"
+          v-if="!state.ocrloading"
+          >当前OCR修正内容已加入到智能生长库！</el-button
+        >
+      </div>
+
+      <div class="mb-4">
+        <el-button
+          type="info"
+          plain
+          loading
+          class="w-full"
+          style="font-size: 16px; font-weight: normal;"
+          v-if="state.markingloading"
+          >正在将评语修改内容加入到智能生长库...</el-button
+        >
+      </div>
+      
+      <div class="mb-4">
+        <el-button
+          type="success"
+          plain
+          class="w-full"
+          style="font-size: 16px; font-weight: normal;"
+          v-if="!state.markingloading"
+          >当前评语修改内容已加入到智能生长库！</el-button
+        >
+      </div>
+
       <br>
       <p>
         请标记本份试卷批改进度：
@@ -19,12 +65,11 @@
         <el-radio v-model="chosen" label="1">批改中</el-radio>
         <el-radio v-model="chosen" label="2">批改完</el-radio>
       </div>
-      
       <br>
       <br>
       <div slot="footer" class="dialog-footer">
-        <el-button size="small" @click="closeDialog">取消</el-button>
-        <el-button size="small" type="primary" @click="submit">确定</el-button>
+        <el-button  type="el-button--secondary" @click="closeDialog">取消</el-button>
+        <el-button  type="primary" @click="submit">确定</el-button>
       </div>
     </el-dialog>
 
@@ -36,7 +81,12 @@
           <p>当前页数：{{ state.currentPage+1 }}/{{ totalPage }}</p>
           <button @click="prevOne">上一份</button>
           <button @click="nextOne">下一份</button>
-          <button @click="exit">退出</button>
+          <el-button @click="save" type="info" size="small"> 
+            保存 
+          </el-button>
+          <el-button @click="exitClick" type="danger" size="small"> 
+            退出 
+          </el-button>
         </div>
       </div>
       
@@ -79,12 +129,14 @@ import { AxiosInstance } from 'axios'
 import { ElMessageBox, ElLoading } from 'element-plus';
 import PaperData from 'modules/paperlist/views/components/PaperData.vue';
 import { stat } from 'fs';
+import { ChatLineRound, Close, Promotion, CirclePlus, Files, Collection } from '@element-plus/icons-vue';
 
 export default defineComponent({
   name: 'Topbar',
   components: {
     Paper,
     Result,
+    Collection
   },
   props:{
     paper_id:{
@@ -111,6 +163,7 @@ export default defineComponent({
 
   methods: {
     handleUpdateValue(newValue) {
+      this.state.issaved=false
       this.state.LLMData = newValue;  // 更新相应的值
     }
   },
@@ -124,6 +177,9 @@ export default defineComponent({
       paper_id:0,
       LLMData:null,
       original_data:null,
+      ocrloading:true,
+      markingloading:true,
+      issaved:true
     });
     state.paper_id=props.paper_id
     console.log("TopBar props.paperData:", props.paperData)
@@ -251,6 +307,7 @@ export default defineComponent({
     }
 
     const nextop = ref('')
+    
     const nextOne = async () => {
       nextop.value='nextOne'
       save()
@@ -261,18 +318,27 @@ export default defineComponent({
       save()
     };
     const dialogVisible = ref(false)
-    const chosen = ref('0')
+    const chosen = ref('2')
 
 
     const openDialog = () => {
       console.log("open dialog")
       dialogVisible.value = true
       console.log("open dialog", dialogVisible.value)
+      setTimeout(() => {
+        state.ocrloading = false;
+        console.log('ocrloading:',state.ocrloading)
+      }, 2100);
+      setTimeout(() => {
+        state.markingloading = false;
+      }, 2500);
     }
 
     const closeDialog = () => {
       dialogVisible.value = false
-      chosen.value = '0'
+      chosen.value = '2'
+      state.ocrloading=true
+      state.markingloading=true
       console.log('close')
     }
 
@@ -347,22 +413,55 @@ export default defineComponent({
           // await ElMessageBox.alert('当前批改内容已经保存！', '提示', {
           //   confirmButtonText: '确定'
           // })
-          dialogVisible.value = true
-          }catch (error) {
+          //dialogVisible.value = true
+          openDialog()
+          state.issaved=true
+        }catch (error) {
             console.log(error);
             await ElMessageBox.alert('当前批改内容保存失败！', '警告', {
               confirmButtonText: '确定'
             })
           }
     }
-    const exit = () => {
-      nextop.value='exit'
+    const saveClick = async() => {
       save()
+      // try {
+
+      //     for (let i in state.LLMData){
+      //       let obj=state.LLMData[i]
+      //       console.log(obj.index, obj)
+      //       let parts=obj.index.split(" ")
+
+      //       console.log('parts:', parts)
+      //       Update(parts,0, obj, state.original_data)
+      //     }
+
+      //     const response =await axios.post(`exams/marking_update/${state.paper_id}/`,state.original_data)
+      //     console.log(response);
+      //     await ElMessageBox.alert('当前批改内容已经保存！', '提示', {
+      //       confirmButtonText: '确定'
+      //     })
+      //     }catch (error) {
+      //       console.log(error);
+      //       await ElMessageBox.alert('当前批改内容保存失败！', '警告', {
+      //         confirmButtonText: '确定'
+      //       })
+      //     }
+    }
+    const exitClick = () => {
+      if (state.issaved){
+        router.push({ path: '/paperlist', query: { exam_id: props.exam_id } }); 
+      }else{
+        nextop.value='exit'
+        save()
+      }
+      
       
     }
     return {
       state,
-      exit,
+      exitClick,
+      save,
       nextPage,
       prevPage,
       nextOne,
@@ -381,16 +480,35 @@ export default defineComponent({
   flex-direction: column;  /* 该属性将内容设置为列布局 */
 }
 
+.loading-text {
+  margin-left: 20px; 
+  font-style: italic; 
+  color: #23ac5c;
+}
+
 .radio-group {
   flex: 1;  /* 该属性允许单选按钮组占据剩余的可用空间 */
   display: flex; 
-  flex-direction: column;  /* 该属性将单选按钮设置为列布局 */
+  flex-direction: row;  /* 该属性将单选按钮设置为列布局 */
   justify-content: space-around;  /* 该属性在单选按钮之间添加平均分布的空间 */
+  padding: 0 40px;
 }
 .dialog-footer {
   display: flex;
   justify-content: space-between;
   margin: 0 60px;
+}
+
+::v-deep .custom-button {
+    width: 100px; /* 这里是你想设置的宽度 */
+    height: 50px; /* 这里是你想设置的高度 */
+    background-color: white;
+    border-color: white;
+}
+
+::v-deep .button-text {
+   font-style: normal;
+   color:red;
 }
 
 </style>

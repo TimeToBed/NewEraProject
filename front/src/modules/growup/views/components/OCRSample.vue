@@ -7,7 +7,7 @@
       :header-cell-style="{ textAlign: 'center' }"
       height="320px"
       >
-        <el-table-column label="真实样本" min-width="60" >
+        <el-table-column label="OCR图像" min-width="60" >
           <template #default="scope">
             <div class="px-4 cursor-auto">
                 <img :src="scope.row.img_path" :style="{ 'height': '30px', 'object-fit': 'cover'}">
@@ -17,7 +17,7 @@
         </el-table-column>
        
 
-        <el-table-column label="内容" min-width="60" >
+        <el-table-column label="正确标签" min-width="60" >
           <template #default="scope">
             <div class="px-4 cursor-auto">
               <span class="text-0.8125 font-normal">{{ scope.row.content }}</span>

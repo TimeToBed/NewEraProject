@@ -73,46 +73,46 @@
       const ocrList: OCRData[] = [
       {
         img_path: "/src/assets/growup/1.png",
-        content: '0又恐琼楼玉宇，高处不胜寒',
+        content: '又恐琼楼玉宇，高处不胜寒',
       },
     
       {
         img_path: "/src/assets/growup/2.png",
-        content: '1又恐琼楼玉宇，高处不胜寒',
+        content: '剑外忽传收蓟北',
       },
       {
         img_path: "/src/assets/growup/3.png",
-        content: '又恐琼楼玉宇，高处不胜寒',
+        content: '制芰荷以为衣兮，集芙蓉以为裳',
       },
       {
         img_path: "/src/assets/growup/4.png",
-        content: '又恐琼楼玉宇，高处不胜寒',
+        content: '举头望明月，低头思故乡',
       },
       
       {
         img_path: "/src/assets/growup/5.png",
-        content: '又恐琼楼玉宇，高处不胜寒',
+        content: '关山难越，谁悲失路之人',
       },
       {
-        img_path: "/src/assets/growup/1.png",
-        content: '0又恐琼楼玉宇，高处不胜寒',
+        img_path: "/src/assets/growup/6.png",
+        content: '萍水相逢，尽是他乡之客',
       },
     
       {
-        img_path: "/src/assets/growup/2.png",
-        content: '1又恐琼楼玉宇，高处不胜寒',
+        img_path: "/src/assets/growup/7.png",
+        content: '人生如逆旅',
       },
       {
-        img_path: "/src/assets/growup/3.png",
+        img_path: "/src/assets/growup/8.png",
         content: '又恐琼楼玉宇，高处不胜寒',
       },
       {
-        img_path: "/src/assets/growup/4.png",
+        img_path: "/src/assets/growup/9.png",
         content: '又恐琼楼玉宇，高处不胜寒',
       },
       
       {
-        img_path: "/src/assets/growup/5.png",
+        img_path: "/src/assets/growup/10.png",
         content: '又恐琼楼玉宇，高处不胜寒',
       },
     ]

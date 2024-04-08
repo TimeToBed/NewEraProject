@@ -8,20 +8,20 @@
       height="320px"
       class="no-border-lines"
       >
-        <el-table-column label="真实样本" min-width="60" >
+        <el-table-column label="大模型批阅评语" min-width="60" >
           <template #default="scope">
 
             <el-card class="bordered-card-llm">
-                <p>{{ scope.row.llmmarking }}</p>
+                <p style="font-size: 13px;">{{ scope.row.llmmarking }}</p>
             </el-card>
           </template>
         </el-table-column>
        
 
-        <el-table-column label="内容" min-width="60" >
+        <el-table-column label="教师批阅评语" min-width="60" >
           <template #default="scope">
             <el-card class="bordered-card-teacher">
-                <p>{{ scope.row.teachermarking }}</p>
+                <p style="font-size: 13px;">{{ scope.row.teachermarking }}</p>
             </el-card>
           </template>
         </el-table-column>

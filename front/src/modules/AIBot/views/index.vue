@@ -1,6 +1,7 @@
 <template>
   <div>
-    <el-button class="floating-button" type="secondary" @click="openChat=true">
+    <el-button class="floating-button transition-all duration-150 hover:h-13 hover:w-13 h-12 w-12 mx-auto text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#8965e0] to-[#bc65e0]"
+                      type="primary" @click="openChat=true">
       <el-icon style="font-size: 24px;">
         <ChatLineRound />
       </el-icon>
@@ -17,7 +18,19 @@
               {{ msg.text }}
             </div>
           </div>
-          
+
+          <div class="toleft">
+            <el-button
+              type="success"
+              plain
+              style="font-size: 12px; font-weight: normal; height: 30px;border-radius: 10px;margin-left: 5px;"
+              v-if="msg.type=='operation'"
+              >
+              <el-icon class="mr-4"> <Check /> </el-icon>
+              {{ msg.text }}</el-button
+            >
+          </div>
+
           <div class="toleft">
             <div class="answer" v-if="msg.type=='answer'"> 
               {{ msg.text }}
@@ -25,153 +38,119 @@
           </div>
         </div>
         
-        <div  v-for="msg in prequestions" :key="msg.time">
-          <div class="toleft prequestion" @click="handleClickPrequestion(msg.text)">
+        <div v-for="msg in prequestions" :key="msg.time">
+          <div v-if="addknowledge===0" class="toleft prequestion" @click="handleClickPrequestion(msg.text)">
             {{ msg.text }}
+          </div>
+        </div>
+        <div v-if="addknowledge===1">
+          <el-button
+            type="warning"
+            plain
+            loading
+            style="font-size: 12px; font-weight: normal; height: 30px;border-radius: 10px;margin-left: 5px;"
+            
+            >正在添加知识库{{ knowledgename }}</el-button
+          >
         </div>
         
+      </div>
+      <div class="chat-input">
+        <div class="flex ">
+          <el-input 
+            class="message-input"
+            type="textarea" 
+            v-model="message" 
+            @keypress.enter.exact.prevent="sendMessage" 
+            placeholder="Type a message..." 
+            :autosize="{ minRows: 1, maxRows: 4}"/>
+
+          <!-- <el-popover
+            placement="left"
+            trigger="click"
+            popper-class="menu-popper"
+            :show-arrow="false"
+            @show="clickIconMenu = !clickIconMenu"
+            @hide="clickIconMenu = !clickIconMenu"
+          >
+            <template #reference>
+              <el-button style="margin-left: 3px;" size="small" type="primary" @click="uploadKnowledge">
+                <el-icon style="font-size: 16px;"><CirclePlus /></el-icon>
+              </el-button>
+            </template>
+            <div class="w-full m-0">
+              <div class="flex flex-wrap w-full m-0">
+                <a
+                  href="#!"
+                  class="flex flex-col w-2/6 py-3 text-center items-center content-center"
+                >
+                  <div class="flex h-13 w-14 content-center items-center text-center">
+                    <div class="mx-auto">
+                      <div
+                      class="transition-all duration-150 hover:h-13 hover:w-13 h-12 w-12 mx-auto text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#8965e0] to-[#bc65e0]"
+                    >
+                      <el-icon :size="22" class="cursor-pointer w-8 h-6">
+                        <Files />
+                      </el-icon>
+                    </div>
+                    </div>
+                  </div>
+                  <span class="text-0.8125 text-white font-semibold mt-2.5">上传外部知识库</span>
+                </a>
+              </div>
+            </div>
+          </el-popover> -->
+
+          <el-button style="margin-left: 3px;" size="small" type="primary" @click="MenuChange">
+            <el-icon style="font-size: 16px;" v-if="!state.menuVisible"><CirclePlus /></el-icon>
+            <el-icon style="font-size: 16px;" v-if="state.menuVisible"><Remove /></el-icon>
+          </el-button>
+          <el-button style="margin-left: 3px;" size="small" type="primary" @click="sendMessage">
+            <el-icon style="font-size: 16px;"><Promotion /></el-icon>
+          </el-button>
 
         </div>
-      </div>
-      <div class="chat-input flex">
-        <el-input 
-          class="message-input"
-          type="textarea" 
-          v-model="message" 
-          @keypress.enter.exact.prevent="sendMessage" 
-          placeholder="Type a message..." 
-          :autosize="{ minRows: 1, maxRows: 4}"/>
-
-        <el-popover
-          placement="left"
-          trigger="click"
-          popper-class="menu-popper"
-          :show-arrow="false"
-          @show="clickIconMenu = !clickIconMenu"
-          @hide="clickIconMenu = !clickIconMenu"
-        >
-          <template #reference>
-            <el-button style="margin-left: 3px;" size="small" type="primary" @click="uploadKnowledge">
-              <el-icon style="font-size: 16px;"><CirclePlus /></el-icon>
-            </el-button>
-          </template>
+        
+        
+        <div class="border" v-if="state.menuVisible">
           <div class="w-full m-0">
             <div class="flex flex-wrap w-full m-0">
               <a
-                href="#!"
-                class="flex flex-col w-2/6 py-3 text-center items-center content-center"
+                
+                class="flex flex-col w-1/6 py-3 text-center items-center content-center"
               >
                 <div class="flex h-13 w-14 content-center items-center text-center">
                   <div class="mx-auto">
                     <div
-                    class="transition-all duration-150 hover:h-13 hover:w-13 h-12 w-12 mx-auto text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#8965e0] to-[#bc65e0]"
-                  >
-                    <el-icon :size="22" class="cursor-pointer w-8 h-6">
+                    class="transition-all duration-150 hover:h-10 hover:w-10 h-9 w-9 mx-auto text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#8965e0] to-[#bc65e0]"
+                    @click="uploadKnowledge"
+                    >
+                    <el-icon :size="18" class="cursor-pointer w-8 h-6">
                       <Files />
                     </el-icon>
                   </div>
                   </div>
                 </div>
-                <span class="text-0.8125 text-white font-semibold mt-2.5">上传外部知识库</span>
+                <span class="text-0.8125 text-black font-normal mt-1">上传外部知识库</span>
               </a>
-
-              <!-- <a
-                href="#!"
-                class="flex flex-col w-2/6 py-3 text-center items-center content-center"
-              >
-                <div class="flex h-13 w-14 content-center items-center text-center">
-                  <div class="mx-auto">
-                    <font-awesome-icon
-                      class="transition-all p-3.4 hover:p-4.4 duration-150 text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#fb6340] to-[#fbb140]"
-                      :icon="['fas', 'envelope']"
-                      size="lg"
-                    />
-                  </div>
-                </div>
-                <span class="text-0.8125 text-white font-semibold mt-2.5">Email</span>
-              </a> -->
-
-              <!-- <a
-                href="#!"
-                class="flex flex-col w-2/6 py-3 text-center items-center content-center"
-              >
-                <div class="flex h-13 w-14 content-center items-center text-center">
-                  <div class="mx-auto">
-                    <font-awesome-icon
-                      class="transition-all duration-150 px-4 py-3.4 hover:p-4.4 text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#11cdef] to-[#1171ef]"
-                      :icon="['fas', 'credit-card']"
-                      size="lg"
-                    />
-                  </div>
-                </div>
-                <span class="text-0.8125 text-white font-semibold mt-2.5">Payments</span>
-              </a> -->
-
-              <!-- <a
-                href="#!"
-                class="flex flex-col w-2/6 py-3 text-center items-center content-center"
-              >
-                <div class="flex text-center items-center content-center h-13 w-13">
-                  <div
-                    class="transition-all duration-150 hover:h-13 hover:w-13 h-12 w-12 mx-auto text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#2dce89] to-[#2dcecc]"
-                  >
-                    <el-icon :size="22" class="cursor-pointer w-8 h-6">
-                      <List />
-                    </el-icon>
-                  </div>
-                </div>
-                <span class="text-0.8125 text-white font-semibold mt-2.5">Reports</span>
-              </a> -->
-
-              <!-- <a
-                href="#!"
-                class="flex flex-col w-2/6 py-3 text-center items-center content-center"
-              >
-                <div class="flex text-center items-center content-center h-13 w-13">
-                  <div
-                    class="transition-all duration-150 hover:h-13 hover:w-13 h-12 w-12 mx-auto text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#8965e0] to-[#bc65e0]"
-                  >
-                    <el-icon :size="22" class="cursor-pointer w-8 h-6">
-                      <LocationFilled />
-                    </el-icon>
-                  </div>
-                </div>
-                <span class="text-0.8125 text-white font-semibold mt-3">Maps</span>
-              </a> -->
-
-              <!-- <a
-                href="#!"
-                class="flex flex-col w-2/6 py-3 text-center items-center content-center"
-              >
-                <div class="flex text-center items-center content-center h-13 w-13">
-                  <div
-                    class="transition-all duration-150 hover:h-13 hover:w-13 h-12 w-12 mx-auto text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#ffd600] to-[#beff00]"
-                  >
-                    <el-icon :size="22" class="cursor-pointer w-8 h-6">
-                      <GoodsFilled />
-                    </el-icon>
-                  </div>
-                </div>
-                <span class="text-0.8125 text-white font-semibold mt-3">Shop</span>
-              </a> -->
             </div>
           </div>
-        </el-popover>
-
-
-        <el-button style="margin-left: 3px;" size="small" type="primary" @click="sendMessage">
-          <el-icon style="font-size: 16px;"><Promotion /></el-icon>
-        </el-button>
+        </div>
       </div>
+
+      
+      
+
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { ElButton, ElInput, ElIcon } from 'element-plus'
-import { ChatLineRound, Close, Promotion, CirclePlus, Files } from '@element-plus/icons-vue';
-import { ref  } from 'vue'
+import { ChatLineRound, Close, Promotion, CirclePlus, Remove,Files, Check } from '@element-plus/icons-vue';
+import { ref, reactive  } from 'vue'
 import { useRoute } from 'vue-router'
+import { remove } from 'lodash';
 export default {
   components: {
     ElButton,
@@ -181,7 +160,9 @@ export default {
     Close,
     Promotion,
     CirclePlus,
-    Files
+    Remove,
+    Files,
+    Check
   },
   data() {
     return {
@@ -198,7 +179,8 @@ export default {
          { text: "预设问题3：这个阅卷系统的优势是什么？", time: Date.now(), type: "prequestion" }
 
       ],
-      showPopover: false,
+      addknowledge:0,
+      knowledgename:null
     }
   },
   // directives: {
@@ -291,19 +273,59 @@ export default {
       this.message=msg
       this.sendMessage()
     },
+
+    uploadKnowledge(){
+      console.log("上传外部知识库")
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.onchange = event => {
+        const file = event.target.files[0];
+        if (file) {
+          console.log(file.name);
+          this.knowledgename=file.name.split('.')[0]
+          this.addknowledge=1
+          this.state.menuVisible=false
+          setTimeout(() => {
+            this.messages.push({
+              text: "知识库:"+this.knowledgename +"添加完成",
+              time: Date.now(),
+              type:"operation"
+            });
+            
+          this.addknowledge=0
+          }, 3000);
+        }
+      };
+      // 触发文件选择器
+      fileInput.click();
+    }
   },
   setup() {
+    const state = reactive({  //  Vue 的响应性 API，当我们改变这个数据时，Vue 能知道需要重新渲染影响的组件。
+      menuVisible:false,
+      addknowledge:0,
+      knowledgename:null
+    });
     const route: any = useRoute()
     const clickIconMenu = ref(false)
-    const uploadKnowledge = () => {
-      console.log("上传外部知识库")
-      clickIconMenu.value = true
-      console.log(clickIconMenu.value)
+    const fileInput = ref(null);  // 创建一个 ref
+    
+
+
+    const MenuChange = () => {
+      if (!state.menuVisible){
+        state.menuVisible=true
+      }else{
+        state.menuVisible=false
+      }
+      
     }
     return {
       route,
       clickIconMenu,
-      uploadKnowledge
+      //uploadKnowledge,
+      state,
+      MenuChange,
     };
   },
 }
@@ -326,14 +348,14 @@ export default {
   background: rgb(255, 255, 255);
   width: 400px;
   height: 500px;
-  border: 1px solid #75dba3;
+  border: 1px solid #650ba9c1;
   border-radius: 5px;
 
 }
 .chat-header {
   padding: 10px;
   font-weight: 600;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #eee0f3;
   position: relative;
 }
 .chat-header .close-icon {
@@ -378,8 +400,8 @@ export default {
   display: flex;
   justify-content: flex-start;
   padding: 5px 10px;
-  border: 1px solid #d8d9d8;
-  background-color: #e8ece8;
+  border: 1px solid rgba(94, 114, 228, 0.452);
+  background-color: rgba(94, 114, 228, 0.051);
   border-radius: 10px;
   margin: 5px 25px 5px 5px;
   min-width: 60px;
@@ -396,7 +418,7 @@ export default {
   display: flex;
   justify-content: flex-end;
   padding: 5px 10px;
-  border: 1px solid #c3e1c4;
+  border: 1px solid rgb(94, 114, 228);
   border-radius: 10px;
   margin: 5px 5px 5px 25px;
   min-width: 60px;
@@ -410,8 +432,8 @@ export default {
   display: flex;
   justify-content: flex-start;
   padding: 5px 10px;
-  border: 1px solid #c3e1c4;
-  background-color: #c3e1c4;
+  border: 1px solid rgb(94, 114, 228);
+  background-color: rgb(94, 114, 228);
   border-radius: 10px;
   margin: 5px 25px 5px 5px;
   min-width: 60px;
@@ -420,6 +442,7 @@ export default {
   word-wrap: break-word; 
   align-self: flex-start;  
   margin-right: auto;
+  color: white;
 }
 .message-input {
   font-size: 12px;

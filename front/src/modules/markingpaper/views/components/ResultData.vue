@@ -15,13 +15,20 @@
             </div>
 
             <div class="flex justify-between items-center"> 
-                <el-input 
-                v-model="input_score" 
-                style="width: 100px" 
-                placeholder="请输入评分"  
-                @input="handleInput_mark_score"
-                />
-                <p class="text-content-white">大模型输出评分: {{ llm_mark }}/{{ score }}</p>
+                <p class="text-content-white">大模型输出评分:{{ llm_mark }}</p>
+                <p class="text-content-white">满分:{{ score }}</p>
+                <div class="flex items-center">
+
+                    <p class="text-content-white">修改评分:</p>
+                    <el-input 
+                        v-model="input_score" 
+                        style="width: 100px" 
+                        placeholder="请输入评分"  
+                        @input="handleInput_mark_score"
+                    />
+                </div>
+                
+                
             </div>
 
             <div class="w-full"> 
