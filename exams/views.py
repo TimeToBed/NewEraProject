@@ -993,7 +993,7 @@ def generate_paper():
             file_content['三'][f'{i}']['comment'] = ''
 
     seed = np.random.rand()
-    seed2 = np.random.uniform(-0.2, 0.2)
+    seed2 = np.random.uniform(-0.02, 0.02)
     print(min(int(seed * 60), 60))
     file_content['四']['22']['llm_mark'] = min(int(seed * 60), 60)
     file_content['四']['22']['mark_score'] = min(int((seed + seed2) * 60), 60)
@@ -1416,4 +1416,153 @@ def comment(request):
 
         ssh.close()
         return JsonResponse(json_data)
+
+
+@csrf_exempt
+def data_list_app(request, student_id):
+    if request.method == 'POST':
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        try:
+            ssh.connect(hostname=settings.Remote_HOST, username=settings.Remote_user, password=settings.Remote_password, port=settings.Remote_PORT)
+            print("连接成功")
+        except paramiko.AuthenticationException:
+            print("认证失败")
+            return 'SSH Authentication failed'
+        except paramiko.SSHException as e:
+            print("连接错误：", str(e))
+            return 'SSH connection error'
+        sftp = ssh.open_sftp()
+        papers = Papers.objects.filter(student_id=student_id).order_by('-exam__edate')
+        
+        exam_data_list = {}
+        for paper in papers:
+            exam = paper.exam
+            exam_data_list[exam.exam_name] = {}
+            
+            student_papers = Papers.objects.filter(exam_id=exam.id)
+            
+            exam_data_list[exam.exam_name]['学生成绩'] = {}
+            exam_data_list[exam.exam_name]['学生排名'] = {}
+            exam_data_list[exam.exam_name]['已批改学生数量'] = {}
+            for student_paper in student_papers:
+                if student_paper.state == 2:
+                    with sftp.file(student_paper.mark_result_path, 'r') as f:
+                        data = json.load(f)
+
+                    first_mark_score = 0
+                    first_score = 0
+                    second_mark_score = 0
+                    second_score = 0
+                    third_mark_score = 0
+                    third_score = 0
+                    forth_mark_score = 0
+                    forth_score = 0
+                    for key, values in data.items():
+                        if key == '一':
+                            first_mark_score, first_score = cur(data[key], 0, 0)
+                        if key == '二':
+                            second_mark_score, second_score = cur(data[key], 0, 0)
+                        if key == '三':
+                            third_mark_score, third_score = cur(data[key], 0, 0)
+                        if key == '四':
+                            forth_mark_score, forth_score = cur(data[key], 0, 0)
+
+                    total_score = first_mark_score + second_mark_score + third_mark_score + forth_mark_score  
+                    student = student_paper.student
+                    
+                    exam_data_list[exam.exam_name]['学生成绩'][student.user_name] = total_score
+                else:
+                    student = student_paper.student
+                    exam_data_list[exam.exam_name]['学生成绩'][student.user_name] = '-'
+                    exam_data_list[exam.exam_name]['学生排名'][student.user_name] = '-'
+            scores = exam_data_list[exam.exam_name]['学生成绩']
+            # print(scores)
+            # Filter out the "-" scores and save the key-value as a tuple
+            filtered_scores = [(s, float(v)) for s,v in scores.items() if v != "-"]
+            exam_data_list[exam.exam_name]['已批改学生数量'] = len(filtered_scores)
+            # Sort by scores in descending order
+            sorted_scores = sorted(filtered_scores, key=lambda x: x[1], reverse=True)
+
+            # Now you can find the position of a score in the sorted list along with its corresponding key
+            for key_score_tuple in sorted_scores:
+                key, score = key_score_tuple
+                try:
+                    position = sorted_scores.index(key_score_tuple) + 1
+                except ValueError:
+                    position = -1  # If the score is not in the sorted list, return -1
+                exam_data_list[exam.exam_name]['学生排名'][key] = position
+        # print(exam_data_list)
+                
+        student_data_list = {}
+        i = 0
+        first_total_score = 0
+        second_total_score = 0
+        third_total_score = 0 
+        forth_total_score = 0
+        
+        first_full_score = 0
+        second_full_score = 0
+        third_full_score = 0
+        forth_full_score = 0
+        for paper in papers:
+            exam = paper.exam
+            student = paper.student
+            if i == 0:
+                student_data_list[student.user_name] = {}
+                student_data_list[student.user_name]['考试'] = {}
+                student_data_list[student.user_name]['得分率'] = {}
+            student_data_list[student.user_name]['考试'][exam.exam_name] = {}
+            student_data_list[student.user_name]['考试'][exam.exam_name]['成绩'] = exam_data_list[exam.exam_name]['学生成绩'][student.user_name]
+            student_data_list[student.user_name]['考试'][exam.exam_name]['排名'] = exam_data_list[exam.exam_name]['学生排名'][student.user_name]
+            student_data_list[student.user_name]['考试'][exam.exam_name]['已批改人数'] = exam_data_list[exam.exam_name]['已批改学生数量']
+            student_data_list[student.user_name]['得分率']['现代文阅读得分率'] = 0
+            student_data_list[student.user_name]['得分率']['古代诗文阅读得分率'] = 0
+            student_data_list[student.user_name]['得分率']['语言文字运用得分率'] = 0
+            student_data_list[student.user_name]['得分率']['写作得分率'] = 0
+
+            i += 1
+            if paper.state == 2:
+                with sftp.file(paper.mark_result_path, 'r') as f:
+                    data = json.load(f)
+
+                first_mark_score = 0
+                first_score = 0
+                second_mark_score = 0
+                second_score = 0
+                third_mark_score = 0
+                third_score = 0
+                forth_mark_score = 0
+                forth_score = 0
+                for key, values in data.items():
+                    if key == '一':
+                        first_mark_score, first_score = cur(data[key], 0, 0)
+                        print(first_mark_score, first_score)
+                    if key == '二':
+                        second_mark_score, second_score = cur(data[key], 0, 0)
+                        print(second_mark_score, second_score)
+                    if key == '三':
+                        third_mark_score, third_score = cur(data[key], 0, 0)
+                        print(third_mark_score, third_score)
+                    if key == '四':
+                        forth_mark_score, forth_score = cur(data[key], 0, 0)
+                        print(forth_mark_score, forth_score)
+
+                total_score = first_mark_score + second_mark_score + third_mark_score + forth_mark_score  
+                first_total_score += first_mark_score
+                second_total_score += second_mark_score
+                third_total_score += third_mark_score
+                forth_total_score += forth_mark_score
+                
+                first_full_score += first_score
+                second_full_score += second_score
+                third_full_score += third_score
+                forth_full_score += forth_score
+        student_data_list[student.user_name]['得分率']['现代文阅读得分率'] = int(first_total_score / first_full_score * 100)
+        student_data_list[student.user_name]['得分率']['古代诗文阅读得分率'] = int(second_total_score / second_full_score * 100)
+        student_data_list[student.user_name]['得分率']['语言文字运用得分率'] = int(third_total_score / third_full_score * 100)
+        student_data_list[student.user_name]['得分率']['写作得分率'] = int(forth_total_score / forth_full_score * 100)
+        
+        # print(student_data_list)
+        return JsonResponse(student_data_list)
         

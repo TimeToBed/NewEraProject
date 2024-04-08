@@ -23,5 +23,6 @@ urlpatterns = [
     path('fake3/', views.fake3),
     path('fake4/', views.fake4),
     path('login/', views.login),
-    path('comment/', views.comment)
+    path('comment/', views.comment),
+    path('data_list_app/<str:student_id>', views.data_list_app)
     ]
