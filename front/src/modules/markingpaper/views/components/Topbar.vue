@@ -99,6 +99,8 @@
             <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
               <Result v-if="state.LLMData" 
               :LLMData="state.LLMData" 
+              :page="state.currentPage+1"
+              :totalPage="totalPage"
               @updateValue="handleUpdateValue($event)"
               />
             </div>
@@ -179,7 +181,7 @@ export default defineComponent({
       original_data:null,
       ocrloading:true,
       markingloading:true,
-      issaved:true
+      issaved:true,
     });
     state.paper_id=props.paper_id
     console.log("TopBar props.paperData:", props.paperData)
@@ -289,6 +291,7 @@ export default defineComponent({
         });
       }else{
         state.currentPage-=1
+
       }
       
     };

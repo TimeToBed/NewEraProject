@@ -4,7 +4,8 @@
             <div class="grid-items-white">
                 <p class="text-title-white">题目</p>
                 <br>
-                <p class="text-content-white">{{ content }}</p>
+                <p v-if="content"  class="text-content-white" v-html="content.replace(/\n/g, '<br/>')"></p>
+                
             </div>
 
 
@@ -14,15 +15,24 @@
                 <p class="text-content-purple">{{ llm_comment }} </p>
             </div>
 
-            <div class="flex justify-between items-center"> 
-                <p class="text-content-white">大模型输出评分:{{ llm_mark }}</p>
-                <p class="text-content-white">满分:{{ score }}</p>
+            <div class="flex justify-between items-center" style="height: 40px;"> 
                 <div class="flex items-center">
+                   <p class="text-content-white" >大模型输出评分：</p>
+                    <p class="text-content-white-bold" >{{ score }}</p> 
+                </div>
+                
+                <div class="flex items-center">
+                    <p class="text-content-white" >满分：</p>
+                    <p class="text-content-white-bold" >{{ score }}</p>                    
+                </div>
 
-                    <p class="text-content-white">修改评分:</p>
+
+                <div class="flex items-center">
+                    <p class="text-content-white">修改评分：</p>
                     <el-input 
                         v-model="input_score" 
-                        style="width: 100px" 
+                        style="width: 60px" 
+                        size="small"
                         placeholder="请输入评分"  
                         @input="handleInput_mark_score"
                     />
@@ -155,6 +165,12 @@ export default defineComponent({
     @apply text-gray-410 font-normal ;
     line-height:1rem;
     font-size:0.75rem
+}
+
+.text-content-white-bold {
+    @apply text-gray-410 font-bold ;
+    line-height:1rem;
+    font-size:0.8rem
 }
 
 .grid-items-violet {
