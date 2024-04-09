@@ -18,7 +18,12 @@
     <div class="mt-6">
       <div class="flex flex-wrap">
         <div class="lg:flex-8 lg:max-w-2/3 w-full lg:mb-0 lg:pr-3.5">
-          <PageVisitTable :Datalist="data4" :key="data5"/>
+          <!-- <PageVisitTable :Datalist="data4" :key="data5"/> -->
+          <el-table :data="data4" style="width: 100%" ref="tableRef" row-key="name">
+            <el-table-column prop="name" label="姓名" />
+            <el-table-column prop="score" label="分数" />
+            <el-table-column prop="rank" label="排名" />
+          </el-table>
         </div>
         <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
           <SocialTrafficTable />
@@ -52,11 +57,11 @@
     </div>
   </div>
 </template>
-
 <script lang="ts" setup>
 import { ref, inject, onMounted, computed } from 'vue'
 import { AxiosInstance } from 'axios'
 import vueDanmaku from 'vue3-danmaku'
+// import type { TableInstance } from 'element-plus'
 interface StudentPerformance {
   "最近一次考试成绩": string | number;
   "上升幅度": string | number;
@@ -102,8 +107,59 @@ const dataList = ref({});
 const data1 = ref<number[]>([]);
 const data2 = ref({});
 const data3 = ref({});
-const data4 = ref({});
+const data4 = ref([
+    {
+        "name": "鲁义月",
+        "score": "85",
+        "rank": 1,
+        "rate": 0
+    },
+    {
+        "name": "小潘",
+        "score": "82",
+        "rank": 2,
+        "rate": 0
+    },
+    {
+        "name": "周毅勤",
+        "score": "76",
+        "rank": 3,
+        "rate": 0
+    },
+    {
+        "name": "陶夏月",
+        "score": "74",
+        "rank": 4,
+        "rate": 0
+    },
+    {
+        "name": "于鑫",
+        "score": "68",
+        "rank": 5,
+        "rate": 0
+    },
+    {
+        "name": "唐韵",
+        "score": "63",
+        "rank": 6,
+        "rate": 0
+    },
+    {
+        "name": "常亮",
+        "score": "57",
+        "rank": 7,
+        "rate": 0
+    },
+    {
+        "name": "毕茂嘉",
+        "score": "52",
+        "rank": 8,
+        "rate": 0
+    }
+]);
 const data5 = ref(0);
+
+const tableRef = ref(null);
 // 定义获取数据的异步函数
 const getDataList = async () => {
   if (!axios) {
@@ -155,11 +211,11 @@ function getData2(e: DataStructure) {
   // 获取最近一次考试各个分段学生数量
   const student_count = e.data_dict
   // step1 获取考试列表
-  const maxKey = Math.min(...Object.keys(student_count)
-    .filter(key => /^\d+$/.test(key)) // 筛选出纯数字的键
-    .map(Number)); // 转换为数字
+  // const maxKey = Math.min(...Object.keys(student_count)
+  //   .filter(key => /^\d+$/.test(key)) // 筛选出纯数字的键
+  //   .map(Number)); // 转换为数字
   // step2 获取最近一次考试
-  const maxExam = student_count[maxKey];
+  const maxExam = student_count[0];
   //step3 提取学生分数分布
   const studentScoreDistribution = maxExam ? {
     "0-30分段学生数量": maxExam["0-30分段学生数量"],
@@ -192,16 +248,8 @@ function getData3(e: DataStructure): { examName: string; averageScore: number; }
   data3.value = [labels, data]
 }
 function getData4(e: DataStructure) {
-  // 获取所有考试编号并找出最大编号
-  const examKeys = Object.keys(e.data_dict).filter(key => /^\d+$/.test(key)).map(Number);
-  const maxKey = Math.min(...examKeys);
-
-  if (maxKey === -Infinity) {
-    console.error('No valid exams found.');
-    return [];
-  }
-
-  const maxExam = e.data_dict[maxKey.toString()];
+  const maxExam = Object.values(e.data_dict)[0];
+  console.log(maxExam)
   if (!maxExam || !maxExam["学生成绩"]) {
     console.error('Max exam or its scores are missing.');
     return [];
@@ -216,20 +264,20 @@ function getData4(e: DataStructure) {
   })).sort((a, b) => b.score - a.score || parseInt(a.studentId) - parseInt(b.studentId));
 
   const results = scoresArray.map((item, index, array) => ({
-    pageName: `学生${item.studentId}`,
-    visitorNumber: item.score !== null ? `${item.score}` : "-",
-    userNumber: (index > 0 && item.score === array[index - 1].score) ? array[index - 1].userNumber : index + 1,
+    name: `${item.studentId}`,
+    score: item.score !== null ? `${item.score}` : "-",
+    rank: (index > 0 && item.score === array[index - 1].score) ? array[index - 1].userNumber : index + 1,
     rate: 0, // Placeholder for 'rate', as it's unspecified how to calculate it
   }));
-  console.log(results,data5.value)
-  console.log(typeof(results))
+  console.log(results, data5.value)
+  console.log(typeof (results))
   data4.value = results
   data5.value++;
-  console.log(data4.value[0],data5.value)
-  console.log(typeof(data4))
+  console.log(data4.value, data5.value)
+  console.log(typeof (data4))
+  tableRef.value.setCurrentRow(data4.value);
   return results;
 }
-
 
 // 弹幕数据和颜色
 const danmus = ref<string[]>([
@@ -261,7 +309,6 @@ const colors = ref<string[]>([
   .danmaku {
     width: 100%;
     height: 100%;
-
     &-name {}
   }
 }
@@ -282,11 +329,9 @@ const colors = ref<string[]>([
   text-align: center;
 }
 
-.el-carousel__item:nth-child(2n) {
-  background-color: #99a9bf;
+.el-carousel__item:nth-child(n) {
+  background-color: #ffffff;
+  box-shadow: inset 0 0 39px #53a8ff;
 }
 
-.el-carousel__item:nth-child(2n + 1) {
-  background-color: #d3dce6;
-}
 </style>
