@@ -64,7 +64,7 @@ export default defineComponent({
           borderColor: 'rgb(251 99 64)',
           borderRadius: Number.MAX_VALUE,
           borderSkipped: false,
-          barThickness: 10,
+          barThickness: 3,
         },
       ],
     }))

@@ -18,15 +18,15 @@
     <div class="mt-6">
       <div class="flex flex-wrap">
         <div class="lg:flex-8 lg:max-w-2/3 w-full lg:mb-0 lg:pr-3.5">
-          <!-- <PageVisitTable :Datalist="data4" :key="data5"/> -->
-          <el-table :data="data4" style="width: 100%" ref="tableRef" row-key="name">
+          <PageVisitTable :Datalist="data4" />
+          <!-- <el-table :data="data4.value" style="width: 100%">
             <el-table-column prop="name" label="姓名" />
             <el-table-column prop="score" label="分数" />
             <el-table-column prop="rank" label="排名" />
-          </el-table>
+          </el-table> -->
         </div>
         <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
-          <SocialTrafficTable />
+          <SocialTrafficTable :Datalist="data5" />
         </div>
       </div>
     </div>
@@ -57,8 +57,8 @@
     </div>
   </div>
 </template>
-<script lang="ts" setup>
-import { ref, inject, onMounted, computed } from 'vue'
+<script lang="ts">
+import { ref, inject, onMounted, computed, defineComponent, reactive } from 'vue'
 import { AxiosInstance } from 'axios'
 import vueDanmaku from 'vue3-danmaku'
 // import type { TableInstance } from 'element-plus'
@@ -99,205 +99,229 @@ import GradientLineChart from './components/GradientLineChart.vue'
 import TotalBarChart from './components/TotalBarChart.vue'
 import SocialTrafficTable from './components/SocialTrafficTable.vue'
 import PageVisitTable from './components/PageVisitTable.vue'
+export default defineComponent({
+  name: 'Dashboard',
+  components: {
+    AnalysisCard,
+    GradientLineChart,
+    TotalBarChart,
+    SocialTrafficTable,
+    PageVisitTable,
+  },
+  setup() {
+    // 使用axios进行数据获取
+    const axios = inject('axios') as AxiosInstance | undefined;
+    // 数据
+    const dataList = ref({});
+    const data1 = ref<number[]>([]);
+    const data2 = ref({});
+    const data3 = ref({});
+    const data4 = reactive({});
+    const data5 = reactive({});
+    // 弹幕数据和颜色
+    const danmus = ref<string[]>([
+      '今天天气不错，适合出去散步。',
+      '明天有个重要的会议，需要准备一下。',
+      '中午吃什么好呢？我想吃火锅。',
+      '这个周末打算去旅游，还没定好目的地。',
+      '最近在学习一门新的技术，挺有意思的。',
+      '生活总是充满了各种各样的惊喜。',
+      '时间过得真快，转眼间又到了周末。',
+      '每天都要保持好心情，生活才会更美好。'
+    ]);
 
-// 使用axios进行数据获取
-const axios = inject('axios') as AxiosInstance | undefined;
-// 数据
-const dataList = ref({});
-const data1 = ref<number[]>([]);
-const data2 = ref({});
-const data3 = ref({});
-const data4 = ref([
-    {
-        "name": "鲁义月",
-        "score": "85",
-        "rank": 1,
-        "rate": 0
-    },
-    {
-        "name": "小潘",
-        "score": "82",
-        "rank": 2,
-        "rate": 0
-    },
-    {
-        "name": "周毅勤",
-        "score": "76",
-        "rank": 3,
-        "rate": 0
-    },
-    {
-        "name": "陶夏月",
-        "score": "74",
-        "rank": 4,
-        "rate": 0
-    },
-    {
-        "name": "于鑫",
-        "score": "68",
-        "rank": 5,
-        "rate": 0
-    },
-    {
-        "name": "唐韵",
-        "score": "63",
-        "rank": 6,
-        "rate": 0
-    },
-    {
-        "name": "常亮",
-        "score": "57",
-        "rank": 7,
-        "rate": 0
-    },
-    {
-        "name": "毕茂嘉",
-        "score": "52",
-        "rank": 8,
-        "rate": 0
+    const colors = ref<string[]>([
+      "#ffb980", "#2ec7c9", "#5ab1ef", "#b6a2de", "#d87a80",
+      "#8d98b3", "#e5cf0d", "#97b552", "#95706d", "#dc69aa",
+      "#07a2a4", "#9a7fd1", "#588dd5", "#f5994e", "#c05050",
+      "#59678c", "#c9ab00", "#7eb00a", "#6f5553", "#c14089",
+      "#409eff",
+    ]);
+    // 定义获取数据的异步函数
+    async function getDataList() {
+      if (!axios) {
+        console.error("Axios instance not found");
+        return;
+      }
+
+      try {
+        const response = await axios.get(`exams/data_list/2/`);
+        getData1(response.data);
+        getData2(response.data);
+        getData3(response.data);
+        getData4(response.data);
+        getData5(response.data);
+        dataList.value = response.data; // 将获取的数据存储到响应式引用中
+      } catch (error) {
+        console.error("Error during HTTP request:", error);
+      }
     }
-]);
-const data5 = ref(0);
+    // 获取轮播图内容
+    async function getCarouselData() {
+      if (!axios) {
+        console.error("Axios instance not found");
+        return;
+      }
+      try {
+        const response = await axios.post(`exams/comment/`);
+        console.log(response)
+      }
+      catch (error) {
+        console.error("Error during HTTP request:", error);
+      }
+    }
+    // 从得到的Data里获取所有需要的数据
+    // 获取卡片所需数据:1.学生数量 2.考试次数 3.批改试卷量 4.进步人数占比
+    function getData1(e: DataStructure) {
+      // 计算学生总数
+      const totalStudentCount = e.data_dict['学生总数'];
 
-const tableRef = ref(null);
-// 定义获取数据的异步函数
-const getDataList = async () => {
-  if (!axios) {
-    console.error("Axios instance not found");
-    return;
-  }
+      // 计算考试次数，不包括“学生总数”这一项
+      const examCount = Object.keys(e.data_dict).length - 1; // 减去“学生总数”的键
 
-  try {
-    const response = await axios.get(`exams/data_list/2/`);
-    getData1(response.data);
-    getData2(response.data);
-    getData3(response.data);
-    getData4(response.data);
-    dataList.value = response.data; // 将获取的数据存储到响应式引用中
-  } catch (error) {
-    console.error("Error during HTTP request:", error);
-  }
-};
+      // 计算批改试卷量
+      let correctedExamsCount = 0;
+      for (const key in e.data_dict) {
+        if (e.data_dict[key].hasOwnProperty('已批改的数量')) {
+          correctedExamsCount += e.data_dict[key]['已批改的数量'];
+        }
+      }
 
-// 使用onMounted生命周期钩子在组件挂载时调用getDataList
-onMounted(() => {
-  getDataList();
-});
-// 从得到的Data里获取所有需要的数据
-// 获取卡片所需数据:1.学生数量 2.考试次数 3.批改试卷量 4.进步人数占比
-function getData1(e: DataStructure) {
-  // 计算学生总数
-  const totalStudentCount = e.data_dict['学生总数'];
+      // 获取进步人数占比
+      const improvementPercentage = e.student_dict['进步人数占比'];
 
-  // 计算考试次数，不包括“学生总数”这一项
-  const examCount = Object.keys(e.data_dict).length - 1; // 减去“学生总数”的键
+      // 返回计算出的信息
+      data1.value = [totalStudentCount, examCount, correctedExamsCount, improvementPercentage];
+      return [totalStudentCount, examCount, correctedExamsCount, improvementPercentage,];
+    }
+    function getData2(e: DataStructure) {
+      // 获取最近一次考试各个分段学生数量
+      const student_count = e.data_dict
+      // step1 获取考试列表
+      // const maxKey = Math.min(...Object.keys(student_count)
+      //   .filter(key => /^\d+$/.test(key)) // 筛选出纯数字的键
+      //   .map(Number)); // 转换为数字
+      // step2 获取最近一次考试
+      const maxExam = Object.values(e.data_dict)[0];
+      // const maxExam = student_count[0];
+      //step3 提取学生分数分布
+      const studentScoreDistribution = maxExam ? {
+        "0-30分段学生数量": maxExam["0-30分段学生数量"],
+        "30-60分段学生数量": maxExam["30-60分段学生数量"],
+        "60-90分段学生数量": maxExam["60-90分段学生数量"],
+        "90-120分段学生数量": maxExam["90-120分段学生数量"],
+        "120-150分段学生数量": maxExam["120-150分段学生数量"],
+      } : {}; // 如果找不到最大的考试对象，则返回空对象
+      const studentScoreList = maxExam ?
+        [maxExam["0-30分段学生数量"],
+        maxExam["30-60分段学生数量"],
+        maxExam["60-90分段学生数量"],
+        maxExam["90-120分段学生数量"],
+        maxExam["120-150分段学生数量"],
+        ] : []
+      data2.value = [studentScoreDistribution, studentScoreList]
+      return [studentScoreDistribution, studentScoreList]
+    };
+    function getData3(e: DataStructure): { examName: string; averageScore: number; }[] {
+      const re = Object.entries(e.data_dict)
+        .filter(([_, examDetails]) => examDetails.hasOwnProperty('平均成绩') && typeof examDetails['平均成绩'] === 'number')
+        .map(([examName, examDetails]) => ({
+          examName,
+          averageScore: examDetails['平均成绩']
+        }));
 
-  // 计算批改试卷量
-  let correctedExamsCount = 0;
-  for (const key in e.data_dict) {
-    if (e.data_dict[key].hasOwnProperty('已批改的数量')) {
-      correctedExamsCount += e.data_dict[key]['已批改的数量'];
+      // 提取 labels 和 data
+      const labels = re.map(result => result.examName);
+      const data = re.map(result => result.averageScore);
+      data3.value = [labels, data]
+    }
+    function getData4(e: DataStructure) {
+      const maxExam = Object.values(e.data_dict)[0];
+      console.log(maxExam)
+      if (!maxExam || !maxExam["学生成绩"]) {
+        console.error('Max exam or its scores are missing.');
+        return [];
+      }
+
+      const studentScores = maxExam["学生成绩"];
+
+      // 处理成绩并分配排名
+      const scoresArray = Object.entries(studentScores).map(([studentId, score]) => ({
+        studentId,
+        score: score !== "-" ? parseInt(score as string, 10) : null,
+      })).sort((a, b) => b.score - a.score || parseInt(a.studentId) - parseInt(b.studentId));
+
+      const results = scoresArray.map((item, index, array) => ({
+        name: `${item.studentId}`,
+        score: item.score !== null ? `${item.score}` : "-",
+        rank: (index > 0 && item.score === array[index - 1].score) ? array[index - 1].userNumber : index + 1,
+        rate: 0, // Placeholder for 'rate', as it's unspecified how to calculate it
+      }));
+      data4.value = results
+      return results;
+    }
+    function getData5(e: DataStructure) {
+      // 获取最近一次考试的详细信息
+      let latestExamDetails = Object.values(e.data_dict)[0];
+      // 用于存储所有考试的得分率信息
+      let allExamsScoreRates = [];
+
+      // 遍历所有考试
+      // Object.entries(maxExam).forEach(([examName, examDetails]) => {
+      //   // 检查考试对象是否有效
+      //   if (examDetails && typeof examDetails === 'object') {
+      //     // 遍历考试详情中的每个字段
+      //     Object.entries(examDetails).forEach(([key, value]) => {
+      //       // 如果键名包含“得分率”，则将其格式化后添加到结果数组中
+      //       if (key.includes("得分率")) {
+      //         allExamsScoreRates.push({
+      //           name: key,
+      //           score: value
+      //         });
+      //       }
+      //     });
+      //   }
+      // });
+      // 检查最近一次考试对象是否有效
+      if (latestExamDetails && typeof latestExamDetails === 'object') {
+        // 遍历最近一次考试详情中的每个字段
+        Object.entries(latestExamDetails).forEach(([key, value]) => {
+          // 如果键名包含“得分率”，则将其格式化后添加到结果数组中
+          if (key.includes("得分率")) {
+            allExamsScoreRates.push({
+              name: key,
+              score: value
+            });
+          }
+        });
+      }
+
+      // 打印所有考试的得分率信息，以便检查
+      console.log(allExamsScoreRates);
+
+      // 更新响应式数据
+      data5.value = allExamsScoreRates;
+      return allExamsScoreRates;
+    }
+
+    // 使用onMounted生命周期钩子在组件挂载时调用getDataList
+    onMounted(() => {
+      getDataList();
+      getCarouselData();
+    });
+    return {
+      dataList,
+      data1,
+      data2,
+      data3,
+      data4,
+      data5,
+      danmus,
+      colors
     }
   }
+})
 
-  // 获取进步人数占比
-  const improvementPercentage = e.student_dict['进步人数占比'];
-
-  // 返回计算出的信息
-  data1.value = [totalStudentCount, examCount, correctedExamsCount, improvementPercentage];
-  return [totalStudentCount, examCount, correctedExamsCount, improvementPercentage,];
-}
-function getData2(e: DataStructure) {
-  // 获取最近一次考试各个分段学生数量
-  const student_count = e.data_dict
-  // step1 获取考试列表
-  // const maxKey = Math.min(...Object.keys(student_count)
-  //   .filter(key => /^\d+$/.test(key)) // 筛选出纯数字的键
-  //   .map(Number)); // 转换为数字
-  // step2 获取最近一次考试
-  const maxExam = student_count[0];
-  //step3 提取学生分数分布
-  const studentScoreDistribution = maxExam ? {
-    "0-30分段学生数量": maxExam["0-30分段学生数量"],
-    "30-60分段学生数量": maxExam["30-60分段学生数量"],
-    "60-90分段学生数量": maxExam["60-90分段学生数量"],
-    "90-120分段学生数量": maxExam["90-120分段学生数量"],
-    "120-150分段学生数量": maxExam["120-150分段学生数量"],
-  } : {}; // 如果找不到最大的考试对象，则返回空对象
-  const studentScoreList = maxExam ?
-    [maxExam["0-30分段学生数量"],
-    maxExam["30-60分段学生数量"],
-    maxExam["60-90分段学生数量"],
-    maxExam["90-120分段学生数量"],
-    maxExam["120-150分段学生数量"],
-    ] : []
-  data2.value = [studentScoreDistribution, studentScoreList]
-  return [studentScoreDistribution, studentScoreList]
-};
-function getData3(e: DataStructure): { examName: string; averageScore: number; }[] {
-  const re = Object.entries(e.data_dict)
-    .filter(([_, examDetails]) => examDetails.hasOwnProperty('平均成绩') && typeof examDetails['平均成绩'] === 'number')
-    .map(([examName, examDetails]) => ({
-      examName,
-      averageScore: examDetails['平均成绩']
-    }));
-
-  // 提取 labels 和 data
-  const labels = re.map(result => result.examName);
-  const data = re.map(result => result.averageScore);
-  data3.value = [labels, data]
-}
-function getData4(e: DataStructure) {
-  const maxExam = Object.values(e.data_dict)[0];
-  console.log(maxExam)
-  if (!maxExam || !maxExam["学生成绩"]) {
-    console.error('Max exam or its scores are missing.');
-    return [];
-  }
-
-  const studentScores = maxExam["学生成绩"];
-
-  // 处理成绩并分配排名
-  const scoresArray = Object.entries(studentScores).map(([studentId, score]) => ({
-    studentId,
-    score: score !== "-" ? parseInt(score as string, 10) : null,
-  })).sort((a, b) => b.score - a.score || parseInt(a.studentId) - parseInt(b.studentId));
-
-  const results = scoresArray.map((item, index, array) => ({
-    name: `${item.studentId}`,
-    score: item.score !== null ? `${item.score}` : "-",
-    rank: (index > 0 && item.score === array[index - 1].score) ? array[index - 1].userNumber : index + 1,
-    rate: 0, // Placeholder for 'rate', as it's unspecified how to calculate it
-  }));
-  console.log(results, data5.value)
-  console.log(typeof (results))
-  data4.value = results
-  data5.value++;
-  console.log(data4.value, data5.value)
-  console.log(typeof (data4))
-  tableRef.value.setCurrentRow(data4.value);
-  return results;
-}
-
-// 弹幕数据和颜色
-const danmus = ref<string[]>([
-  '今天天气不错，适合出去散步。',
-  '明天有个重要的会议，需要准备一下。',
-  '中午吃什么好呢？我想吃火锅。',
-  '这个周末打算去旅游，还没定好目的地。',
-  '最近在学习一门新的技术，挺有意思的。',
-  '生活总是充满了各种各样的惊喜。',
-  '时间过得真快，转眼间又到了周末。',
-  '每天都要保持好心情，生活才会更美好。'
-]);
-
-const colors = ref<string[]>([
-  "#ffb980", "#2ec7c9", "#5ab1ef", "#b6a2de", "#d87a80",
-  "#8d98b3", "#e5cf0d", "#97b552", "#95706d", "#dc69aa",
-  "#07a2a4", "#9a7fd1", "#588dd5", "#f5994e", "#c05050",
-  "#59678c", "#c9ab00", "#7eb00a", "#6f5553", "#c14089",
-  "#409eff",
-]);
 </script>
 
 <style lang="less" scoped>
@@ -309,6 +333,7 @@ const colors = ref<string[]>([
   .danmaku {
     width: 100%;
     height: 100%;
+
     &-name {}
   }
 }
@@ -333,5 +358,4 @@ const colors = ref<string[]>([
   background-color: #ffffff;
   box-shadow: inset 0 0 39px #53a8ff;
 }
-
 </style>

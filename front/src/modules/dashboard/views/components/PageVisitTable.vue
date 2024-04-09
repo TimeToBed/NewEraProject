@@ -20,7 +20,7 @@
             <template #default="scope">
               <div class="flex items-center">
                 <span class="mb-0 text-0.8125 font-semibold cursor-auto text-dark-lighter">{{
-            scope.row.pageName
+            scope.row.name
           }}</span>
               </div>
             </template>
@@ -29,7 +29,7 @@
             <template #default="scope">
               <div class="flex items-center">
                 <span class="px-4 text-0.8125 font-normal cursor-auto text-dark-lighter">{{
-            scope.row.visitorNumber
+            scope.row.score
           }}</span>
               </div>
             </template>
@@ -38,7 +38,7 @@
             <template #default="scope">
               <div class="flex items-center">
                 <span class="px-4 text-0.8125 font-normal text-dark-lighter">{{
-            scope.row.userNumber
+            scope.row.rank
           }}</span>
               </div>
             </template>
@@ -92,62 +92,6 @@ export default defineComponent({
     key:{
       type:Number
     },
-    testdata:{
-      type:Object,
-      default:[
-    {
-        "pageName": "学生16",
-        "visitorNumber": "103",
-        "userNumber": 1,
-        "rate": 0
-    },
-    {
-        "pageName": "学生22",
-        "visitorNumber": "83",
-        "userNumber": 2,
-        "rate": 0
-    },
-    {
-        "pageName": "学生14",
-        "visitorNumber": "73",
-        "userNumber": 3,
-        "rate": 0
-    },
-    {
-        "pageName": "学生4",
-        "visitorNumber": "68",
-        "userNumber": 4,
-        "rate": 0
-    },
-    {
-        "pageName": "学生15",
-        "visitorNumber": "52",
-        "userNumber": 5,
-        "rate": 0
-    },
-    {
-        "pageName": "学生2",
-        "visitorNumber": "-",
-        "userNumber": 6,
-        "rate": 0
-    },
-    {
-        "pageName": "学生7",
-        "visitorNumber": "-",
-        "rate": 0
-    },
-    {
-        "pageName": "学生9",
-        "visitorNumber": "-",
-        "rate": 0
-    },
-    {
-        "pageName": "学生10",
-        "visitorNumber": "-",
-        "rate": 0
-    }
-]
-    }
   },
   setup(props) {
     // 使用computed创建一个响应式引用，确保对Datalist的变化进行响应
