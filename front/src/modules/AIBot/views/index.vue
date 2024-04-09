@@ -11,7 +11,9 @@
         <img src="/src/assets/images/logo-ch-blue.png" style="height: 20px;">
         <el-icon class="close-icon" @click="openChat=false"><Close /></el-icon>
       </div>
-      <div class="chat-messages" ref="chatMessages" >
+      <div 
+        :class="{ 'chat-messages': !state.menuVisible, 'chat-messages-short': state.menuVisible }"
+        ref="chatMessages" >
         <div  v-for="msg in messages" :key="msg.time">
           <div class="toright">
             <div class="message" v-if="msg.type=='ask'"> 
@@ -54,6 +56,17 @@
           >
         </div>
         
+        <div v-if="tourl===1">
+          <el-button
+            type="warning"
+            plain
+            loading
+            style="font-size: 12px; font-weight: normal; height: 30px;border-radius: 10px;margin-left: 5px;"
+            
+            >正在跳转界面...</el-button
+          >
+        </div>
+
       </div>
       <div class="chat-input">
         <div class="flex ">
@@ -64,43 +77,7 @@
             @keypress.enter.exact.prevent="sendMessage" 
             placeholder="Type a message..." 
             :autosize="{ minRows: 1, maxRows: 4}"/>
-
-          <!-- <el-popover
-            placement="left"
-            trigger="click"
-            popper-class="menu-popper"
-            :show-arrow="false"
-            @show="clickIconMenu = !clickIconMenu"
-            @hide="clickIconMenu = !clickIconMenu"
-          >
-            <template #reference>
-              <el-button style="margin-left: 3px;" size="small" type="primary" @click="uploadKnowledge">
-                <el-icon style="font-size: 16px;"><CirclePlus /></el-icon>
-              </el-button>
-            </template>
-            <div class="w-full m-0">
-              <div class="flex flex-wrap w-full m-0">
-                <a
-                  href="#!"
-                  class="flex flex-col w-2/6 py-3 text-center items-center content-center"
-                >
-                  <div class="flex h-13 w-14 content-center items-center text-center">
-                    <div class="mx-auto">
-                      <div
-                      class="transition-all duration-150 hover:h-13 hover:w-13 h-12 w-12 mx-auto text-center inline-flex items-center justify-center rounded-full text-white bg-gradient-to-r from-[#8965e0] to-[#bc65e0]"
-                    >
-                      <el-icon :size="22" class="cursor-pointer w-8 h-6">
-                        <Files />
-                      </el-icon>
-                    </div>
-                    </div>
-                  </div>
-                  <span class="text-0.8125 text-white font-semibold mt-2.5">上传外部知识库</span>
-                </a>
-              </div>
-            </div>
-          </el-popover> -->
-
+            
           <el-button style="margin-left: 3px;" size="small" type="primary" @click="MenuChange">
             <el-icon style="font-size: 16px;" v-if="!state.menuVisible"><CirclePlus /></el-icon>
             <el-icon style="font-size: 16px;" v-if="state.menuVisible"><Remove /></el-icon>
@@ -176,11 +153,13 @@ export default {
       prequestions: [
         { text: "预设问题1：如何创建一场考试？", time: Date.now(), type: "prequestion" },
          { text: "预设问题2：批改试卷的大模型是什么？", time: Date.now(), type: "prequestion" },
-         { text: "预设问题3：这个阅卷系统的优势是什么？", time: Date.now(), type: "prequestion" }
+         { text: "预设问题3：“文心智阅”阅卷系统的优势是什么？", time: Date.now(), type: "prequestion" }
 
       ],
       addknowledge:0,
-      knowledgename:null
+      knowledgename:null,
+      idx:0,
+      tourl: 0
     }
   },
   // directives: {
@@ -210,7 +189,7 @@ export default {
       "苦海无边，仍欢迎你光临人间",
       "愿你一生努力，一生被爱。想要的都拥有，得不到的都释怀",
       "其实很多时候，你并不需要做什么，真诚就行",
-      "总是有人要赢的，那为什么不能是我呢？",
+      "结合计算机视觉和“文心一言”大语言模型，我们的智能阅卷平台提高评阅效率，减轻教师负担，支持上传外部知识库。它全方位分析学生答案，确保评分准确性，同时评估答案逻辑和创新性，让评分更全面。其客观公正的过程具有高度解释性，既优化教学效果，也激发学生思维深度。除此之外，系统还具有“智能生长”特性，可以在批阅过程中自适应地学习教师的批改风格和文本识别能力。",
       "平淡日子里泛着光",
       "你没有如期归来，而这正是离别的意义","生活就是既能朝九晚五，又能浪迹天涯",
       "万物皆有裂痕，那是光照进来的地方",
@@ -239,19 +218,35 @@ export default {
         });
         setTimeout(() => {
         // 这里写你想在延时后执行的代码
-          let idx=this.getRandomInt(0, answerlist.length-1)
-          this.messages.push({
-            text: answerlist[idx],
-            time: Date.now(),
-            type: "answer"
-          });
+          let idx= this.idx //this.getRandomInt(0, answerlist.length-1)
+          if (idx==2){
+              this.tourl=1
+              
+              setTimeout(() => {
+                this.$router.push('/exam/create_exam');
+                this.messages.push({
+                  text: "已跳转到创建考试界面",
+                  time: Date.now(),
+                  type:"operation"
+                });
+                
+              this.tourl=0
+              }, 2000);
+          }else{
+            this.messages.push({
+              text: answerlist[idx],
+              time: Date.now(),
+              type: "answer"
+            });           
+          }
+          this.idx+=1
 
           // 确保DOM更新后再滚动
           this.$nextTick(() => {
             this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
           });
           for (let i = 0; i < 3; i++) {
-            let idx=this.getRandomInt(0, prequestionlist.length-1)
+            let idx = this.getRandomInt(0, prequestionlist.length-1)
             this.prequestions.push({
               text: prequestionlist[idx],
               time: Date.now(),
@@ -273,7 +268,17 @@ export default {
       this.message=msg
       this.sendMessage()
     },
-
+    MenuChange () {
+      if (!this.state.menuVisible){
+        this.state.menuVisible=true
+        this.$nextTick(() => {
+            this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
+          });
+      }else{
+        this.state.menuVisible=false
+      }
+      
+    },
     uploadKnowledge(){
       console.log("上传外部知识库")
       const fileInput = document.createElement('input');
@@ -293,6 +298,9 @@ export default {
             });
             
           this.addknowledge=0
+          this.$nextTick(() => {
+            this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
+          });
           }, 3000);
         }
       };
@@ -312,20 +320,13 @@ export default {
     
 
 
-    const MenuChange = () => {
-      if (!state.menuVisible){
-        state.menuVisible=true
-      }else{
-        state.menuVisible=false
-      }
-      
-    }
+
     return {
       route,
       clickIconMenu,
       //uploadKnowledge,
       state,
-      MenuChange,
+      //MenuChange,
     };
   },
 }
@@ -369,18 +370,21 @@ export default {
   display: flex;
   flex-direction: column;
   padding: 10px;
-  height: calc(100% - 120px);
+  height: calc(100% - 100px);
   overflow-y: scroll;
   font-size: 12px;
   justify-content: flex-start;
 }
 
 
-.chat-messages {
+.chat-messages-short {
+  display: flex;
+  flex-direction: column;
   padding: 10px;
-  height: calc(100% - 120px);
+  height: calc(100% - 220px);
   overflow-y: scroll;
-  font-size: 13px;
+  font-size: 12px;
+  justify-content: flex-start;
 }
 
 .toright {

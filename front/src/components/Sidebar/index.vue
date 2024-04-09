@@ -154,7 +154,7 @@
             </template>
           </el-menu>
           <el-divider />
-          <div
+          <!-- <div
             class="pl-6.5 text-muted text-12.8 font-bold"
             :class="{ hidden: !isSBOpen && !isSBPin }"
           >
@@ -175,8 +175,8 @@
                 >
               </div>
             </el-link>
-          </div>
-        </el-scrollbar>
+          </div> -->
+        </el-scrollbar> 
       </div>
     </div>
   </aside>

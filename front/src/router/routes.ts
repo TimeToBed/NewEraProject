@@ -273,7 +273,7 @@ const routes = [
     name: 'Components',
     meta: {
       title: 'Components',
-      icon: ColorSwatchIcon,
+      //icon: ColorSwatchIcon,
       color: 'text-info',
       requiresAuth: true,
       parentPath: 'Components'
