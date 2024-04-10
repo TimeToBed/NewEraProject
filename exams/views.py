@@ -1131,7 +1131,11 @@ def data_list(request, teacher_id):
         sftp = ssh.open_sftp()
         exams = Exams.objects.filter(teacher_id=teacher_id).order_by('-edate')
         data_dict = {}
+        flag = True
         for exam in exams:
+            if flag:
+                latest_exam = exam
+                flag = False
             data_dict[exam.exam_name] = {}
             papers = Papers.objects.filter(exam_id=exam.id)
             if len(papers) == 0:
@@ -1217,7 +1221,7 @@ def data_list(request, teacher_id):
         i = 0
         for sid in student_ids:
             student = Students.objects.get(id=sid['student_id'])
-            student_list[student.user_name] = {}
+            
             
             # 从数据库中取出对应的 Exams 对象
             exams = Exams.objects.filter(teacher_id=teacher_id)
@@ -1232,6 +1236,7 @@ def data_list(request, teacher_id):
             i = 1
             j = 0
             first_score
+            flag1 = False
             while(j < len(exams)):
                 exam_name = Exams.objects.get(id=exams[j].exam_id)
                 if exam_name.exam_name not in data_dict.keys():
@@ -1239,72 +1244,78 @@ def data_list(request, teacher_id):
                     continue
                 if i == 3:
                     break
-                student_list[student.user_name]['最近一次考试成绩'] = first_score = data_dict[exam_name.exam_name]['学生成绩'][student.user_name]
-                i += 1
-                j += 1
-                break
+                if exam_name.exam_name == latest_exam.exam_name:
+                    student_list[student.user_name] = {}
+                    student_list[student.user_name]['最近一次考试成绩'] = first_score = data_dict[exam_name.exam_name]['学生成绩'][student.user_name]
+                    i += 1
+                    j += 1
+                    flag1 = True
+                    break
+                else:
+                    break
             first_j = j - 1 
             # second_score = 0
-            while(j < len(exams)):
-                second_exam_name = Exams.objects.get(id=exams[j].exam_id)
-                if second_exam_name.exam_name not in data_dict.keys():
+            if flag1:
+                while(j < len(exams)):
+                    second_exam_name = Exams.objects.get(id=exams[j].exam_id)
+                    if second_exam_name.exam_name not in data_dict.keys():
+                        j += 1
+                        continue
+                    if i == 3:
+                        break
+                    second_score = data_dict[second_exam_name.exam_name]['学生成绩'][student.user_name]
+                    # print(student.user_name, second_exam_name.exam_name, second_score)s
+                    i += 1
                     j += 1
-                    continue
-                if i == 3:
                     break
-                second_score = data_dict[second_exam_name.exam_name]['学生成绩'][student.user_name]
-                # print(student.user_name, second_exam_name.exam_name, second_score)s
-                i += 1
-                j += 1
-                break
-            second_j = j - 1
+                second_j = j - 1
             
-            if student_list[student.user_name]['最近一次考试成绩'] == '-':
-                    student_list[student.user_name]['上升幅度'] = '-'
-            else:
-                # 获取所有的成绩
-                scores = data_dict[exam_name.exam_name]['学生成绩']
-                # 过滤掉 "-" 的成绩
-                filtered_scores = [v for s,v in scores.items() if v != "-"]
-                # 将过滤后的成绩转换为浮点型，因为它们可能是字符串形式的数字
-                filtered_scores = [s for s in filtered_scores]
-                # 对成绩进行降序排序
-                sorted_scores = sorted(filtered_scores, reverse=True)
-                # 找出 score 在排序后的列表中的位置
-                try:
-                    position = sorted_scores.index(student_list[student.user_name]['最近一次考试成绩']) + 1
-                except ValueError:
-                    position = -1  # 如果 score 不在排序后的列表中，返回 -1
-                recent_sort = position / len(sorted_scores) * 100
-                
-                exam_name_second = Exams.objects.get(id=exams[second_j].exam_id)
-                # print(exam_name_second.exam_name)
-                if data_dict[exam_name_second.exam_name]['学生成绩'][student.user_name] == '-':
-                    student_list[student.user_name]['上升幅度'] = '-'
+                if student_list[student.user_name]['最近一次考试成绩'] == '-':
+                        student_list[student.user_name]['上升幅度'] = '-'
                 else:
-                    scores = data_dict[exam_name_second.exam_name]['学生成绩']
-                    # print(scores)
+                    # 获取所有的成绩
+                    scores = data_dict[exam_name.exam_name]['学生成绩']
                     # 过滤掉 "-" 的成绩
                     filtered_scores = [v for s,v in scores.items() if v != "-"]
                     # 将过滤后的成绩转换为浮点型，因为它们可能是字符串形式的数字
                     filtered_scores = [s for s in filtered_scores]
                     # 对成绩进行降序排序
                     sorted_scores = sorted(filtered_scores, reverse=True)
-                    # print(sorted_scores)
                     # 找出 score 在排序后的列表中的位置
                     try:
-                        position = sorted_scores.index(second_score) + 1
+                        position = sorted_scores.index(student_list[student.user_name]['最近一次考试成绩']) + 1
                     except ValueError:
                         position = -1  # 如果 score 不在排序后的列表中，返回 -1
-                    second_recent_sort = position / len(sorted_scores) * 100
-                    # print(recent_sort, second_recent_sort)
-                    # print(student.user_name, second_score, position, second_recent_sort, recent_sort)
-                    student_list[student.user_name]['上升幅度'] = int((second_recent_sort - recent_sort) / recent_sort * 100)
-                    if student_list[student.user_name]['上升幅度'] > 0:
-                        pos_num += 1 
-            if i == 2:
-                student_list[student.user_name]['上升幅度'] = '-'
-            student_list['进步人数占比'] = round(pos_num / data_dict['学生总数'] * 100, 1)
+                    recent_sort = position / len(sorted_scores) * 100
+                    student_list[student.user_name]['排名'] = position
+                    exam_name_second = Exams.objects.get(id=exams[second_j].exam_id)
+                    # print(exam_name_second.exam_name)
+                    if data_dict[exam_name_second.exam_name]['学生成绩'][student.user_name] == '-':
+                        student_list[student.user_name]['上升幅度'] = '-'
+                    else:
+                        scores = data_dict[exam_name_second.exam_name]['学生成绩']
+                        # print(scores)
+                        # 过滤掉 "-" 的成绩
+                        filtered_scores = [v for s,v in scores.items() if v != "-"]
+                        # 将过滤后的成绩转换为浮点型，因为它们可能是字符串形式的数字
+                        filtered_scores = [s for s in filtered_scores]
+                        # 对成绩进行降序排序
+                        sorted_scores = sorted(filtered_scores, reverse=True)
+                        # print(sorted_scores)
+                        # 找出 score 在排序后的列表中的位置
+                        try:
+                            position = sorted_scores.index(second_score) + 1
+                        except ValueError:
+                            position = -1  # 如果 score 不在排序后的列表中，返回 -1
+                        second_recent_sort = position / len(sorted_scores) * 100
+                        # print(recent_sort, second_recent_sort)
+                        # print(student.user_name, second_score, position, second_recent_sort, recent_sort)
+                        student_list[student.user_name]['上升幅度'] = int((second_recent_sort - recent_sort) / recent_sort * 100)
+                        if student_list[student.user_name]['上升幅度'] > 0:
+                            pos_num += 1 
+                if i == 2:
+                    student_list[student.user_name]['上升幅度'] = '-'
+                student_list['进步人数占比'] = round(pos_num / data_dict['学生总数'] * 100, 1)
         response_dict = {'data_dict': data_dict, 'student_dict': student_list}
         return JsonResponse(response_dict)
 
@@ -1388,7 +1399,7 @@ def login(request):
                                     'student_id': student.id,
                                     'username': student.user_name})
 
-
+@csrf_exempt
 def comment(request):
     if request.method == 'POST':
         ssh = paramiko.SSHClient()
