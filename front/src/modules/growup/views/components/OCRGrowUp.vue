@@ -138,7 +138,7 @@
               confirmButtonText: '确定'
             })
           }
-        }, 60000);
+        }, 1000);
       }
       function handleClick() {
         state.learning=true;
