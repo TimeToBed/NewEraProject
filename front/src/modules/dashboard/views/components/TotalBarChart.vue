@@ -64,7 +64,7 @@ export default defineComponent({
           borderColor: 'rgb(251 99 64)',
           borderRadius: Number.MAX_VALUE,
           borderSkipped: false,
-          barThickness: 3,
+          barThickness: 10,
         },
       ],
     }))
@@ -109,7 +109,7 @@ export default defineComponent({
               lineHeight: 2,
             },
             callback: function (value: number) {
-              if (!(value % 10)) {
+              if (!(value % 5)) {
                 return value
               }
             },
