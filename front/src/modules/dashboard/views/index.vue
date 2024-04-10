@@ -236,27 +236,50 @@ export default defineComponent({
       data3.value = [labels, data]
     }
     function getData4(e: DataStructure) {
-      const maxExam = Object.values(e.data_dict)[0];
+      const maxExam = e.student_dict;
       console.log(maxExam)
-      if (!maxExam || !maxExam["学生成绩"]) {
+      if (!maxExam || !maxExam["进步人数占比"]) {
         console.error('Max exam or its scores are missing.');
         return [];
       }
 
-      const studentScores = maxExam["学生成绩"];
+      // const studentScores = maxExam;
 
-      // 处理成绩并分配排名
-      const scoresArray = Object.entries(studentScores).map(([studentId, score]) => ({
-        studentId,
-        score: score !== "-" ? parseInt(score as string, 10) : null,
-      })).sort((a, b) => b.score - a.score || parseInt(a.studentId) - parseInt(b.studentId));
+      // // 处理成绩并分配排名
+      // const scoresArray = Object.entries(studentScores).map(([studentId, score]) => ({
+      //   studentId,
+      //   score: score !== "-" ? parseInt(score as string, 10) : null,
+      // })).sort((a, b) => b.score - a.score || parseInt(a.studentId) - parseInt(b.studentId));
 
-      const results = scoresArray.map((item, index, array) => ({
-        name: `${item.studentId}`,
-        score: item.score !== null ? `${item.score}` : "-",
-        rank: (index > 0 && item.score === array[index - 1].score) ? array[index - 1].userNumber : index + 1,
-        rate: 0, // Placeholder for 'rate', as it's unspecified how to calculate it
+      // const results = scoresArray.map((item, index, array) => ({
+      //   name: `${item.studentId}`,
+      //   score: item.score !== null ? `${item.score}` : "-",
+      //   rank: (index > 0 && item.score === array[index - 1].score) ? array[index - 1].userNumber : index + 1,
+      //   rate: 0, // Placeholder for 'rate', as it's unspecified how to calculate it
+      // }));
+      // 从student_dict中提取学生成绩，排除“进步人数占比”
+      // 从student_dict中提取学生成绩，排除“进步人数占比”
+      const studentDetails = Object.entries(e.student_dict).reduce((acc, [studentId, details]) => {
+        // 排除“进步人数占比”
+        if (studentId !== "进步人数占比") {
+          acc.push({
+            name: studentId,
+            score: details["最近一次考试成绩"],
+            rate: details["上升幅度"]
+          });
+        }
+        return acc;
+      }, []);
+
+      // 将学生成绩排序（高分在前）
+      studentDetails.sort((a, b) => b.score - a.score);
+
+      // 分配排名
+      const results = studentDetails.map((item, index, array) => ({
+        ...item,
+        rank: index + 1, // 直接使用索引加1作为排名
       }));
+
       data4.value = results
       return results;
     }
