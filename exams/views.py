@@ -1316,7 +1316,8 @@ def data_list(request, teacher_id):
                 if i == 2:
                     student_list[student.user_name]['上升幅度'] = '-'
                 student_list['进步人数占比'] = round(pos_num / data_dict['学生总数'] * 100, 1)
-        response_dict = {'data_dict': data_dict, 'student_dict': student_list}
+        sorted_student_list = dict(sorted(student_list.items(), key=lambda item: item[1]['排名'] if isinstance(item[1], dict) else float('inf')))
+        response_dict = {'data_dict': data_dict, 'student_dict': sorted_student_list}
         return JsonResponse(response_dict)
 
 
