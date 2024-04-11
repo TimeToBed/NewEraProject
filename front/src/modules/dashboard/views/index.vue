@@ -17,7 +17,7 @@
 
     <div class="mt-6">
       <div class="flex flex-wrap">
-        <div class="lg:flex-8 lg:max-w-2/3 w-full lg:mb-0 lg:pr-3.5">
+        <div class="lg:flex-8 lg:max-w-2/3 w-full lg:mb-0 lg:pr-3.5" style="height: 250;">
           <PageVisitTable :Datalist="data4" />
           <!-- <el-table :data="data4.value" style="width: 100%">
             <el-table-column prop="name" label="姓名" />
