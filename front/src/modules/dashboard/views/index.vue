@@ -35,7 +35,7 @@
         <div class="lg:flex-8 lg:max-w-2/3 w-full lg:mb-0 lg:pr-3.5">
           <div class="carousel">
             <el-carousel height="400px">
-              <el-carousel-item v-for="item in danmus" :key="item">
+              <el-carousel-item v-for="item in danmus.value" :key="item">
                 <h3 class="carousel-text" text="2xl"
                   :style="[{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }, { color: colors[Math.round(Math.random() * 20)] }]">
                   {{ item }}</h3>
@@ -45,7 +45,7 @@
         </div>
         <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
           <div class="baberrage">
-            <vue-danmaku class="danmaku" ref="danmakuRef" v-model:danmus="danmus" useSlot loop :speeds="100" :top="50"
+            <vue-danmaku class="danmaku" ref="danmakuRef" v-model:danmus="danmus.value" useSlot loop :speeds="100" :top="50"
               :right="50" :fontSize="50" :randomChannel=true>
               <template v-slot:dm="{ danmu }">
                 <div :style="{ color: colors[Math.round(Math.random() * 20)] }">{{ danmu }}</div>
@@ -107,6 +107,7 @@ export default defineComponent({
     TotalBarChart,
     SocialTrafficTable,
     PageVisitTable,
+    vueDanmaku
   },
   setup() {
     // 使用axios进行数据获取
@@ -119,16 +120,7 @@ export default defineComponent({
     const data4 = reactive({});
     const data5 = reactive({});
     // 弹幕数据和颜色
-    const danmus = ref<string[]>([
-      '今天天气不错，适合出去散步。',
-      '明天有个重要的会议，需要准备一下。',
-      '中午吃什么好呢？我想吃火锅。',
-      '这个周末打算去旅游，还没定好目的地。',
-      '最近在学习一门新的技术，挺有意思的。',
-      '生活总是充满了各种各样的惊喜。',
-      '时间过得真快，转眼间又到了周末。',
-      '每天都要保持好心情，生活才会更美好。'
-    ]);
+    const danmus = reactive({});
 
     const colors = ref<string[]>([
       "#ffb980", "#2ec7c9", "#5ab1ef", "#b6a2de", "#d87a80",
@@ -165,6 +157,7 @@ export default defineComponent({
       try {
         const response = await axios.post(`exams/comment/`);
         console.log(response)
+        danmus.value = response.data.comments
       }
       catch (error) {
         console.error("Error during HTTP request:", error);
