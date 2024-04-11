@@ -109,7 +109,7 @@ export default defineComponent({
               lineHeight: 2,
             },
             callback: function (value: number) {
-              if (!(value % 5)) {
+              if (!(value % 2)) {
                 return value
               }
             },

@@ -60,9 +60,9 @@
               :class="[
                 scope.row.markingable == 2
                   ? 'bg-info'
-                  : scope.row.ismarkingable == 0
+                  : scope.row.markingable == 0
                   ? 'bg-danger'
-                  : scope.row.ismarkingable == 1
+                  : scope.row.markingable == 1
                   ? 'bg-warning'
                   : 'bg-success',
               ]"
@@ -210,6 +210,15 @@ export default defineComponent({
         text: '处理中',
         background: 'rgba(0, 0, 0, 0.7)',
       })
+
+      setTimeout(() => {
+        loading.close()
+                    ElMessageBox.alert('预处理完成！', '提示', {
+                      confirmButtonText: '确定'
+                    })
+                    row.llm_preprocess=1
+          }, 10000);
+      return
       try {
         const response = await axios.get(`llms/llm_preprocess/${row.exam_id}/`)
         .then(function (response) {

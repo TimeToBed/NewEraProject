@@ -122,7 +122,7 @@ export default defineComponent({
               lineHeight: 2,
             },
             callback: function (value: number) {
-              if (!(value % 10)) {
+              if (!(value % 2)) {
                 return `${value}分`
               }
             },

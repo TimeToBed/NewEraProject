@@ -18,7 +18,7 @@
             <div class="flex justify-between items-center" style="height: 40px;"> 
                 <div class="flex items-center">
                    <p class="text-content-white" >大模型输出评分：</p>
-                    <p class="text-content-white-bold" >{{ score }}</p> 
+                    <p class="text-content-white-bold" >{{ llm_mark }}</p> 
                 </div>
                 
                 <div class="flex items-center">
@@ -31,7 +31,7 @@
                     <p class="text-content-white">修改评分：</p>
                     <el-input 
                         v-model="input_score" 
-                        style="width: 60px" 
+                        style="width: 120px" 
                         size="small"
                         placeholder="请输入评分"  
                         @input="handleInput_mark_score"

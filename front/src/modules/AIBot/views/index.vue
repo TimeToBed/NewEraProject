@@ -151,9 +151,9 @@ export default {
           type: "answer"
         }],
       prequestions: [
-        { text: "预设问题1：如何创建一场考试？", time: Date.now(), type: "prequestion" },
-         { text: "预设问题2：批改试卷的大模型是什么？", time: Date.now(), type: "prequestion" },
-         { text: "预设问题3：“文心智阅”阅卷系统的优势是什么？", time: Date.now(), type: "prequestion" }
+        { text: "如何创建一场考试？", time: Date.now(), type: "prequestion" },
+         { text: "批改试卷的大模型是什么？", time: Date.now(), type: "prequestion" },
+         { text: "“文心智阅”阅卷系统的优势是什么？", time: Date.now(), type: "prequestion" }
 
       ],
       addknowledge:0,
@@ -185,25 +185,38 @@ export default {
     },
     sendMessage() {
     var answerlist = [
-      "你好", 
-      "苦海无边，仍欢迎你光临人间",
-      "愿你一生努力，一生被爱。想要的都拥有，得不到的都释怀",
-      "其实很多时候，你并不需要做什么，真诚就行",
-      "结合计算机视觉和“文心一言”大语言模型，我们的智能阅卷平台提高评阅效率，减轻教师负担，支持上传外部知识库。它全方位分析学生答案，确保评分准确性，同时评估答案逻辑和创新性，让评分更全面。其客观公正的过程具有高度解释性，既优化教学效果，也激发学生思维深度。除此之外，系统还具有“智能生长”特性，可以在批阅过程中自适应地学习教师的批改风格和文本识别能力。",
-      "平淡日子里泛着光",
-      "你没有如期归来，而这正是离别的意义","生活就是既能朝九晚五，又能浪迹天涯",
-      "万物皆有裂痕，那是光照进来的地方",
-      "比起日出，我更想见到你",
-      "如果运气不好，那就试试勇气"
+      "我是文心智阅的智能机器人，依托于文心一言，可以协助你完成范围广泛的任务并提供有关各种主题的信息，比如回答问题，提供定义和解释及建议。如果你有任何问题，请随时向我提问。在“文心智阅”系统中，我还可以帮助你实现页面跳转、数据获取、外部知识库上传。", 
+      "结合计算机视觉和“文心一言”大语言模型，我们的智能阅卷平台提高评阅效率，减轻教师负担，支持上传外部知识库。它全方位分析学生答案，确保评分准确性，同时评估答案逻辑和创新性，让评分更全面。其客观公正的过程具有高度解释性，既优化教学效果，也激发学生思维深度。除此之外，系统还具有“智能成长”特性，可以在批阅过程中自适应地学习教师的批改风格和文本识别能力。",
+      "",
+      "《红楼梦》的艺术成就可谓是中国古典小说的巅峰之作，其在继承中国古代小说艺术传统的基础上，有了巨大的创造和发展。首先，小说采用了网状形式的艺术结构，展现了高度的现实主义。全书一百二十回，上半部描述了繁华盛景，而下半部则揭示了衰败的局面，其中第五十四至第五十五回是全书由盛转衰的转折点，这种结构使得小说的情节跌宕起伏，扣人心弦。其次，人物塑造是《红楼梦》的一大艺术特色。小说成功地塑造了一批栩栩如生的人物形象，他们各自具有独特的性格和命运。",
+      "《滕王阁序》是王勃的一篇骈文，它不仅以其富有画面感的描绘和深刻的思想内容展现出了作者扎实的文史功底和高端的文笔水平，还深深地揭示了古代文人对世界宇宙的理解和他们的人生哲学。“落霞与孤鹜齐飞”和“秋水共长天一色”已经成为了人们口头常提的美句。作者以滕王阁为题材，描绘出了一个壮丽的古代建筑，通过对天地、人才、壮观等的诗意描绘，展示了他对人生、命运和社会进步的深刻理解。整篇文章充满了浓厚的艺术魅力，被誉为骈文的杰出代表作。",
+      
     ];
     var prequestionlist=[
-      "预设问题1：世界灿烂盛大，欢迎回家", 
-      "预设问题2：12345", 
-      "预设问题3：在温暖的阳光下，老树的影子在雪白的墙壁上慢慢地移动", 
-      "预设问题4：他们一起在小路上散步，欣赏着沿途的风景", 
-      "预设问题5：破晓时分，湖面上升起一层淡淡的薄雾，宛如仙境一般", 
-      "预设问题6：她笑容可鞠，望着落日的余晖", 
-      "预设问题7：世界灿烂盛大", 
+      [
+        "你可以给我一些建议吗？",
+        "如何上传外部知识库？",
+        "“文心智阅”系统的操作流程是什么？"],
+        [
+        "智能阅卷平台如何提升试卷评阅的效率？",
+        "除了评分的准确性，智能阅卷平台还能评估学生回答的哪些方面？",
+        "“智能成长”是如何学习教师的批改风格的？"],
+        
+        [
+        "你可以给我一些建议吗？",
+        "如何上传外部知识库？",
+        "“文心智阅”系统的操作流程是什么？"],
+        
+        [
+        "红楼梦的主要人物有哪些？",
+        "介绍一下林黛玉的形象。",
+        "《红楼梦》有哪些值得注意的细节或伏笔？"],
+        
+        [
+        "你认为《滕王阁序》的建筑艺术有哪些特点？",
+        "滕王阁序中的“落霞与孤鹜齐飞”被视为千古绝唱，你认为这反映了王勃的什么美学追求？",
+        "王勃在《滕王阁序》中运用了哪些艺术手法来表现自然美？"],
+        
     ];
       if (this.message !== '') {
         this.messages.push({
@@ -219,7 +232,7 @@ export default {
         setTimeout(() => {
         // 这里写你想在延时后执行的代码
           let idx= this.idx //this.getRandomInt(0, answerlist.length-1)
-          if (idx==2){
+          if (idx==5){
               this.tourl=1
               
               setTimeout(() => {
@@ -234,31 +247,33 @@ export default {
               }, 2000);
           }else{
             this.messages.push({
-              text: answerlist[idx],
+              text: answerlist[this.idx],
               time: Date.now(),
               type: "answer"
             });           
           }
-          this.idx+=1
 
           // 确保DOM更新后再滚动
           this.$nextTick(() => {
             this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
           });
-          for (let i = 0; i < 3; i++) {
-            let idx = this.getRandomInt(0, prequestionlist.length-1)
-            this.prequestions.push({
-              text: prequestionlist[idx],
-              time: Date.now(),
-              type: "prequestion"
-            });
+          if(this.idx!=2){
+            for (let i = 0; i < 3; i++) {
+              this.prequestions.push({
+                text: prequestionlist[this.idx][i],
+                time: Date.now(),
+                type: "prequestion"
+              });
+            }
           }
+          
           // 确保DOM更新后再滚动
           this.$nextTick(() => {
             this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
           });
 
 
+          this.idx+=1
         }, 1000); // 2000毫秒后执行，即2秒后
         
       }
@@ -296,11 +311,12 @@ export default {
               time: Date.now(),
               type:"operation"
             });
-            
+          this.prequestions=[]  
           this.addknowledge=0
           this.$nextTick(() => {
             this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
           });
+          this.idx+=1
           }, 3000);
         }
       };

@@ -200,6 +200,16 @@
           text: '处理中',
           background: 'rgba(0, 0, 0, 0.7)',
         })
+
+      setTimeout(() => {
+        loading.close()
+                    ElMessageBox.alert('预批改完成！', '提示', {
+                      confirmButtonText: '确定'
+                    })
+                    row.llm_preprocess=1
+          }, 10000);
+      return
+
         try {
           const response = await axios.get(`llms/llm_premark/${row.paper_id}/`)
           .then(function (response) {

@@ -90,6 +90,18 @@ export default defineComponent({
         text: '处理中',
         background: 'rgba(0, 0, 0, 0.7)',
       })
+
+      // setTimeout(() => {
+      //   loading.close()
+      //               ElMessageBox.alert('预处理完成！', '提示', {
+      //                 confirmButtonText: '确定'
+      //               })
+      //               for(let i = state.tableData.length-1; i >= 0; i--) {
+      //                 state.tableData[i]['ocr_preprocess']=1
+      //               }
+      //     }, 10000);
+      // return
+
       try {
       
         const response = await axios.get(`exams/ocr_preprocess/${exam_id}/`)

@@ -199,7 +199,7 @@ const routes = [
     component: GrowUp,
     name: 'GrowUp',
     meta: {
-      title: '智能生长',
+      title: '智能成长',
       icon: LightBulbIcon,
       color: 'text-success-50',
       requiresAuth: true,
