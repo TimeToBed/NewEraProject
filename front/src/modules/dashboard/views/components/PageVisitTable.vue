@@ -15,7 +15,7 @@
       </div>
 
       <div class="block overflow-x-auto w-full p-0">
-        <el-table :data=tableData.value style="width: 100%" height="250" class="is-light" :key="key?.value">
+        <el-table :data=tableData.value style="width: 100%" height="16rem" class="is-light" :key="key?.value">
           <el-table-column label="学生姓名" min-width="200">
             <template #default="scope">
               <div class="flex items-center">
