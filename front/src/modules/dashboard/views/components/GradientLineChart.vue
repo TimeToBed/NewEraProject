@@ -84,18 +84,19 @@ export default defineComponent({
         x: {
           grid: {
             drawBorder: false,
-            display: false,
-            drawOnChartArea: false,
+            display: true,
+            drawOnChartArea: true,
             drawTicks: true,
-            zeroLineColor: 'transparent',
+            // zeroLineColor: 'transparent',
             borderDash: [5, 5],
+            color: 'rgb(255 255 255)',
           },
           ticks: {
             display: true,
-            color: 'rgb(136 152 170)',
+            color: 'rgb(255 255 255)',
             padding: 20,
             font: {
-              size: 12,
+              size: 14,
               family: 'Open Sans',
               style: 'normal',
               lineHeight: 2,
@@ -108,13 +109,13 @@ export default defineComponent({
             display: true,
             drawOnChartArea: true,
             drawTicks: true,
-            color: 'rgba(30, 35, 53, 1)',
-            borderDash: [2, 2],
+            color: 'rgb(255 255 255)',
+            borderDash: [5, 5],
           },
           ticks: {
             display: true,
             padding: 10,
-            color: 'rgb(136 152 170)',
+            color:'rgb(255 255 255)',
             font: {
               size: 12,
               family: 'Open Sans',
@@ -122,7 +123,7 @@ export default defineComponent({
               lineHeight: 2,
             },
             callback: function (value: number) {
-              if (!(value % 2)) {
+              if (!(value % 0.5)) {
                 return `${value}分`
               }
             },
