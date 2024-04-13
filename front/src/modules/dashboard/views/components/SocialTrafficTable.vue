@@ -18,7 +18,7 @@
               </div>
             </template>
           </el-table-column> -->
-          <el-table-column label="题目类型" min-width="110" align="center">
+          <el-table-column label="题目类型" min-width="110" align="center" height="16rem">
             <template #default="scope">
               <div class="flex items-center">
                 <span class="px-4 text-0.8125 font-normal text-dark-lighter">{{
