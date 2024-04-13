@@ -19,13 +19,6 @@
               <font-awesome-icon :icon="['fas', 'hand-point-up']" size="lg" />
             </div>
           </div>
-          <p class="mt-4 mb-0 text-sm">
-            <span class="text-success mr-2 inline">
-              <ArrowUpIcon class="inline pb-1 h-5 w-4" aria-hidden="true" />
-              3.48%
-            </span>
-            <span class="whitespace-nowrap text-normal">自上个月以来</span>
-          </p>
         </el-card>
       </div>
       <div class="col-span-3">
@@ -46,13 +39,6 @@
               <font-awesome-icon :icon="['fas', 'chart-pie']" size="lg" />
             </div>
           </div>
-          <p class="mt-4 mb-0 text-sm">
-            <span class="text-success mr-2 inline">
-              <ArrowUpIcon class="inline pb-1 h-5 w-4" aria-hidden="true" />
-              3.48%
-            </span>
-            <span class="whitespace-nowrap text-normal">自上个月以来</span>
-          </p>
         </el-card>
       </div>
       <div class="col-span-3">
@@ -74,13 +60,6 @@
               <font-awesome-icon :icon="['fas', 'coins']" size="lg" />
             </div>
           </div>
-          <p class="mt-4 mb-0 text-sm">
-            <span class="text-success mr-2 inline">
-              <ArrowUpIcon class="inline pb-1 h-5 w-4" aria-hidden="true" />
-              3.48%
-            </span>
-            <span class="whitespace-nowrap text-normal">自上个月以来</span>
-          </p>
         </el-card>
       </div>
       <div class="col-span-3">
@@ -101,13 +80,6 @@
               <font-awesome-icon :icon="['fas', 'chart-simple']" size="lg" />
             </div>
           </div>
-          <p class="mt-4 mb-0 text-sm">
-            <span class="text-success mr-2 inline">
-              <ArrowUpIcon class="inline pb-1 h-5 w-4" aria-hidden="true" />
-              3.48%
-            </span>
-            <span class="whitespace-nowrap text-normal">自上个月以来</span>
-          </p>
         </el-card>
       </div>
     </div>
