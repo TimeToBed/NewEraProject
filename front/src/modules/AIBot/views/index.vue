@@ -193,7 +193,7 @@ export default {
       
     ];
     var prequestionlist=[
-      [
+        [
         "你可以给我一些建议吗？",
         "如何上传外部知识库？",
         "“文心智阅”系统的操作流程是什么？"],
@@ -244,7 +244,7 @@ export default {
                 });
                 
               this.tourl=0
-              }, 2000);
+              }, 20000);
           }else{
             this.messages.push({
               text: answerlist[this.idx],
@@ -274,7 +274,7 @@ export default {
 
 
           this.idx+=1
-        }, 1000); // 2000毫秒后执行，即2秒后
+        }, 20000); // 2000毫秒后执行，即2秒后
         
       }
     },
@@ -317,7 +317,7 @@ export default {
             this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
           });
           this.idx+=1
-          }, 3000);
+          }, 20000);
         }
       };
       // 触发文件选择器

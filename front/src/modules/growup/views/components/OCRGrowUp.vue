@@ -1,5 +1,14 @@
 <template>
-    <div class="h-full">
+    <div class="h-full" 
+        
+        >
+        <!-- <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.5);">
+          <el-progress type="circle" :percentage="50"></el-progress>
+        </div> -->
+    <!-- <div class="h-full d-flex align-center justify-center" 
+        v-loading="true"
+        element-loading-text="学习中..."
+      > -->
         <div class="flex justify-between py-1 px-6 border-b border-primary-white">
            <h3 class="cursor-auto">文字识别学习库</h3> 
            <div class="flex space-x-4 text-sm">
@@ -17,7 +26,8 @@
                         </el-scrollbar>
                     </div>
                     <div class="lg:flex-8 lg:max-w-1/3 w-full lg:mb-0 lg:pr-3.5 mb-6
-                    h-full position-relative">
+                    h-full position-relative"
+                    >
                         <el-button type="success" 
                         @click="handleClick"
                         :type="getButtonType()"
@@ -27,6 +37,8 @@
                         <WaterBall class="position-relative"
                         :num="state.num" 
                         :learning="state.learning"
+                        v-loading="loading"
+                        element-loading-text="学习中..."
                         />
                     </div>
                     
@@ -38,7 +50,7 @@
   </template>
   
   <script lang="ts">
-  import { defineComponent, reactive, computed } from 'vue'
+  import { defineComponent, reactive, computed, ref } from 'vue'
   import WaterBall from './WaterBall.vue'
   import OCRSample from './OCRSample.vue'
   import { ElMessageBox } from 'element-plus'
@@ -68,8 +80,10 @@
         num: 6300,
         learning: false,
         sample_num:0
+        
       })
       state.sample_num=state.num
+      const loading = ref(false)
       const ocrList: OCRData[] = [
       {
         img_path: "/src/assets/growup/1.png",
@@ -142,7 +156,24 @@
       }
       function handleClick() {
         state.learning=true;
-        startInterval();
+        loading.value=true
+        //startInterval();
+        setTimeout(() => {
+          state.learning=false
+          state.sample_num=0
+          state.num=0
+          loading.value=false
+          ElMessageBox.alert('已完成学习！', '提示', {
+            confirmButtonText: '确定'
+          })
+        }, 4000);
+        const interval = setInterval(() => {
+          
+         
+            clearInterval(interval);
+            
+          
+        }, 4000);
       }
       const getButtonType=() => {
         if ( state.num<6000 || state.learning){
@@ -168,7 +199,8 @@
         state,
         isButtonDisabled,
         getButtonType,
-        getButtonClass
+        getButtonClass,
+        loading
     }
     },
   
@@ -188,5 +220,15 @@
 }
 .position-relative {
     position: relative;
+}
+
+.el-loading-spinner {
+    left: 50%;
+    width: 100px;
+}
+
+p.el-loading-text {
+    width: 54px;
+    margin-right: 20px;
 }
   </style>
