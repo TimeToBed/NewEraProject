@@ -70,54 +70,9 @@ export default defineComponent({
     }))
 
     const chartOptions = ref({
-      scales: {
-        x: {
-          grid: {
-            drawBorder: false,
-            display: true,
-            drawOnChartArea: true,
-            drawTicks: true,
-            // zeroLineColor: 'transparent',
-            borderDash: [5, 5],
-            color: 'rgb(255 255 255)',
-          },
-          ticks: {
-            display: true,
-            color: 'rgb(255 255 255)',
-            padding: 20,
-            font: {
-              size: 14,
-              family: 'Open Sans',
-              style: 'normal',
-              lineHeight: 2,
-            },
-          },
-        },
-        y: {
-          grid: {
-            drawBorder: false,
-            display: true,
-            drawOnChartArea: true,
-            drawTicks: true,
-            color: 'rgb(255 255 255)',
-            borderDash: [5, 5],
-          },
-          ticks: {
-            display: true,
-            padding: 10,
-            color:'rgb(255 255 255)',
-            font: {
-              size: 12,
-              family: 'Open Sans',
-              style: 'normal',
-              lineHeight: 2,
-            },
-            callback: function (value: number) {
-              if (!(value % 0.5)) {
-                return `${value}分`
-              }
-            },
-          },
+      elements: {
+        bar: {
+          borderWidth: 2,
         },
       },
       responsive: true,
@@ -126,21 +81,59 @@ export default defineComponent({
         legend: {
           display: false,
         },
-        tooltip: {
-          callbacks: {
-            label: function (context: any) {
-              let label = context.dataset.label || ''
-              if (label) {
-                label += `: ${context.parsed.y}分`
-              }
-              return label
-            },
-          },
-        },
       },
       interaction: {
         intersect: false,
         mode: 'index',
+      },
+      scales: {
+        y: {
+          grid: {
+            drawBorder: false,
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: false,
+            color: '#0000000d',
+            borderDash: [2, 2],
+          },
+          ticks: {
+            display: true,
+            padding: 10,
+            color: 'rgb(136 152 170)',
+            font: {
+              size: 12,
+              family: 'Open Sans',
+              style: 'normal',
+              lineHeight: 2,
+            },
+            callback: function (value: number) {
+              if (!(value % 2)) {
+                return value
+              }
+            },
+          },
+        },
+        x: {
+          grid: {
+            drawBorder: false,
+            display: false,
+            drawOnChartArea: false,
+            drawTicks: false,
+            zeroLineColor: 'transparent',
+            borderDash: [5, 5],
+          },
+          ticks: {
+            display: true,
+            color: 'rgb(136 152 170)',
+            padding: 20,
+            font: {
+              size: 12,
+              family: 'Open Sans',
+              style: 'normal',
+              lineHeight: 2,
+            },
+          },
+        },
       },
     })
 
