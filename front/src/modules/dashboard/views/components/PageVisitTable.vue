@@ -48,7 +48,7 @@
               <div class="flex items-center">
                 <div class="px-4 flex justify-center gap-1">
                   <div>
-                    <ArrowNarrowUpIcon v-if="scope.row.rate > 45.0" class="w-4 h-4 text-success" />
+                    <ArrowNarrowUpIcon v-if="scope.row.rate > 0" class="w-4 h-4 text-success" />
                     <ArrowNarrowDownIcon v-else class="w-4 h-4 text-warning" />
                   </div>
 

@@ -69,8 +69,6 @@ export default defineComponent({
       ],
     }))
 
-
-
     const chartOptions = ref({
       elements: {
         bar: {

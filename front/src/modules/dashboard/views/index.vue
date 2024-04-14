@@ -34,7 +34,7 @@
       <div class="flex flex-wrap">
         <div class="lg:flex-8 lg:max-w-2/3 w-full lg:mb-0 lg:pr-3.5">
           <div class="carousel">
-            <el-carousel height="400px">
+            <el-carousel height="400px" interval="5000">
               <el-carousel-item v-for="item in danmus.value" :key="item">
                 <h3 class="carousel-text" text="2xl"
                   :style="[{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }, { color: colors[Math.round(Math.random() * 20)] }]">
@@ -45,7 +45,7 @@
         </div>
         <div class="lg:flex-4 lg:max-w-1/3 w-full lg:pl-3.5">
           <div class="baberrage">
-            <vue-danmaku class="danmaku" ref="danmakuRef" v-model:danmus="danmus.value" useSlot loop :speeds="100" :top="50"
+            <vue-danmaku class="danmaku" ref="danmakuRef" v-model:danmus="danmus.value" useSlot loop :speeds="50" :top="50"
               :right="50" :fontSize="50" :randomChannel=true>
               <template v-slot:dm="{ danmu }">
                 <div :style="{ color: colors[Math.round(Math.random() * 20)] }">{{ danmu }}</div>
