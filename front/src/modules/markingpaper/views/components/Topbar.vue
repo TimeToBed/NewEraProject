@@ -61,9 +61,9 @@
         请标记本份试卷批改进度：
       </p>
       <div class="w-full flex justify-between radio-group">
-        <el-radio v-model="chosen" label="0">未批改</el-radio>
-        <el-radio v-model="chosen" label="1">批改中</el-radio>
-        <el-radio v-model="chosen" label="2">批改完</el-radio>
+        <el-radio v-model="chosen" label="0">未审阅</el-radio>
+        <el-radio v-model="chosen" label="1">审阅中</el-radio>
+        <el-radio v-model="chosen" label="2">已审阅</el-radio>
       </div>
       <br>
       <br>

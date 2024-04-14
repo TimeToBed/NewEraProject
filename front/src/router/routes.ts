@@ -266,6 +266,15 @@ const routes = [
     },
   },
 
+  
+  {
+    path: '/register',
+    component: Register,
+    name: 'Register',
+    meta: {
+      requiresAuth: false,
+    },
+  },
 
   {
     path: '/components/:componentItem?',

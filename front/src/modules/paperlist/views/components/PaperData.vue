@@ -35,7 +35,50 @@
           </template>
         </el-table-column>
         
+        
+        <el-table-column label="预处理" min-width="100">
+          <template #default="scope">
+              <div class="cursor-auto flex items-center justify-center">
+                  <BadgeCheckIcon v-if="scope.row.ocr_preprocess === 1" class="h-5 w-5 text-indigo-410"/>
+                  <ExclamationCircleIcon v-if="scope.row.ocr_preprocess === 0" class="h-5 w-5 text-red-500"/>
+
+                  <!-- <span class="ml-2 pb-0.5 text-0.875 font-normal">{{ scope.row.state }}</span> -->
+                  <span class="ml-4 pb-0.5 text-0.875 font-normal"
+                        v-if="scope.row.ocr_preprocess==0">未处理</span>
+                  <span class="ml-4 pb-0.5 text-0.875 font-normal"
+                        v-if="scope.row.ocr_preprocess==1">已处理</span>
+              </div>
+          </template>
+        </el-table-column>
+
         <el-table-column label="批改状态" min-width="100">
+          <template #default="scope">
+            <div class="cursor-auto flex items-center justify-center">
+              <i
+                class="w-2 h-2 rounded-full"
+                aria-hidden="true"
+                :class="[
+                  scope.row.index==1 &&  state.premarkstate== 1
+                    ? 'bg-success'
+                    : scope.row.premark == 0
+                    ? 'bg-danger'
+                    : 'bg-danger',
+                ]"
+              ></i>
+              <!-- <span class="ml-2 pb-0.5 text-0.875 font-normal">{{ scope.row.state }}</span> -->
+              <span class="ml-4 pb-0.5 text-0.875 font-normal"
+              v-if="scope.row.index==1 && state.premarkstate== 0">未批改</span>
+              
+              <span class="ml-4 pb-0.5 text-0.875 font-normal"
+              v-if="scope.row.index!=1">未批改</span>
+
+              <span class="ml-4 pb-0.5 text-0.875 font-normal"
+              v-if="scope.row.index==1 &&  state.premarkstate== 1">已批改</span>
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="审阅状态" min-width="100">
           <template #default="scope">
             <div class="cursor-auto flex items-center justify-center">
               <i
@@ -53,29 +96,15 @@
               ></i>
               <!-- <span class="ml-2 pb-0.5 text-0.875 font-normal">{{ scope.row.state }}</span> -->
               <span class="ml-4 pb-0.5 text-0.875 font-normal"
-              v-if="scope.row.state==0">未批改</span>
+              v-if="scope.row.state==0">未审阅</span>
               <span class="ml-4 pb-0.5 text-0.875 font-normal"
-              v-if="scope.row.state==1">批改中</span>
+              v-if="scope.row.state==1">审阅中</span>
               <span class="ml-4 pb-0.5 text-0.875 font-normal"
-              v-if="scope.row.state==2">批改完</span>
+              v-if="scope.row.state==2">审阅完</span>
             </div>
           </template>
         </el-table-column>
 
-        <el-table-column label="预处理" min-width="100">
-          <template #default="scope">
-              <div class="cursor-auto flex items-center justify-center">
-                  <BadgeCheckIcon v-if="scope.row.ocr_preprocess === 1" class="h-5 w-5 text-indigo-410"/>
-                  <ExclamationCircleIcon v-if="scope.row.ocr_preprocess === 0" class="h-5 w-5 text-red-500"/>
-
-                  <!-- <span class="ml-2 pb-0.5 text-0.875 font-normal">{{ scope.row.state }}</span> -->
-                  <span class="ml-4 pb-0.5 text-0.875 font-normal"
-                        v-if="scope.row.ocr_preprocess==0">未处理</span>
-                  <span class="ml-4 pb-0.5 text-0.875 font-normal"
-                        v-if="scope.row.ocr_preprocess==1">已处理</span>
-              </div>
-          </template>
-        </el-table-column>
 
 
         <!-- <el-table-column min-width="100">
@@ -107,7 +136,7 @@
                         :command="['marking',scope.row]"
                         >
                       <div class="flex items-center w-40 h-6">
-                        <span class="mb-0 text-sm">去批改</span>
+                        <span class="mb-0 text-sm">去审阅</span>
                       </div>
                     </el-dropdown-item>
                     
@@ -122,7 +151,7 @@
     </div>
   </template>
   <script lang="ts">
-  import { defineComponent, ref, inject } from 'vue'
+  import { defineComponent, ref, inject, reactive } from 'vue'
   import { DotsVerticalIcon } from '@heroicons/vue/outline'
   import {BadgeCheckIcon, ExclamationCircleIcon } from '@heroicons/vue/solid'
   import { AxiosInstance } from 'axios'
@@ -190,6 +219,9 @@
         { status: 'delayed', color: '#F5365C' },
         { status: 'pending', color: '#FB6340' },
       ])
+      const state = reactive ({
+        premarkstate:0
+      })
       const customColorMethod = (status: string) => {
         return theme.value.find((el: any) => el.status == status)?.color ?? '#2DCE89'
       }
@@ -207,7 +239,10 @@
                       confirmButtonText: '确定'
                     })
                     row.llm_preprocess=1
+                    //row.state=2
+                    state.premarkstate=1
           }, 10000);
+
       return
 
         try {
@@ -233,7 +268,8 @@
       };
       return {
         customColorMethod,
-        handleButtonClickPreMark
+        handleButtonClickPreMark,
+        state
       }
     }
   })

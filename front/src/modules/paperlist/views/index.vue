@@ -80,6 +80,7 @@ export default defineComponent({
       tableData:[],
     })
 
+
     const route = useRoute()
     // 获取 exam_id
     const exam_id = route.query.exam_id
@@ -91,16 +92,16 @@ export default defineComponent({
         background: 'rgba(0, 0, 0, 0.7)',
       })
 
-      // setTimeout(() => {
-      //   loading.close()
-      //               ElMessageBox.alert('预处理完成！', '提示', {
-      //                 confirmButtonText: '确定'
-      //               })
-      //               for(let i = state.tableData.length-1; i >= 0; i--) {
-      //                 state.tableData[i]['ocr_preprocess']=1
-      //               }
-      //     }, 10000);
-      // return
+      setTimeout(() => {
+        loading.close()
+                    ElMessageBox.alert('预处理完成！', '提示', {
+                      confirmButtonText: '确定'
+                    })
+                    for(let i = state.tableData.length-1; i >= 0; i--) {
+                      state.tableData[i]['ocr_preprocess']=1
+                    }
+          }, 10000);
+      return
 
       try {
       

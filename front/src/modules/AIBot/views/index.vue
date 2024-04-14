@@ -66,6 +66,17 @@
             >正在跳转界面...</el-button
           >
         </div>
+        
+        
+        <div class="toleft" v-if="waiting">
+          <div class="answer" style="height: 28px; padding-top: 10px"> 
+            <div class="loading">
+              <span class="dot" />
+              <span class="dot" />
+              <span class="dot" />
+            </div>
+          </div>
+        </div>
 
       </div>
       <div class="chat-input">
@@ -127,6 +138,7 @@ import { ElButton, ElInput, ElIcon } from 'element-plus'
 import { ChatLineRound, Close, Promotion, CirclePlus, Remove,Files, Check } from '@element-plus/icons-vue';
 import { ref, reactive  } from 'vue'
 import { useRoute } from 'vue-router'
+import { Eleme, More } from '@element-plus/icons-vue'
 import { remove } from 'lodash';
 export default {
   components: {
@@ -139,7 +151,9 @@ export default {
     CirclePlus,
     Remove,
     Files,
-    Check
+    Check,
+    Eleme,
+    More
   },
   data() {
     return {
@@ -159,7 +173,8 @@ export default {
       addknowledge:0,
       knowledgename:null,
       idx:0,
-      tourl: 0
+      tourl: 0,
+      waiting:0
     }
   },
   // directives: {
@@ -226,11 +241,12 @@ export default {
         });
         this.message = '';
         this.prequestions=[]
+        this.waiting=1;
         this.$nextTick(() => {
           this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
         });
         setTimeout(() => {
-        // 这里写你想在延时后执行的代码
+          this.waiting=0
           let idx= this.idx //this.getRandomInt(0, answerlist.length-1)
           if (idx==5){
               this.tourl=1
@@ -244,7 +260,7 @@ export default {
                 });
                 
               this.tourl=0
-              }, 20000);
+              }, 2000);
           }else{
             this.messages.push({
               text: answerlist[this.idx],
@@ -274,7 +290,7 @@ export default {
 
 
           this.idx+=1
-        }, 20000); // 2000毫秒后执行，即2秒后
+        }, 2000); // 2000毫秒后执行，即2秒后
         
       }
     },
@@ -317,7 +333,7 @@ export default {
             this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
           });
           this.idx+=1
-          }, 20000);
+          }, 2000);
         }
       };
       // 触发文件选择器
@@ -343,12 +359,44 @@ export default {
       //uploadKnowledge,
       state,
       //MenuChange,
+      More,
+      Eleme
     };
   },
 }
 </script>
 
 <style scoped>
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+}
+.dot {
+    height: 5px;
+    width: 5px;
+    margin: 0 5px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    display: inline-block;
+    animation: dot-flashing 1.5s linear infinite;
+}
+.dot:nth-child(1) {
+    animation-delay: 0s;
+}
+.dot:nth-child(2) {
+    animation-delay: 0.3s;
+}
+.dot:nth-child(3) {
+    animation-delay: 0.6s;
+}
+@keyframes dot-flashing {
+    0% {opacity: 1;}
+    50% {opacity: 0.1;}
+    100% {opacity: 1;}
+}
+
 .floating-button {
   position: fixed;
   top: 600px;

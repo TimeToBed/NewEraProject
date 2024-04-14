@@ -8,8 +8,11 @@
       >
         <div class="text-center mb-12">
           <div class="flex flex-wrap -mx-3.75 justify-center px-3.75">
-            <div class="md:flex-9 md:max-w-9/12 lg:flex-8 lg:max-w-2/3">
-              <WelcomeLabel />
+            <div class="w-full">
+              <h1 class="text-white font-semibold">欢迎使用智能阅卷系统！</h1>
+              <p class="text-light mt-4 mb-0">
+                请注册账号
+              </p>
             </div>
           </div>
         </div>
@@ -40,6 +43,7 @@ export default defineComponent({
     WelcomeLabel,
   },
   setup() {
+    console.log("register")
     const store = useStore()
     const isAuthenticated = computed<boolean>(() => store.auth.getAuthenticationState)
     return {

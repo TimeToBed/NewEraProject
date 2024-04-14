@@ -1,7 +1,7 @@
 <template>
   <div class="w-full">
     <el-card class="bg-secondary text-center">
-      <template #header>
+      <!-- <template #header>
         <div class="text-muted text-center mt-1.5 mb-6"><small>Sign up with</small></div>
         <div class="flex flex-nowrap text-center justify-center pb-7.5">
           <el-button class="bg-white border-white" href="#">
@@ -13,11 +13,11 @@
             <span class="pl-4 text-indigo-410">Google</span>
           </el-button>
         </div>
-      </template>
+      </template> -->
       <div class="content-center items-center w-full lg:p-6">
-        <div class="text-muted text-center mb-5">
+        <!-- <div class="text-muted text-center mb-5">
           <small>Or sign up with credentials </small>
-        </div>
+        </div> -->
         <el-form ref="form" :model="formData" class="authentication-form pb-6">
           <el-form-item class="mb-6 rounded-md" prop="username">
             <div
@@ -27,7 +27,7 @@
                 <AcademicCapIcon class="w-5 h-5 text-gray-210" />
               </div>
             </div>
-            <el-input placeholder="Name" v-model="formData.username" />
+            <el-input placeholder="用户名" v-model="formData.username" />
           </el-form-item>
           <el-form-item class="mb-6 rounded-md" prop="email">
             <div
@@ -37,7 +37,7 @@
                 <MailIcon class="w-5 h-5 text-gray-210" />
               </div>
             </div>
-            <el-input type="email" placeholder="Email" v-model="formData.email" />
+            <el-input type="Email" placeholder="邮箱" v-model="formData.email" />
           </el-form-item>
           <el-form-item class="mb-6 rounded-md" prop="type">
             <div
@@ -49,7 +49,7 @@
             </div>
             <el-select
               v-model="formData.usrType"
-              placeholder="User Type"
+              placeholder="账号类型"
               class="w-full"
               popper-class="item-input-popper"
             >
@@ -70,7 +70,7 @@
                 <LockOpenIcon class="w-5 h-5 text-gray-210" />
               </div>
             </div>
-            <el-input type="password" placeholder="Password" v-model="formData.password" />
+            <el-input type="password" placeholder="密码" v-model="formData.password" />
           </el-form-item>
           <el-form-item class="mb-6 rounded-md" prop="password">
             <div
@@ -80,31 +80,31 @@
                 <LockOpenIcon class="w-5 h-5 text-gray-210" />
               </div>
             </div>
-            <el-input type="password" placeholder="Confirm Password" v-model="formData.password" />
+            <el-input type="password" placeholder="确认密码" v-model="formData.confirm_password" />
           </el-form-item>
-          <el-form-item class="mb-6 rounded-md">
+          <!-- <el-form-item class="mb-6 rounded-md">
             <div class="italic">
               <span class="text-0.8125 text-muted font-normal">
                 password strength: <strong class="text-success">strong</strong>
               </span>
             </div>
-          </el-form-item>
-          <el-form-item class="mb-6">
+          </el-form-item> -->
+          <!-- <el-form-item class="mb-6">
             <el-checkbox class="w-4 h-4 text-muted font-normal"
               >I agree with the
               <a href="#!" class="text-indigo-410 hover:text-indigo-410-active">Privacy Policy</a>
             </el-checkbox>
-          </el-form-item>
+          </el-form-item> -->
         </el-form>
-        <el-button type="primary"> Create account </el-button>
+        <el-button type="primary" @click="register"> 注册 </el-button>
       </div>
     </el-card>
   </div>
 </template>
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, h } from 'vue'
 import { MailIcon, AcademicCapIcon, IdentificationIcon, LockOpenIcon } from '@heroicons/vue/solid'
-
+import { ElNotification } from 'element-plus'
 export default defineComponent({
   name: 'RegisterForm',
   components: {
@@ -120,26 +120,34 @@ export default defineComponent({
       email: '',
       usrType: '',
       password: '',
+      confirm_password: '',
     })
 
     const userType = [
       {
         id: 1,
-        nameType: 'Admin',
+        nameType: '教师',
       },
       {
         id: 2,
-        nameType: 'Creator',
-      },
-      {
-        id: 3,
-        nameType: 'Member',
-      },
+        nameType: '学生',
+      }
     ]
+
+    const register = () => {
+      setTimeout(() => {
+        ElNotification({
+                          title: '提示',
+                          message: h('i', { style: 'color: teal' }, '注册成功！'),
+                          type: 'success'
+                        })
+      },2000)
+    }
     return {
       userType,
       form,
       formData,
+      register
     }
   },
 })

@@ -10,6 +10,10 @@
           <div class="flex flex-wrap -mx-3.75 justify-center px-3.75">
             <div class="md:flex-9 md:max-w-9/12 lg:flex-8 lg:max-w-2/3">
               <WelcomeLabel />
+              <!-- <div>
+                1743410097@qq.com
+                1633813001@qq.com
+              </div> -->
             </div>
             <!-- <div class="md:flex-6 md:max-w-1/2 lg:flex-5 lg:max-w-5/12">
               <h3 class="text-white mt-12 mb-0">

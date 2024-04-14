@@ -23,11 +23,18 @@ export default defineComponent({
   inheritAttrs: false,
 
   setup() {
+    const route = useRoute()
+
+    // 获取路由信息
+    console.log('router.path:',route.path) // 获取路径
+    console.log(route.name) // 获取路由名称
+
+
     // console.log('万物起源',localStorage.getItem('user_id'))
-    if (! localStorage.getItem('user_id')){
+    if (! localStorage.getItem('user_id') ){
       //window.location.href = '/login'
       const router = useRouter();
-      router.push({ path: '/login'});
+      //router.push({ path: '/login'});
     }
     const $message = inject<IMessage>('$message')
     const router = useRoute()
