@@ -22,25 +22,45 @@
                     <div class="lg:flex-8 lg:max-w-2/3 w-full lg:mb-0 lg:pr-3.5 mb-6">
                         <el-scrollbar height="320px">
                             <OCRSample 
-                            :tableData="ocrList"/>
+                            :tableData="state.ocrList"/>
                         </el-scrollbar>
                     </div>
-                    <div class="lg:flex-8 lg:max-w-1/3 w-full lg:mb-0 lg:pr-3.5 mb-6
-                    h-full position-relative"
-                    >
-                        <el-button type="success" 
-                        @click="handleClick"
-                        :type="getButtonType()"
-                        :class="getButtonClass()"
-                        :disabled="isButtonDisabled()"
-                        >开始学习</el-button>
-                        <WaterBall class="position-relative"
-                        :num="state.num" 
-                        :learning="state.learning"
-                        v-loading="loading"
-                        element-loading-text="学习中..."
-                        />
+                    <div class="flex lg:flex-8 lg:max-w-1/3 w-full lg:mb-0 lg:pr-3.5 mb-6
+                      h-full position-relative" >
+                      <!-- <div>
+                        <Bubble />
+                      </div> -->
+                      <div 
+                      >
+                          <el-button type="success" 
+                          @click="handleClick"
+                          :type="getButtonType()"
+                          :class="getButtonClass()"
+                          :disabled="isButtonDisabled()"
+                          v-if="!state.learning"
+                          >开始学习</el-button>
+
+                          
+                          <el-button type="success" 
+                          @click="handleClick"
+                          :type="getButtonType()"
+                          :class="getButtonClass()"
+                          :disabled="isButtonDisabled()"
+                          v-if="state.learning"
+                          >正在学习</el-button>
+
+                          <WaterBall class="position-relative "
+                          :num="state.num" 
+                          :learning="state.learning"
+                          />
+                      </div>
+
+                      <div v-if="loading">
+                        <Bubble />
+                      </div>  
                     </div>
+                    
+                    
                     
                 </div>
             </div>
@@ -54,10 +74,11 @@
   import WaterBall from './WaterBall.vue'
   import OCRSample from './OCRSample.vue'
   import { ElMessageBox } from 'element-plus'
-
+  import Bubble from './Bubble.vue'
   interface OCRData {
     img_path: string
     content: string
+    state: Number
   }
   
 
@@ -66,7 +87,8 @@
     name: 'OCR',
     components: {
       WaterBall,
-      OCRSample
+      OCRSample,
+      Bubble
     },
     methods: {
 
@@ -79,8 +101,8 @@
       const state = reactive({  
         num: 6300,
         learning: false,
-        sample_num:0
-        
+        sample_num:0,
+        ocrList:[]
       })
       state.sample_num=state.num
       const loading = ref(false)
@@ -88,49 +110,59 @@
       {
         img_path: "/src/assets/growup/1.png",
         content: '又恐琼楼玉宇，高处不胜寒',
+        state: 0,
       },
     
       {
         img_path: "/src/assets/growup/2.png",
         content: '剑外忽传收蓟北',
+        state: 0,
       },
       {
         img_path: "/src/assets/growup/3.png",
         content: '制芰荷以为衣兮，集芙蓉以为裳',
+        state: 0,
       },
       {
         img_path: "/src/assets/growup/4.png",
         content: '举头望明月，低头思故乡',
+        state: 0,
       },
       
       {
         img_path: "/src/assets/growup/5.png",
         content: '关山难越，谁悲失路之人',
+        state: 0,
       },
       {
         img_path: "/src/assets/growup/6.png",
         content: '萍水相逢，尽是他乡之客',
+        state: 0,
       },
     
       {
         img_path: "/src/assets/growup/7.png",
         content: '人生如逆旅',
+        state: 0,
       },
       {
         img_path: "/src/assets/growup/8.png",
         content: '又恐琼楼玉宇，高处不胜寒',
+        state: 0,
       },
       {
         img_path: "/src/assets/growup/9.png",
         content: '又恐琼楼玉宇，高处不胜寒',
+        state: 0,
       },
       
       {
         img_path: "/src/assets/growup/10.png",
         content: '又恐琼楼玉宇，高处不胜寒',
+        state: 0,
       },
     ]
-
+      state.ocrList=ocrList
       const isButtonDisabled =() => {
         return state.num<6000 || state.learning
       }
@@ -163,17 +195,20 @@
           state.sample_num=0
           state.num=0
           loading.value=false
+          for(let i = 0; i <state.ocrList.length-1; i++) {
+            state.ocrList[i]['state']=1
+          }
           ElMessageBox.alert('已完成学习！', '提示', {
             confirmButtonText: '确定'
           })
-        }, 4000);
+        }, 30000);
         const interval = setInterval(() => {
           
          
             clearInterval(interval);
             
           
-        }, 4000);
+        }, 30000);
       }
       const getButtonType=() => {
         if ( state.num<6000 || state.learning){
@@ -222,13 +257,4 @@
     position: relative;
 }
 
-.el-loading-spinner {
-    left: 50%;
-    width: 100px;
-}
-
-p.el-loading-text {
-    width: 54px;
-    margin-right: 20px;
-}
   </style>

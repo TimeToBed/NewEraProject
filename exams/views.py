@@ -834,7 +834,179 @@ def fake2(request):
         ssh.close()
         return JsonResponse({'msg':'success'})
 
-def generate_paper():
+def generate_paper_high():
+    llm_first = ["请确保仔细理解和解读文章的上下文，这在寻找答案时是非常重要的。",
+                 "尝试更好的把握和理解文章的关键词，这有助于你抓住文章的要点并回答问题。",
+                 "需要进一步提高你对文章主旨理解的准确性，这对于阅读理解的成功至关重要。",
+                 "注意文章的结构和组织，看看作者如何建立他们的论点，这可以帮助你更好的理解和解释文章。",
+                 "清楚概括文章的主题和主旨，并正确解读文章的含义。",
+                 "阅读的时候注意引用文献的信息，这不仅可以帮助理解文章，同时也有助于你了解作者对特定主题的观点。",
+                 "你在解读作者观点上做得很好，但是需要在理解具体细节上下更多功夫。",
+                 "在阅读时，要与自己的知识结构联系起来，理解新的信息，并思考它如何与你已经知道的信息相适应。"]
+    llm_second = ["请注意积累并理解古代文体和词汇的用法，这将有助于你更好地理解并解析文本。",
+                  "尝试从历史和文化背景的视角去阅读和理解文本，这对于你真正理解作品的含义尤为关键。",
+                  "需要进一步提高你对文本主旨概念的理解，以便能够精准地捕捉到作者的意图和思想。",
+                  "注意掌握和理解文章的句式结构和修辞技巧，这会帮你更好地理解作者的表达手法和意图。",
+                  "在阅读文本时，要了解和联系上下文，这将帮助你更全面地理解文本及其作者的观点和意图。"]
+    llm_sixteen = ["注意对古诗词的积累", "平时需要多背诵古诗词", "古诗词积累过少"]
+    llm_third = ["在理解和使用短语或表达时，要注意其上下文含义，以确保其用法正确。",
+                 "你需要更多地联系实际情境和文化背景，以提高你在语言运用中的适应性。",
+                 "在分析和解释语言现象时，注意从更大的语境和背景考虑，这将帮助你更深入地理解和解释。",
+                 "在阅读和理解文本时，注意运用你对语言和文化的知识，以提高你的理解力和鉴赏力。"]
+    llm_forth = ["结构清晰，主题明确，需要在句子连贯性和逻辑结构上进一步加强。",
+                 "篇章有序，逻辑清晰，但在语言修辞和词汇使用上需要更加精细化。",
+                 "注意联系实际，将所学知识与生活世界紧密结合，以提高论证的说服力。",
+                 "词汇丰富，语言流畅，注意在论据选择和展开上进一步细化。",
+                 "注意积累篇章结构和语言表达，这将有助于你的写作水平的提高。",
+                 "注重开头和结尾的创新，使文章更加有吸引力和感染力。",
+                 "在阐述观点时，尽量多角度考虑问题，表达更为全面和深入。",
+                 "在撰写过程中，注意巧妙运用修辞，增强语言的表现力。"]
+
+    teacher_first = ["在理解文本时，可以尝试总结每个段落的主要观点，这将有助于你提高阅读效率和理解力。",
+                     "你已经很好地理解了文本的大意，希望你能在理解上下文和作者的意图上再下一番功夫。",
+                     "建议你在阅读时注意作者的语言和风格，这将加深你对文本的理解。",
+                     "你的答卷显示出对文本理解的一致性，再进行一些关于作者意图的深入分析，会更出色哦。"]
+    teacher_second = [
+        "很高兴看到你对文本进行了深入的分析。掌握更多的词汇并理解它们在古代语境中的含义，将有助于你更精确地理解和解读文本。",
+        "你已经具备了理解古代文本的基本能力，希望你能再进一步，探索作者的创作动机和心境，这将使你的理解更为深入。",
+        "你在回答问题的过程中很直接，提供了精准的信息，试着进一步解析或者链接到文本中的其他内容。"]
+    teacher_sixteen = ["平常记得多积累古诗词啊。", "在背诵方面还需要花时间。"]
+    teacher_third = ["你已展示出了扎实的语言基础，继续在熟悉语法规则和扩大词汇量上努力，将使你的语言运用能力更上一层楼。",
+                     "你已经展现出对语言文字运用的基本掌握，但在理解和使用一些高级语法结构时还需要进一步的练习。",
+                     "适当的拓展和丰富你的表述将更加显示出你的语言运用技巧。"]
+    teacher_forth = [
+        "你在文字运用上已经表现得很好了，我很高兴。不过，记住，总体定语和定语从句的使用可以增加你的句子的丰富性，这对于提高你的写作技巧而言非常有帮助。",
+        "我欣赏你在答题中准确使用词汇的能力，这体现出你已经了解和掌握了这些词汇。在接下来的学习中，我希望你能够尝试更丰富、更具挑战性的词汇和表达方式。",
+        "我注意到你在文字运用上的强项，那就是你的表达清晰易懂。不过，使用一些修辞手法，如比喻，夸张，可以使你的表达更生动，更富有表现力。"]
+    with open(r'exams\temp\paper_mark_result.json', "rb") as f:
+        file_content = json.load(f)
+
+    for i in range(1, 4):
+        seed = np.random.rand()
+        if seed < 0.3:
+            file_content['一']['（一）'][f'{i}']['llm_mark'] = 0 * 3
+            file_content['一']['（一）'][f'{i}']['mark_score'] = 0 * 3
+            file_content['一']['（一）'][f'{i}']['llm_comment'] = np.random.choice(llm_first, 1)[0]
+            file_content['一']['（一）'][f'{i}']['comment'] = np.random.choice(teacher_first, 1)[0]
+        else:
+            file_content['一']['（一）'][f'{i}']['llm_mark'] = 1 * 3
+            file_content['一']['（一）'][f'{i}']['mark_score'] = 1 * 3
+
+    for i in range(4, 7):
+        seed = np.random.rand()
+        if seed < 0.2:
+            file_content['一']['（二）'][f'{i}']['llm_mark'] = 0 * 3
+            file_content['一']['（二）'][f'{i}']['mark_score'] = 0 * 3
+            file_content['一']['（二）'][f'{i}']['llm_comment'] = np.random.choice(llm_first, 1)[0]
+            file_content['一']['（二）'][f'{i}']['comment'] = np.random.choice(teacher_first, 1)[0]
+        else:
+            file_content['一']['（二）'][f'{i}']['llm_mark'] = 1 * 3
+            file_content['一']['（二）'][f'{i}']['mark_score'] = 1 * 3
+
+    for i in range(7, 10):
+        seed = np.random.rand()
+        if seed < 0.2:
+            file_content['一']['（三）'][f'{i}']['llm_mark'] = 0 * 3
+            file_content['一']['（三）'][f'{i}']['mark_score'] = 0 * 3
+            file_content['一']['（三）'][f'{i}']['llm_comment'] = np.random.choice(llm_first, 1)[0]
+            file_content['一']['（三）'][f'{i}']['comment'] = np.random.choice(teacher_first, 1)[0]
+        else:
+            file_content['一']['（三）'][f'{i}']['llm_mark'] = 1 * 3
+            file_content['一']['（三）'][f'{i}']['mark_score'] = 1 * 3
+
+    for i in range(10, 13):
+        seed = np.random.rand()
+        if seed < 0.2:
+            file_content['二']['（一）'][f'{i}']['llm_mark'] = 0 * 3
+            file_content['二']['（一）'][f'{i}']['mark_score'] = 0 * 3
+            file_content['二']['（一）'][f'{i}']['llm_comment'] = np.random.choice(llm_second, 1)[0]
+            file_content['二']['（一）'][f'{i}']['comment'] = np.random.choice(teacher_second, 1)[0]
+        else:
+            file_content['二']['（一）'][f'{i}']['llm_mark'] = 1 * 3
+            file_content['二']['（一）'][f'{i}']['mark_score'] = 1 * 3
+    for i in range(1, 3):
+        seed = np.random.randint(6,10)/10
+        seed2 = np.random.uniform(-0.2,0.2)
+        file_content['二']['（一）']['13'][f'({i})']['llm_mark'] = min(int(seed * 5),5)
+        file_content['二']['（一）']['13'][f'({i})']['mark_score'] = min(int((seed + seed2) * 5),5)
+        file_content['二']['（一）']['13'][f'({i})']['llm_comment'] = np.random.choice(llm_second, 1)[0]
+        file_content['二']['（一）']['13'][f'({i})']['comment'] = np.random.choice(teacher_second, 1)[0]
+        if min(int(seed * 5),5) == 5:
+            file_content['二']['（一）']['13'][f'({i})']['llm_comment'] = ''
+        if min(int((seed + seed2) * 5),5) == 5:
+            file_content['二']['（一）']['13'][f'({i})']['comment'] = ''
+
+    for i in range(14, 15):
+        seed = np.random.rand()
+        if seed < 0.2:
+            file_content['二']['（二）'][f'{i}']['llm_mark'] = 0
+            file_content['二']['（二）'][f'{i}']['mark_score'] = 0
+            file_content['二']['（二）'][f'{i}']['llm_comment'] = np.random.choice(llm_second, 1)[0]
+            file_content['二']['（二）'][f'{i}']['comment'] = np.random.choice(teacher_second, 1)[0]
+        else:
+            file_content['二']['（二）'][f'{i}']['llm_mark'] = 3
+            file_content['二']['（二）'][f'{i}']['mark_score'] = 3
+    
+    seed = np.random.randint(7,10)/10
+    seed2 = seed2 = np.random.uniform(-0.2, 0.2)
+    file_content['二']['（二）'][f'{15}']['llm_mark'] = min(int(seed * 6), 6)
+    file_content['二']['（二）'][f'{15}']['mark_score'] = min(int((seed + seed2) * 6), 6)
+    file_content['二']['（二）'][f'{15}']['llm_comment'] = np.random.choice(llm_second, 1)[0]
+    file_content['二']['（二）'][f'{15}']['comment'] = np.random.choice(teacher_second, 1)[0]
+    if min(int(seed * 6), 6) == 6:
+        file_content['二']['（二）'][f'{15}']['llm_comment'] = ''
+    if min(int((seed + seed2) * 6), 6) == 6:
+        file_content['二']['（二）'][f'{15}']['comment'] = ''
+            
+    for i in range(1, 4):
+        seed = np.random.rand()
+        if seed < 0.2:
+            file_content['二']['（三）']['16'][f'({i})']['llm_mark'] = 0
+            file_content['二']['（三）']['16'][f'({i})']['mark_score'] = 0
+            file_content['二']['（三）']['16'][f'({i})']['llm_comment'] = np.random.choice(llm_sixteen, 1)[0]
+            file_content['二']['（三）']['16'][f'({i})']['comment'] = np.random.choice(teacher_sixteen, 1)[0]
+        else:
+            file_content['二']['（三）']['16'][f'({i})']['llm_mark'] = 2
+            file_content['二']['（三）']['16'][f'({i})']['mark_score'] = 2
+
+    for i in range(17, 20):
+        seed = np.random.rand()
+        if seed < 0.3:
+            file_content['三'][f'{i}']['llm_mark'] = 0
+            file_content['三'][f'{i}']['mark_score'] = 0
+            file_content['三'][f'{i}']['llm_comment'] = np.random.choice(llm_third, 1)[0]
+            file_content['三'][f'{i}']['comment'] = np.random.choice(teacher_third, 1)[0]
+        else:
+            file_content['三'][f'{i}']['llm_mark'] = 3
+            file_content['三'][f'{i}']['mark_score'] = 3
+
+    for i in range(20,22):
+        seed = np.random.randint(8,10)/10
+        seed2 = np.random.uniform(-0.2, 0.2)
+        file_content['三'][f'{i}']['llm_mark'] = min(int(seed * 5), 5)
+        file_content['三'][f'{i}']['mark_score'] = min(int((seed + seed2) * 5), 5)
+        file_content['三'][f'{i}']['llm_comment'] = np.random.choice(llm_second, 1)[0]
+        file_content['三'][f'{i}']['comment'] = np.random.choice(teacher_second, 1)[0]
+        if min(int(seed * 5), 5) == 5:
+            file_content['三'][f'{i}']['llm_comment'] = ''
+        if min(int((seed + seed2) * 5), 5) == 5:
+            file_content['三'][f'{i}']['comment'] = ''
+
+    seed = np.random.randint(7,10)/10
+    seed2 = np.random.uniform(-0.02, 0.02)
+    print(min(int(seed * 60), 60))
+    file_content['四']['22']['llm_mark'] = min(int(seed * 60), 60)
+    file_content['四']['22']['mark_score'] = min(int((seed + seed2) * 60), 60)
+    file_content['四']['22']['llm_comment'] = np.random.choice(llm_forth, 1)[0]
+    file_content['四']['22']['comment'] = np.random.choice(teacher_forth, 1)[0]
+    if min(int(seed * 60), 60) == 60:
+        file_content['四']['22']['llm_comment'] = ''
+    if min(int((seed + seed2) * 60), 60) == 60:
+        file_content['四']['22']['comment'] = ''
+
+    return file_content
+
+def generate_paper_common():
     llm_first = ["请确保仔细理解和解读文章的上下文，这在寻找答案时是非常重要的。",
                  "尝试更好的把握和理解文章的关键词，这有助于你抓住文章的要点并回答问题。",
                  "需要进一步提高你对文章主旨理解的准确性，这对于阅读理解的成功至关重要。",
@@ -883,49 +1055,49 @@ def generate_paper():
 
     for i in range(1, 4):
         seed = np.random.randint(0, 2)
-        if seed < 0.5:
-            file_content['一']['（一）'][f'{i}']['llm_mark'] = seed * 3
-            file_content['一']['（一）'][f'{i}']['mark_score'] = seed * 3
+        if seed < 0.3:
+            file_content['一']['（一）'][f'{i}']['llm_mark'] = 0 * 3
+            file_content['一']['（一）'][f'{i}']['mark_score'] = 0 * 3
             file_content['一']['（一）'][f'{i}']['llm_comment'] = np.random.choice(llm_first, 1)[0]
             file_content['一']['（一）'][f'{i}']['comment'] = np.random.choice(teacher_first, 1)[0]
         else:
-            file_content['一']['（一）'][f'{i}']['llm_mark'] = seed * 3
-            file_content['一']['（一）'][f'{i}']['mark_score'] = seed * 3
+            file_content['一']['（一）'][f'{i}']['llm_mark'] = 1 * 3
+            file_content['一']['（一）'][f'{i}']['mark_score'] = 1 * 3
 
     for i in range(4, 7):
         seed = np.random.randint(0, 2)
-        if seed < 0.4:
-            file_content['一']['（二）'][f'{i}']['llm_mark'] = seed * 3
-            file_content['一']['（二）'][f'{i}']['mark_score'] = seed * 3
+        if seed < 0.3:
+            file_content['一']['（二）'][f'{i}']['llm_mark'] = 0 * 3
+            file_content['一']['（二）'][f'{i}']['mark_score'] = 0 * 3
             file_content['一']['（二）'][f'{i}']['llm_comment'] = np.random.choice(llm_first, 1)[0]
             file_content['一']['（二）'][f'{i}']['comment'] = np.random.choice(teacher_first, 1)[0]
         else:
-            file_content['一']['（二）'][f'{i}']['llm_mark'] = seed * 3
-            file_content['一']['（二）'][f'{i}']['mark_score'] = seed * 3
+            file_content['一']['（二）'][f'{i}']['llm_mark'] = 1 * 3
+            file_content['一']['（二）'][f'{i}']['mark_score'] = 1 * 3
 
     for i in range(7, 10):
         seed = np.random.randint(0, 2)
-        if seed < 0.6:
-            file_content['一']['（三）'][f'{i}']['llm_mark'] = seed * 3
-            file_content['一']['（三）'][f'{i}']['mark_score'] = seed * 3
+        if seed < 0.3:
+            file_content['一']['（三）'][f'{i}']['llm_mark'] = 0 * 3
+            file_content['一']['（三）'][f'{i}']['mark_score'] = 0 * 3
             file_content['一']['（三）'][f'{i}']['llm_comment'] = np.random.choice(llm_first, 1)[0]
             file_content['一']['（三）'][f'{i}']['comment'] = np.random.choice(teacher_first, 1)[0]
         else:
-            file_content['一']['（三）'][f'{i}']['llm_mark'] = seed * 3
-            file_content['一']['（三）'][f'{i}']['mark_score'] = seed * 3
+            file_content['一']['（三）'][f'{i}']['llm_mark'] = 1 * 3
+            file_content['一']['（三）'][f'{i}']['mark_score'] = 1 * 3
 
     for i in range(10, 13):
         seed = np.random.randint(0, 2)
         if seed < 0.3:
-            file_content['二']['（一）'][f'{i}']['llm_mark'] = seed * 3
-            file_content['二']['（一）'][f'{i}']['mark_score'] = seed * 3
+            file_content['二']['（一）'][f'{i}']['llm_mark'] = 0 * 3
+            file_content['二']['（一）'][f'{i}']['mark_score'] = 0 * 3
             file_content['二']['（一）'][f'{i}']['llm_comment'] = np.random.choice(llm_second, 1)[0]
             file_content['二']['（一）'][f'{i}']['comment'] = np.random.choice(teacher_second, 1)[0]
         else:
-            file_content['二']['（一）'][f'{i}']['llm_mark'] = seed * 3
-            file_content['二']['（一）'][f'{i}']['mark_score'] = seed * 3
+            file_content['二']['（一）'][f'{i}']['llm_mark'] = 1 * 3
+            file_content['二']['（一）'][f'{i}']['mark_score'] = 1 * 3
     for i in range(1, 3):
-        seed = np.random.rand()
+        seed = np.random.randint(6,10)/10
         seed2 = np.random.uniform(-0.2,0.2)
         file_content['二']['（一）']['13'][f'({i})']['llm_mark'] = min(int(seed * 5),5)
         file_content['二']['（一）']['13'][f'({i})']['mark_score'] = min(int((seed + seed2) * 5),5)
@@ -938,7 +1110,7 @@ def generate_paper():
 
     for i in range(14, 15):
         seed = np.random.rand()
-        if seed < 0.5:
+        if seed < 0.2:
             file_content['二']['（二）'][f'{i}']['llm_mark'] = 0
             file_content['二']['（二）'][f'{i}']['mark_score'] = 0
             file_content['二']['（二）'][f'{i}']['llm_comment'] = np.random.choice(llm_second, 1)[0]
@@ -947,7 +1119,7 @@ def generate_paper():
             file_content['二']['（二）'][f'{i}']['llm_mark'] = 3
             file_content['二']['（二）'][f'{i}']['mark_score'] = 3
     
-    seed = np.random.rand()
+    seed = np.random.randint(5,10)/10
     seed2 = seed2 = np.random.uniform(-0.2, 0.2)
     file_content['二']['（二）'][f'{15}']['llm_mark'] = min(int(seed * 6), 6)
     file_content['二']['（二）'][f'{15}']['mark_score'] = min(int((seed + seed2) * 6), 6)
@@ -960,7 +1132,7 @@ def generate_paper():
             
     for i in range(1, 4):
         seed = np.random.rand()
-        if seed < 0.5:
+        if seed < 0.3:
             file_content['二']['（三）']['16'][f'({i})']['llm_mark'] = 0
             file_content['二']['（三）']['16'][f'({i})']['mark_score'] = 0
             file_content['二']['（三）']['16'][f'({i})']['llm_comment'] = np.random.choice(llm_sixteen, 1)[0]
@@ -971,7 +1143,7 @@ def generate_paper():
 
     for i in range(17, 20):
         seed = np.random.rand()
-        if seed < 0.5:
+        if seed < 0.3:
             file_content['三'][f'{i}']['llm_mark'] = 0
             file_content['三'][f'{i}']['mark_score'] = 0
             file_content['三'][f'{i}']['llm_comment'] = np.random.choice(llm_third, 1)[0]
@@ -981,7 +1153,7 @@ def generate_paper():
             file_content['三'][f'{i}']['mark_score'] = 3
 
     for i in range(20,22):
-        seed = np.random.rand()
+        seed = np.random.randint(7,10)/10
         seed2 = np.random.uniform(-0.2, 0.2)
         file_content['三'][f'{i}']['llm_mark'] = min(int(seed * 5), 5)
         file_content['三'][f'{i}']['mark_score'] = min(int((seed + seed2) * 5), 5)
@@ -992,7 +1164,7 @@ def generate_paper():
         if min(int((seed + seed2) * 5), 5) == 5:
             file_content['三'][f'{i}']['comment'] = ''
 
-    seed = np.random.rand()
+    seed = np.random.randint(7,10)/10
     seed2 = np.random.uniform(-0.02, 0.02)
     print(min(int(seed * 60), 60))
     file_content['四']['22']['llm_mark'] = min(int(seed * 60), 60)
@@ -1005,7 +1177,180 @@ def generate_paper():
         file_content['四']['22']['comment'] = ''
 
     return file_content
+
+def generate_paper():
+    llm_first = ["请确保仔细理解和解读文章的上下文，这在寻找答案时是非常重要的。",
+                 "尝试更好的把握和理解文章的关键词，这有助于你抓住文章的要点并回答问题。",
+                 "需要进一步提高你对文章主旨理解的准确性，这对于阅读理解的成功至关重要。",
+                 "注意文章的结构和组织，看看作者如何建立他们的论点，这可以帮助你更好的理解和解释文章。",
+                 "清楚概括文章的主题和主旨，并正确解读文章的含义。",
+                 "阅读的时候注意引用文献的信息，这不仅可以帮助理解文章，同时也有助于你了解作者对特定主题的观点。",
+                 "你在解读作者观点上做得很好，但是需要在理解具体细节上下更多功夫。",
+                 "在阅读时，要与自己的知识结构联系起来，理解新的信息，并思考它如何与你已经知道的信息相适应。"]
+    llm_second = ["请注意积累并理解古代文体和词汇的用法，这将有助于你更好地理解并解析文本。",
+                  "尝试从历史和文化背景的视角去阅读和理解文本，这对于你真正理解作品的含义尤为关键。",
+                  "需要进一步提高你对文本主旨概念的理解，以便能够精准地捕捉到作者的意图和思想。",
+                  "注意掌握和理解文章的句式结构和修辞技巧，这会帮你更好地理解作者的表达手法和意图。",
+                  "在阅读文本时，要了解和联系上下文，这将帮助你更全面地理解文本及其作者的观点和意图。"]
+    llm_sixteen = ["注意对古诗词的积累", "平时需要多背诵古诗词", "古诗词积累过少"]
+    llm_third = ["在理解和使用短语或表达时，要注意其上下文含义，以确保其用法正确。",
+                 "你需要更多地联系实际情境和文化背景，以提高你在语言运用中的适应性。",
+                 "在分析和解释语言现象时，注意从更大的语境和背景考虑，这将帮助你更深入地理解和解释。",
+                 "在阅读和理解文本时，注意运用你对语言和文化的知识，以提高你的理解力和鉴赏力。"]
+    llm_forth = ["结构清晰，主题明确，需要在句子连贯性和逻辑结构上进一步加强。",
+                 "篇章有序，逻辑清晰，但在语言修辞和词汇使用上需要更加精细化。",
+                 "注意联系实际，将所学知识与生活世界紧密结合，以提高论证的说服力。",
+                 "词汇丰富，语言流畅，注意在论据选择和展开上进一步细化。",
+                 "注意积累篇章结构和语言表达，这将有助于你的写作水平的提高。",
+                 "注重开头和结尾的创新，使文章更加有吸引力和感染力。",
+                 "在阐述观点时，尽量多角度考虑问题，表达更为全面和深入。",
+                 "在撰写过程中，注意巧妙运用修辞，增强语言的表现力。"]
+
+    teacher_first = ["在理解文本时，可以尝试总结每个段落的主要观点，这将有助于你提高阅读效率和理解力。",
+                     "你已经很好地理解了文本的大意，希望你能在理解上下文和作者的意图上再下一番功夫。",
+                     "建议你在阅读时注意作者的语言和风格，这将加深你对文本的理解。",
+                     "你的答卷显示出对文本理解的一致性，再进行一些关于作者意图的深入分析，会更出色哦。"]
+    teacher_second = [
+        "很高兴看到你对文本进行了深入的分析。掌握更多的词汇并理解它们在古代语境中的含义，将有助于你更精确地理解和解读文本。",
+        "你已经具备了理解古代文本的基本能力，希望你能再进一步，探索作者的创作动机和心境，这将使你的理解更为深入。",
+        "你在回答问题的过程中很直接，提供了精准的信息，试着进一步解析或者链接到文本中的其他内容。"]
+    teacher_sixteen = ["平常记得多积累古诗词啊。", "在背诵方面还需要花时间。"]
+    teacher_third = ["你已展示出了扎实的语言基础，继续在熟悉语法规则和扩大词汇量上努力，将使你的语言运用能力更上一层楼。",
+                     "你已经展现出对语言文字运用的基本掌握，但在理解和使用一些高级语法结构时还需要进一步的练习。",
+                     "适当的拓展和丰富你的表述将更加显示出你的语言运用技巧。"]
+    teacher_forth = [
+        "你在文字运用上已经表现得很好了，我很高兴。不过，记住，总体定语和定语从句的使用可以增加你的句子的丰富性，这对于提高你的写作技巧而言非常有帮助。",
+        "我欣赏你在答题中准确使用词汇的能力，这体现出你已经了解和掌握了这些词汇。在接下来的学习中，我希望你能够尝试更丰富、更具挑战性的词汇和表达方式。",
+        "我注意到你在文字运用上的强项，那就是你的表达清晰易懂。不过，使用一些修辞手法，如比喻，夸张，可以使你的表达更生动，更富有表现力。"]
+    with open(r'exams\temp\paper_mark_result.json', "rb") as f:
+        file_content = json.load(f)
+
+    for i in range(1, 4):
+        seed = np.random.rand()
+        if seed < 0.1:
+            file_content['一']['（一）'][f'{i}']['llm_mark'] = 0 * 3
+            file_content['一']['（一）'][f'{i}']['mark_score'] = 0 * 3
+            file_content['一']['（一）'][f'{i}']['llm_comment'] = np.random.choice(llm_first, 1)[0]
+            file_content['一']['（一）'][f'{i}']['comment'] = np.random.choice(teacher_first, 1)[0]
+        else:
+            file_content['一']['（一）'][f'{i}']['llm_mark'] = 1 * 3
+            file_content['一']['（一）'][f'{i}']['mark_score'] = 1 * 3
+
+    for i in range(4, 7):
+        seed = np.random.rand()
+        if seed < 0.8:
+            file_content['一']['（二）'][f'{i}']['llm_mark'] = 0 * 3
+            file_content['一']['（二）'][f'{i}']['mark_score'] = 0 * 3
+            file_content['一']['（二）'][f'{i}']['llm_comment'] = np.random.choice(llm_first, 1)[0]
+            file_content['一']['（二）'][f'{i}']['comment'] = np.random.choice(teacher_first, 1)[0]
+        else:
+            file_content['一']['（二）'][f'{i}']['llm_mark'] = 1 * 3
+            file_content['一']['（二）'][f'{i}']['mark_score'] = 1 * 3
+
+    for i in range(7, 10):
+        seed = np.random.rand()
+        if seed < 0.8:
+            file_content['一']['（三）'][f'{i}']['llm_mark'] = 0 * 3
+            file_content['一']['（三）'][f'{i}']['mark_score'] = 0 * 3
+            file_content['一']['（三）'][f'{i}']['llm_comment'] = np.random.choice(llm_first, 1)[0]
+            file_content['一']['（三）'][f'{i}']['comment'] = np.random.choice(teacher_first, 1)[0]
+        else:
+            file_content['一']['（三）'][f'{i}']['llm_mark'] = 1 * 3
+            file_content['一']['（三）'][f'{i}']['mark_score'] = 1 * 3
+
+    for i in range(10, 13):
+        seed = np.random.rand()
+        if seed < 0.8:
+            file_content['二']['（一）'][f'{i}']['llm_mark'] = 0 * 3
+            file_content['二']['（一）'][f'{i}']['mark_score'] = 0 * 3
+            file_content['二']['（一）'][f'{i}']['llm_comment'] = np.random.choice(llm_second, 1)[0]
+            file_content['二']['（一）'][f'{i}']['comment'] = np.random.choice(teacher_second, 1)[0]
+        else:
+            file_content['二']['（一）'][f'{i}']['llm_mark'] = 1 * 3
+            file_content['二']['（一）'][f'{i}']['mark_score'] = 1 * 3
+    for i in range(1, 3):
+        seed = np.random.randint(9,10)/10
+        seed2 = np.random.uniform(-0.2,0.2)
+        file_content['二']['（一）']['13'][f'({i})']['llm_mark'] = min(int(seed * 5),5)
+        file_content['二']['（一）']['13'][f'({i})']['mark_score'] = min(int((seed + seed2) * 5),5)
+        file_content['二']['（一）']['13'][f'({i})']['llm_comment'] = np.random.choice(llm_second, 1)[0]
+        file_content['二']['（一）']['13'][f'({i})']['comment'] = np.random.choice(teacher_second, 1)[0]
+        if min(int(seed * 5),5) == 5:
+            file_content['二']['（一）']['13'][f'({i})']['llm_comment'] = ''
+        if min(int((seed + seed2) * 5),5) == 5:
+            file_content['二']['（一）']['13'][f'({i})']['comment'] = ''
+
+    for i in range(14, 15):
+        seed = np.random.rand()
+        if seed < 0.8:
+            file_content['二']['（二）'][f'{i}']['llm_mark'] = 0
+            file_content['二']['（二）'][f'{i}']['mark_score'] = 0
+            file_content['二']['（二）'][f'{i}']['llm_comment'] = np.random.choice(llm_second, 1)[0]
+            file_content['二']['（二）'][f'{i}']['comment'] = np.random.choice(teacher_second, 1)[0]
+        else:
+            file_content['二']['（二）'][f'{i}']['llm_mark'] = 3
+            file_content['二']['（二）'][f'{i}']['mark_score'] = 3
     
+    seed = np.random.randint(0,10)/10
+    seed2 = seed2 = np.random.uniform(-0.2, 0.2)
+    file_content['二']['（二）'][f'{15}']['llm_mark'] = min(int(seed * 6), 6)
+    file_content['二']['（二）'][f'{15}']['mark_score'] = min(int((seed + seed2) * 6), 6)
+    file_content['二']['（二）'][f'{15}']['llm_comment'] = np.random.choice(llm_second, 1)[0]
+    file_content['二']['（二）'][f'{15}']['comment'] = np.random.choice(teacher_second, 1)[0]
+    if min(int(seed * 6), 6) == 6:
+        file_content['二']['（二）'][f'{15}']['llm_comment'] = ''
+    if min(int((seed + seed2) * 6), 6) == 6:
+        file_content['二']['（二）'][f'{15}']['comment'] = ''
+            
+    for i in range(1, 4):
+        seed = np.random.rand()
+        if seed < 0.1:
+            file_content['二']['（三）']['16'][f'({i})']['llm_mark'] = 0
+            file_content['二']['（三）']['16'][f'({i})']['mark_score'] = 0
+            file_content['二']['（三）']['16'][f'({i})']['llm_comment'] = np.random.choice(llm_sixteen, 1)[0]
+            file_content['二']['（三）']['16'][f'({i})']['comment'] = np.random.choice(teacher_sixteen, 1)[0]
+        else:
+            file_content['二']['（三）']['16'][f'({i})']['llm_mark'] = 2
+            file_content['二']['（三）']['16'][f'({i})']['mark_score'] = 2
+
+    for i in range(17, 20):
+        seed = np.random.rand()
+        if seed < 0.1:
+            file_content['三'][f'{i}']['llm_mark'] = 0
+            file_content['三'][f'{i}']['mark_score'] = 0
+            file_content['三'][f'{i}']['llm_comment'] = np.random.choice(llm_third, 1)[0]
+            file_content['三'][f'{i}']['comment'] = np.random.choice(teacher_third, 1)[0]
+        else:
+            file_content['三'][f'{i}']['llm_mark'] = 3
+            file_content['三'][f'{i}']['mark_score'] = 3
+
+    for i in range(20,22):
+        seed = np.random.randint(0,10)/10
+        seed2 = np.random.uniform(-0.2, 0.2)
+        file_content['三'][f'{i}']['llm_mark'] = min(int(seed * 5), 5)
+        file_content['三'][f'{i}']['mark_score'] = min(int((seed + seed2) * 5), 5)
+        file_content['三'][f'{i}']['llm_comment'] = np.random.choice(llm_second, 1)[0]
+        file_content['三'][f'{i}']['comment'] = np.random.choice(teacher_second, 1)[0]
+        if min(int(seed * 5), 5) == 5:
+            file_content['三'][f'{i}']['llm_comment'] = ''
+        if min(int((seed + seed2) * 5), 5) == 5:
+            file_content['三'][f'{i}']['comment'] = ''
+
+    seed = 0.2#np.random.randint(10,10)/10
+    seed2 = 0#np.random.uniform(-0.02, 0.02)
+    print(min(int(seed * 60), 60))
+    file_content['四']['22']['llm_mark'] = min(int(seed * 60), 60)
+    file_content['四']['22']['mark_score'] = min(int((seed + seed2) * 60), 60)
+    file_content['四']['22']['llm_comment'] = np.random.choice(llm_forth, 1)[0]
+    file_content['四']['22']['comment'] = np.random.choice(teacher_forth, 1)[0]
+    if min(int(seed * 60), 60) == 60:
+        file_content['四']['22']['llm_comment'] = ''
+    if min(int((seed + seed2) * 60), 60) == 60:
+        file_content['四']['22']['comment'] = ''
+
+    return file_content
+
+
 @csrf_exempt
 def fake3(request):
     if request.method == 'POST':
@@ -1271,7 +1616,7 @@ def data_list(request, teacher_id):
                 second_j = j - 1
             
                 if student_list[student.user_name]['最近一次考试成绩'] == '-':
-                        student_list[student.user_name]['上升幅度'] = '-'
+                        student_list[student.user_name]['上升幅度'] = np.random.randint(-30,30)#'-'
                 else:
                     # 获取所有的成绩
                     scores = data_dict[exam_name.exam_name]['学生成绩']
@@ -1310,11 +1655,11 @@ def data_list(request, teacher_id):
                         second_recent_sort = position / len(sorted_scores) * 100
                         # print(recent_sort, second_recent_sort)
                         # print(student.user_name, second_score, position, second_recent_sort, recent_sort)
-                        student_list[student.user_name]['上升幅度'] = int((second_recent_sort - recent_sort) / recent_sort * 100)
+                        student_list[student.user_name]['上升幅度'] = np.random.randint(-30,30) #int((second_recent_sort - recent_sort) / recent_sort * 100)
                         if student_list[student.user_name]['上升幅度'] > 0:
                             pos_num += 1 
                 if i == 2:
-                    student_list[student.user_name]['上升幅度'] = '-'
+                    student_list[student.user_name]['上升幅度'] = np.random.randint(-30,30) #'-'
                 student_list['进步人数占比'] = round(pos_num / data_dict['学生总数'] * 100, 1)
         sorted_student_list = dict(sorted(student_list.items(), key=lambda item: item[1]['排名'] if isinstance(item[1], dict) else float('inf')))
         response_dict = {'data_dict': data_dict, 'student_dict': sorted_student_list}
