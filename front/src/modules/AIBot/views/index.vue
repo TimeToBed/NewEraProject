@@ -260,7 +260,7 @@ export default {
                 });
                 
               this.tourl=0
-              }, 2000);
+              }, 8000);
           }else{
             this.messages.push({
               text: answerlist[this.idx],
@@ -290,7 +290,7 @@ export default {
 
 
           this.idx+=1
-        }, 2000); // 2000毫秒后执行，即2秒后
+        }, 8000); // 2000毫秒后执行，即2秒后
         
       }
     },
@@ -333,7 +333,7 @@ export default {
             this.$refs.chatMessages.scrollTop = this.$refs.chatMessages.scrollHeight;
           });
           this.idx+=1
-          }, 2000);
+          }, 8000);
         }
       };
       // 触发文件选择器
